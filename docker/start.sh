@@ -126,7 +126,7 @@ echo "Testing file access as www-data user:"
 su -s /bin/sh -c "test -r /var/www/html/public/dist/index.html && echo 'File is readable' || echo 'File is NOT readable'" www-data || echo "Could not test as www-data"
 
 # Запуск Nginx (daemon off - запускает в foreground, exec заменяет shell процесс)
-# Перенаправляем логи Nginx в stdout/stderr чтобы они были видны в Railway
+# Логи Nginx будут видны в Railway через stderr/stdout
 echo "Starting Nginx - logs will appear below:"
-exec nginx -g 'daemon off;' 2>&1 | tee -a /proc/1/fd/1 /proc/1/fd/2
+exec nginx -g 'daemon off;'
 
