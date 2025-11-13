@@ -41,18 +41,32 @@ chmod -R 775 /var/www/html/storage/framework
 chown -R www-data:www-data /var/www/html/storage/framework
 echo "Session and cache directories ready"
 
-# Проверка подключения к Redis (если SESSION_DRIVER=redis)
-if [ "$SESSION_DRIVER" = "redis" ] && [ -n "$REDIS_HOST" ]; then
-  echo "Checking Redis connection at ${REDIS_HOST}:${REDIS_PORT:-6379}..."
-  if nc -z ${REDIS_HOST} ${REDIS_PORT:-6379} 2>/dev/null; then
-    echo "Redis is available!"
+# Проверка PHP расширения Redis
+echo "Checking PHP Redis extension..."
+if php -m | grep -i redis > /dev/null 2>&1; then
+  echo "✓ PHP Redis extension is loaded"
+else
+  echo "✗ WARNING: PHP Redis extension is NOT loaded"
+  echo "Redis functionality will not work until extension is installed"
+fi
+
+# Проверка подключения к Redis (если SESSION_DRIVER=redis или CACHE_DRIVER=redis)
+if [ "$SESSION_DRIVER" = "redis" ] || [ "$CACHE_DRIVER" = "redis" ]; then
+  REDIS_HOST_VAR="${REDIS_HOST:-$REDISHOST}"
+  REDIS_PORT_VAR="${REDIS_PORT:-$REDISPORT:-6379}"
+  
+  if [ -n "$REDIS_HOST_VAR" ]; then
+    echo "Checking Redis connection at ${REDIS_HOST_VAR}:${REDIS_PORT_VAR}..."
+    if nc -z ${REDIS_HOST_VAR} ${REDIS_PORT_VAR} 2>/dev/null; then
+      echo "✓ Redis server is available at ${REDIS_HOST_VAR}:${REDIS_PORT_VAR}"
+    else
+      echo "✗ WARNING: Cannot connect to Redis at ${REDIS_HOST_VAR}:${REDIS_PORT_VAR}"
+      echo "Redis may not be accessible or variables are incorrect"
+    fi
   else
-    echo "WARNING: Redis is not available, but SESSION_DRIVER=redis"
-    echo "Consider setting SESSION_DRIVER=file if Redis is not needed"
+    echo "WARNING: SESSION_DRIVER or CACHE_DRIVER is redis but REDIS_HOST is not set"
+    echo "Consider setting SESSION_DRIVER=file or CACHE_DRIVER=file if Redis is not needed"
   fi
-elif [ "$SESSION_DRIVER" = "redis" ]; then
-  echo "WARNING: SESSION_DRIVER=redis but REDIS_HOST is not set"
-  echo "Consider setting SESSION_DRIVER=file or configure Redis"
 fi
 
 # Оптимизация Laravel (только если APP_KEY установлен)
