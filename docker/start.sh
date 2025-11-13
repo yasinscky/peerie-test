@@ -38,17 +38,24 @@ fi
 php-fpm -D
 
 # Обновление Nginx конфига для использования правильного порта
+echo "Updating Nginx config to use port $PORT..."
 sed -i "s/listen 80;/listen $PORT;/g" /etc/nginx/http.d/default.conf
+echo "Nginx config updated. Current config:"
+grep "listen" /etc/nginx/http.d/default.conf
 
 # Проверка конфигурации Nginx
 echo "Checking Nginx configuration..."
 nginx -t || {
   echo "ERROR: Nginx configuration test failed!"
+  echo "Full Nginx config:"
   cat /etc/nginx/http.d/default.conf
   exit 1
 }
 
+echo "Nginx configuration OK"
 echo "Starting Nginx on port $PORT..."
-# Запуск Nginx (daemon off - запускает в foreground)
+echo "Nginx will run in foreground mode"
+
+# Запуск Nginx (daemon off - запускает в foreground, exec заменяет shell процесс)
 exec nginx -g 'daemon off;'
 
