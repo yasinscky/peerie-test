@@ -54,8 +54,24 @@ nginx -t || {
 
 echo "Nginx configuration OK"
 echo "Starting Nginx on port $PORT..."
-echo "Nginx will run in foreground mode"
+
+# Проверяем что PHP-FPM работает
+if ! pgrep -x php-fpm > /dev/null; then
+  echo "ERROR: PHP-FPM is not running!"
+  exit 1
+fi
+echo "PHP-FPM is running (PID: $(pgrep -x php-fpm))"
+
+# Проверяем что порт свободен
+if netstat -tuln | grep -q ":$PORT "; then
+  echo "WARNING: Port $PORT is already in use!"
+  netstat -tuln | grep ":$PORT "
+fi
+
+# Запуск Nginx с логированием
+echo "Starting Nginx in foreground mode..."
+echo "Nginx will listen on 0.0.0.0:$PORT"
 
 # Запуск Nginx (daemon off - запускает в foreground, exec заменяет shell процесс)
-exec nginx -g 'daemon off;'
+exec nginx -g 'daemon off;' 2>&1
 
