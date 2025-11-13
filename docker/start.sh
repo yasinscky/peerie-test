@@ -32,6 +32,15 @@ chmod 666 /var/www/html/storage/logs/laravel.log
 chown www-data:www-data /var/www/html/storage/logs/laravel.log
 echo "Laravel log file ready"
 
+# Создание директорий для сессий и кеша (для SESSION_DRIVER=file)
+echo "Ensuring session and cache directories exist and are writable..."
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/framework/cache/data
+mkdir -p /var/www/html/storage/framework/views
+chmod -R 775 /var/www/html/storage/framework
+chown -R www-data:www-data /var/www/html/storage/framework
+echo "Session and cache directories ready"
+
 # Проверка подключения к Redis (если SESSION_DRIVER=redis)
 if [ "$SESSION_DRIVER" = "redis" ] && [ -n "$REDIS_HOST" ]; then
   echo "Checking Redis connection at ${REDIS_HOST}:${REDIS_PORT:-6379}..."
@@ -141,13 +150,21 @@ echo "Nginx will listen on 0.0.0.0:$PORT"
 
        # Показываем последние строки логов Laravel перед запуском (если есть)
        if [ -f "/var/www/html/storage/logs/laravel.log" ]; then
-         echo "Last 50 lines of Laravel log:"
-         tail -50 /var/www/html/storage/logs/laravel.log
+         LOG_SIZE=$(stat -c%s /var/www/html/storage/logs/laravel.log 2>/dev/null || echo "0")
+         if [ "$LOG_SIZE" -gt 0 ]; then
+           echo "Last 50 lines of Laravel log:"
+           tail -50 /var/www/html/storage/logs/laravel.log
+         else
+           echo "Laravel log file exists but is empty (no errors logged yet)"
+         fi
        else
          echo "WARNING: Laravel log file not found at /var/www/html/storage/logs/laravel.log"
          echo "Checking if directory exists:"
          ls -la /var/www/html/storage/logs/ 2>/dev/null || echo "logs directory not found"
        fi
+       
+       # Функция для периодической проверки логов (будет вызвана через некоторое время после запуска)
+       echo "Note: If errors occur, check Laravel logs with: tail -f /var/www/html/storage/logs/laravel.log"
        
        # Показываем логи PHP если есть
        if [ -f "/var/www/html/storage/logs/php-errors.log" ]; then
