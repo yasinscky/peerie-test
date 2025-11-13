@@ -125,8 +125,13 @@ fi
 echo "Testing file access as www-data user:"
 su -s /bin/sh -c "test -r /var/www/html/public/dist/index.html && echo 'File is readable' || echo 'File is NOT readable'" www-data || echo "Could not test as www-data"
 
+# Показываем текущую конфигурацию Nginx для отладки
+echo "Current Nginx config for location /:"
+grep -A 10 "location /" /etc/nginx/http.d/default.conf | head -15
+
 # Запуск Nginx (daemon off - запускает в foreground, exec заменяет shell процесс)
 # Логи Nginx будут видны в Railway через stderr/stdout
 echo "Starting Nginx - logs will appear below:"
-exec nginx -g 'daemon off;'
+# Запускаем Nginx с выводом ошибок
+exec nginx -g 'daemon off;' 2>&1
 
