@@ -34,6 +34,20 @@ else
   echo "WARNING: APP_KEY not set, skipping cache operations"
 fi
 
+# Проверка существования файлов фронтенда
+echo "Checking frontend files..."
+if [ -f "/var/www/html/public/dist/index.html" ]; then
+  echo "Frontend index.html found"
+else
+  echo "ERROR: Frontend index.html NOT found at /var/www/html/public/dist/index.html"
+  echo "Checking public directory:"
+  ls -la /var/www/html/public/ || echo "public directory not found"
+fi
+
+# Проверка прав доступа
+echo "Checking permissions..."
+ls -la /var/www/html/public/dist/ 2>/dev/null || echo "dist directory not found"
+
 # Запуск PHP-FPM в фоне
 php-fpm -D
 
