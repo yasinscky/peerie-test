@@ -38,6 +38,8 @@ fi
 echo "Checking frontend files..."
 if [ -f "/var/www/html/public/dist/index.html" ]; then
   echo "Frontend index.html found"
+  echo "Checking assets directory:"
+  ls -la /var/www/html/public/dist/assets/ 2>/dev/null | head -10 || echo "assets directory not found"
 else
   echo "ERROR: Frontend index.html NOT found at /var/www/html/public/dist/index.html"
   echo "Checking public directory:"
