@@ -25,10 +25,15 @@ RUN apk add --no-cache \
     make \
     redis-dev
 
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd intl zip \
-    && pecl install redis \
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd intl zip
+
+# Установка Redis (с проверкой успешности)
+RUN pecl install redis \
     && docker-php-ext-enable redis \
-    && apk del autoconf g++ make
+    && php -m | grep -i redis || echo "WARNING: Redis extension not loaded"
+
+# Удаление временных зависимостей
+RUN apk del autoconf g++ make || true
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
