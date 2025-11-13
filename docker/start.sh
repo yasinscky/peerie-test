@@ -48,6 +48,14 @@ fi
 echo "Checking permissions..."
 ls -la /var/www/html/public/dist/ 2>/dev/null || echo "dist directory not found"
 
+# Настройка Laravel для показа ошибок в production (для отладки)
+if [ "$APP_DEBUG" = "true" ]; then
+  echo "APP_DEBUG is true - errors will be shown"
+else
+  echo "APP_DEBUG is false - checking log file location"
+  echo "Laravel log file: /var/www/html/storage/logs/laravel.log"
+fi
+
 # Запуск PHP-FPM в фоне
 php-fpm -D
 
