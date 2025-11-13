@@ -19,23 +19,18 @@ RUN apk add --no-cache \
     icu-dev \
     libzip-dev \
     nginx \
-    netcat-openbsd
+    netcat-openbsd \
+    redis
 
-RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd intl zip
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd intl zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
 # Копирование backend
 COPY backend/ ./
-
-# Создание необходимых директорий для Laravel ПЕРЕД composer install
-# (package:discover требует bootstrap/cache)
-RUN mkdir -p bootstrap/cache storage/framework/cache/data \
-    storage/framework/sessions storage/framework/views storage/logs \
-    && chmod -R 775 bootstrap/cache storage
-
-# Установка зависимостей
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Копирование собранного фронтенда
