@@ -48,6 +48,14 @@ fi
 echo "Checking permissions..."
 ls -la /var/www/html/public/dist/ 2>/dev/null || echo "dist directory not found"
 
+# Исправление прав доступа для фронтенда
+if [ -d "/var/www/html/public/dist" ]; then
+  echo "Fixing permissions for frontend files..."
+  chmod -R 755 /var/www/html/public/dist
+  chown -R www-data:www-data /var/www/html/public/dist
+  echo "Permissions fixed"
+fi
+
 # Настройка Laravel для показа ошибок в production (для отладки)
 if [ "$APP_DEBUG" = "true" ]; then
   echo "APP_DEBUG is true - errors will be shown"
