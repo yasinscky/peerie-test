@@ -43,14 +43,28 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             // Логируем все исключения для отладки
+            $errorDetails = [
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ];
+            
+            // Логируем в Laravel log
             if (app()->bound('log')) {
-                \Log::error('Exception: ' . $e->getMessage(), [
-                    'exception' => get_class($e),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString()
-                ]);
+                try {
+                    \Log::error('Exception: ' . $e->getMessage(), $errorDetails);
+                } catch (\Exception $logException) {
+                    // Если логирование не работает, выводим в stderr
+                    error_log('Laravel Exception (log failed): ' . json_encode($errorDetails));
+                }
             }
+            
+            // Также выводим в stderr для Railway logs
+            error_log('Laravel Exception: ' . $e->getMessage());
+            error_log('File: ' . $e->getFile() . ':' . $e->getLine());
+            error_log('Trace: ' . $e->getTraceAsString());
         });
     }
 }

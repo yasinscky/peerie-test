@@ -106,6 +106,14 @@ else
   echo "Laravel log file: /var/www/html/storage/logs/laravel.log"
 fi
 
+# Настройка PHP-FPM для логирования ошибок в stderr
+echo "Configuring PHP-FPM error logging..."
+mkdir -p /var/www/html/storage/logs
+# Создаем php.ini для PHP-FPM с выводом ошибок в stderr
+echo "error_log = /dev/stderr" > /usr/local/etc/php/conf.d/error-log.ini
+echo "log_errors = On" >> /usr/local/etc/php/conf.d/error-log.ini
+echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/error-log.ini
+
 # Запуск PHP-FPM в фоне
 php-fpm -D
 
