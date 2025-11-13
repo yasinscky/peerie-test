@@ -20,11 +20,15 @@ RUN apk add --no-cache \
     libzip-dev \
     nginx \
     netcat-openbsd \
-    redis
+    autoconf \
+    g++ \
+    make \
+    redis-dev
 
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd intl zip \
     && pecl install redis \
-    && docker-php-ext-enable redis
+    && docker-php-ext-enable redis \
+    && apk del autoconf g++ make
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
