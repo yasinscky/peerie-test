@@ -23,12 +23,12 @@ RUN apk add --no-cache \
     autoconf \
     g++ \
     make \
-    redis-dev
+    hiredis-dev
 
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd intl zip
 
 # Установка Redis расширения для PHP
-# Используем --no-cache для apk и разделяем установку на этапы
+# Используем hiredis-dev для компиляции Redis расширения
 RUN set -eux; \
     pecl install redis; \
     docker-php-ext-enable redis; \
@@ -36,7 +36,7 @@ RUN set -eux; \
     php -m | grep -i redis
 
 # Удаление временных зависимостей для уменьшения размера образа
-RUN apk del autoconf g++ make || true
+RUN apk del autoconf g++ make hiredis-dev || true
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
