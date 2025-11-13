@@ -119,15 +119,31 @@ echo "Nginx will listen on 0.0.0.0:$PORT"
 
        # Показываем последние строки логов Laravel перед запуском (если есть)
        if [ -f "/var/www/html/storage/logs/laravel.log" ]; then
-         echo "Last 20 lines of Laravel log:"
-         tail -20 /var/www/html/storage/logs/laravel.log
+         echo "Last 50 lines of Laravel log:"
+         tail -50 /var/www/html/storage/logs/laravel.log
+       else
+         echo "WARNING: Laravel log file not found at /var/www/html/storage/logs/laravel.log"
+         echo "Checking if directory exists:"
+         ls -la /var/www/html/storage/logs/ 2>/dev/null || echo "logs directory not found"
        fi
        
        # Показываем логи PHP если есть
        if [ -f "/var/www/html/storage/logs/php-errors.log" ]; then
-         echo "Last 10 lines of PHP errors:"
-         tail -10 /var/www/html/storage/logs/php-errors.log
+         echo "Last 20 lines of PHP errors:"
+         tail -20 /var/www/html/storage/logs/php-errors.log
+       else
+         echo "No PHP errors log found yet"
        fi
+       
+       # Проверяем права на storage/logs
+       echo "Checking storage/logs permissions:"
+       ls -la /var/www/html/storage/logs/ 2>/dev/null || echo "logs directory not found"
+       
+       # Проверяем важные переменные окружения
+       echo "Checking environment variables:"
+       echo "APP_KEY is set: $([ -n "$APP_KEY" ] && echo 'YES' || echo 'NO')"
+       echo "DB_HOST is set: $([ -n "$DB_HOST" ] && echo 'YES' || echo 'NO')"
+       echo "SESSION_DRIVER: ${SESSION_DRIVER:-not set}"
 
 # Проверка что файл index.html действительно доступен для чтения
 echo "Testing file access as www-data user:"
