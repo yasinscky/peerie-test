@@ -48,12 +48,21 @@ fi
 echo "Checking permissions..."
 ls -la /var/www/html/public/dist/ 2>/dev/null || echo "dist directory not found"
 
-# Исправление прав доступа для фронтенда
+# Исправление прав доступа для фронтенда и родительских директорий
 if [ -d "/var/www/html/public/dist" ]; then
   echo "Fixing permissions for frontend files..."
-  chmod -R 755 /var/www/html/public/dist
+  # Убеждаемся что все родительские директории доступны
+  chmod 755 /var/www/html
+  chmod 755 /var/www/html/public
+  chmod 755 /var/www/html/public/dist
+  # Права на файлы и директории
+  find /var/www/html/public/dist -type d -exec chmod 755 {} \;
+  find /var/www/html/public/dist -type f -exec chmod 644 {} \;
+  # Владелец
   chown -R www-data:www-data /var/www/html/public/dist
   echo "Permissions fixed"
+  echo "Verifying access to index.html:"
+  ls -la /var/www/html/public/dist/index.html
 fi
 
 # Настройка Laravel для показа ошибок в production (для отладки)
