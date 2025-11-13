@@ -1,0 +1,31 @@
+{
+  "name": "Peerie - Marketing Planner",
+  "short_name": "Peerie",
+  "description": "Professional tool for marketing campaign planning and management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#F34767",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-150x150.png",
+      "sizes": "150x150",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-300x300.png",
+      "sizes": "300x300",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Hash;
+
+class UserResource extends Resource
+{
+    protected static ?string $model = User::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationLabel = 'Пользователи';
+    protected static ?string $modelLabel = 'Пользователь';
+    protected static ?string $pluralModelLabel = 'Пользователи';
+    protected static ?int $navigationSort = 1;
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\Section::make('Основная информация')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Имя')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->label('Email')
+                            ->email()
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('password')
+                            ->label('Пароль')
+                            ->password()
+                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn ($state) => filled($state))
+                            ->required(fn (string $context): bool => $context === 'create')
+                            ->minLength(8)
+                            ->helperText('Оставьте пустым, чтобы не менять пароль при редактировании'),
+                        Forms\Components\Toggle::make('is_admin')
+                            ->label('Администратор')
+                            ->helperText('Администраторы имеют доступ к админ-панели')
+                            ->default(false),
+                    ]),
+                
+                Forms\Components\Section::make('Дополнительная информация')
+                    ->schema([
+                        Forms\Components\DateTimePicker::make('email_verified_at')
+                            ->label('Email подтвержден')
+                            ->displayFormat('d.m.Y H:i')
+                            ->helperText('Укажите дату, если email подтвержден'),
+                        Forms\Components\Placeholder::make('created_at')
+                            ->label('Дата регистрации')
+                            ->content(fn (User $record): ?string => $record->created_at?->format('d.m.Y H:i'))
+                            ->hidden(fn (string $context): bool => $context === 'create'),
+                        Forms\Components\Placeholder::make('plans_count')
+                            ->label('Количество планов')
+                            ->content(fn (User $record): string => $record->plans()->count())
+                            ->hidden(fn (string $context): bool => $context === 'create'),
+                    ])
+                    ->columns(1),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Имя')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Email скопирован'),
+                Tables\Columns\IconColumn::make('email_verified_at')
+                    ->label('Email подтвержден')
+                    ->boolean()
+                    ->sortable()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->trueColor('success')
+                    ->falseColor('gray'),
+                Tables\Columns\IconColumn::make('is_admin')
+                    ->label('Админ')
+                    ->boolean()
+                    ->sortable()
+                    ->trueIcon('heroicon-o-shield-check')
+                    ->falseIcon('heroicon-o-shield-exclamation')
+                    ->trueColor('warning')
+                    ->falseColor('gray'),
+                Tables\Columns\TextColumn::make('plans_count')
+                    ->label('Планов')
+                    ->counts('plans')
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Зарегистрирован')
+                    ->dateTime('d.m.Y H:i')
+                    ->sortable(),
+            ])
+            ->filters([
+                Tables\Filters\Filter::make('email_verified')
+                    ->label('Email подтвержден')
+                    ->query(fn (Builder $query): Builder => $query->whereNotNull('email_verified_at')),
+                Tables\Filters\Filter::make('has_plans')
+                    ->label('Есть планы')
+                    ->query(fn (Builder $query): Builder => $query->has('plans')),
+                Tables\Filters\Filter::make('created_at')
+                    ->label('Период регистрации')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_from')
+                            ->label('С'),
+                        Forms\Components\DatePicker::make('created_until')
+                            ->label('По'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->before(function (Tables\Actions\DeleteAction $action, User $record) {
+                        if (auth()->id() === $record->id) {
+                            \Filament\Notifications\Notification::make()
+                                ->danger()
+                                ->title('Нельзя удалить свою учетную запись')
+                                ->send();
+                            $action->cancel();
+                        }
+                    }),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->requiresConfirmation()
+                        ->before(function (Tables\Actions\DeleteBulkAction $action, $records) {
+                            if ($records->contains('id', auth()->id())) {
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Нельзя удалить свою учетную запись')
+                                    ->send();
+                                $action->cancel();
+                            }
+                        }),
+                ]),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\PlansRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'view' => Pages\ViewUser::route('/{record}'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
+        ];
+    }
+}
+
