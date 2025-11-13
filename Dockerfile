@@ -27,12 +27,15 @@ RUN apk add --no-cache \
 
 RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd intl zip
 
-# Установка Redis (с проверкой успешности)
-RUN pecl install redis \
-    && docker-php-ext-enable redis \
-    && php -m | grep -i redis || echo "WARNING: Redis extension not loaded"
+# Установка Redis расширения для PHP
+# Используем --no-cache для apk и разделяем установку на этапы
+RUN set -eux; \
+    pecl install redis; \
+    docker-php-ext-enable redis; \
+    php -r "if (!extension_loaded('redis')) { exit(1); }"; \
+    php -m | grep -i redis
 
-# Удаление временных зависимостей
+# Удаление временных зависимостей для уменьшения размера образа
 RUN apk del autoconf g++ make || true
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
