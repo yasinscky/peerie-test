@@ -24,6 +24,28 @@ else
   echo "Skipping migrations - no DB_HOST"
 fi
 
+# Создание файла логов Laravel, если его нет, и установка прав
+echo "Ensuring Laravel log file exists and is writable..."
+mkdir -p /var/www/html/storage/logs
+touch /var/www/html/storage/logs/laravel.log
+chmod 666 /var/www/html/storage/logs/laravel.log
+chown www-data:www-data /var/www/html/storage/logs/laravel.log
+echo "Laravel log file ready"
+
+# Проверка подключения к Redis (если SESSION_DRIVER=redis)
+if [ "$SESSION_DRIVER" = "redis" ] && [ -n "$REDIS_HOST" ]; then
+  echo "Checking Redis connection at ${REDIS_HOST}:${REDIS_PORT:-6379}..."
+  if nc -z ${REDIS_HOST} ${REDIS_PORT:-6379} 2>/dev/null; then
+    echo "Redis is available!"
+  else
+    echo "WARNING: Redis is not available, but SESSION_DRIVER=redis"
+    echo "Consider setting SESSION_DRIVER=file if Redis is not needed"
+  fi
+elif [ "$SESSION_DRIVER" = "redis" ]; then
+  echo "WARNING: SESSION_DRIVER=redis but REDIS_HOST is not set"
+  echo "Consider setting SESSION_DRIVER=file or configure Redis"
+fi
+
 # Оптимизация Laravel (только если APP_KEY установлен)
 if [ -n "$APP_KEY" ]; then
   echo "Caching configuration..."
