@@ -69,14 +69,18 @@ if [ "$SESSION_DRIVER" = "redis" ] || [ "$CACHE_DRIVER" = "redis" ]; then
   fi
 fi
 
-# Оптимизация Laravel (только если APP_KEY установлен)
+# Выполнение composer scripts после настройки окружения (только если APP_KEY установлен)
 if [ -n "$APP_KEY" ]; then
+  echo "Running composer scripts (package:discover)..."
+  composer dump-autoload --optimize --no-interaction 2>&1 || echo "Autoload dump failed, continuing..."
+  php artisan package:discover --ansi 2>&1 || echo "Package discover failed, continuing..."
+  
   echo "Caching configuration..."
   php artisan config:cache || echo "Config cache failed, continuing..."
   php artisan route:cache || echo "Route cache failed, continuing..."
   php artisan view:cache || echo "View cache failed, continuing..."
 else
-  echo "WARNING: APP_KEY not set, skipping cache operations"
+  echo "WARNING: APP_KEY not set, skipping composer scripts and cache operations"
 fi
 
 # Проверка существования файлов фронтенда

@@ -43,7 +43,16 @@ WORKDIR /var/www/html
 
 # Копирование backend
 COPY backend/ ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Создание необходимых директорий для Laravel ПЕРЕД composer install
+# (package:discover требует bootstrap/cache)
+RUN mkdir -p bootstrap/cache storage/framework/cache/data \
+    storage/framework/sessions storage/framework/views storage/logs \
+    && chmod -R 775 bootstrap/cache storage
+
+# Установка зависимостей (пропускаем скрипты - они требуют настроенного .env)
+# Скрипты выполним в start.sh после настройки окружения
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Копирование собранного фронтенда
 COPY --from=frontend-builder /app/frontend/dist /var/www/html/public/dist
