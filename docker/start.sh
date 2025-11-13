@@ -40,6 +40,7 @@ php-fpm -D
 # Обновление Nginx конфига для использования правильного порта
 echo "Updating Nginx config to use port $PORT..."
 sed -i "s/listen 80;/listen $PORT;/g" /etc/nginx/http.d/default.conf
+sed -i "s/listen \[::\]:80;/listen [::]:$PORT;/g" /etc/nginx/http.d/default.conf 2>/dev/null || true
 echo "Nginx config updated. Current config:"
 grep "listen" /etc/nginx/http.d/default.conf
 
@@ -55,12 +56,15 @@ nginx -t || {
 echo "Nginx configuration OK"
 echo "Starting Nginx on port $PORT..."
 
-# Проверяем что PHP-FPM работает
-if ! pgrep -x php-fpm > /dev/null; then
+# Проверяем что PHP-FPM работает (проверяем несколькими способами)
+PHP_FPM_PID=$(pgrep -f php-fpm || ps aux | grep '[p]hp-fpm: master' | awk '{print $2}' || echo "")
+if [ -z "$PHP_FPM_PID" ]; then
   echo "ERROR: PHP-FPM is not running!"
+  echo "Checking processes:"
+  ps aux | grep php-fpm || echo "No php-fpm processes found"
   exit 1
 fi
-echo "PHP-FPM is running (PID: $(pgrep -x php-fpm))"
+echo "PHP-FPM is running (PID: $PHP_FPM_PID)"
 
 # Проверяем что порт свободен
 if netstat -tuln | grep -q ":$PORT "; then
