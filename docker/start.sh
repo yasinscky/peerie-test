@@ -98,6 +98,12 @@ fi
 echo "Starting Nginx in foreground mode..."
 echo "Nginx will listen on 0.0.0.0:$PORT"
 
+# Показываем последние строки логов Laravel перед запуском (если есть)
+if [ -f "/var/www/html/storage/logs/laravel.log" ]; then
+  echo "Last 20 lines of Laravel log:"
+  tail -20 /var/www/html/storage/logs/laravel.log
+fi
+
 # Запуск Nginx (daemon off - запускает в foreground, exec заменяет shell процесс)
 exec nginx -g 'daemon off;' 2>&1
 
