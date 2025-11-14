@@ -104,18 +104,18 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Маршруты для изображений
     Route::prefix('images')->group(function () {
-        Route::post('/search', [App\Http\Controllers\Api\ImageController::class, 'search']);
-        Route::post('/search/category', [App\Http\Controllers\Api\ImageController::class, 'searchByCategory']);
-        Route::get('/popular', [App\Http\Controllers\Api\ImageController::class, 'popular']);
-        Route::get('/{id}', [App\Http\Controllers\Api\ImageController::class, 'getImage']);
-        Route::get('/{id}/download', [App\Http\Controllers\Api\ImageController::class, 'download']);
-        Route::post('/download-proxy', [App\Http\Controllers\Api\ImageController::class, 'downloadProxy']);
+        Route::post('/search', [App\Http\Controllers\API\ImageController::class, 'search']);
+        Route::post('/search/category', [App\Http\Controllers\API\ImageController::class, 'searchByCategory']);
+        Route::get('/popular', [App\Http\Controllers\API\ImageController::class, 'popular']);
+        Route::get('/{id}', [App\Http\Controllers\API\ImageController::class, 'getImage']);
+        Route::get('/{id}/download', [App\Http\Controllers\API\ImageController::class, 'download']);
+        Route::post('/download-proxy', [App\Http\Controllers\API\ImageController::class, 'downloadProxy']);
     });
 
     // Маршруты для профиля
     Route::prefix('profile')->group(function () {
-        Route::put('/', [App\Http\Controllers\Api\ProfileController::class, 'update']);
-        Route::put('/password', [App\Http\Controllers\Api\ProfileController::class, 'updatePassword']);
+        Route::put('/', [App\Http\Controllers\API\ProfileController::class, 'update']);
+        Route::put('/password', [App\Http\Controllers\API\ProfileController::class, 'updatePassword']);
     });
 
     // Hashtags by latest plan (country + industry)
