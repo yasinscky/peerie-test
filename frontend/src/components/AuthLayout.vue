@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-neutral-100">
+  <div class="min-h-screen grid grid-cols-1 lg:grid-cols-12 bg-white">
     <!-- Promo -->
-    <div class="hidden lg:flex lg:col-span-7 relative overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600 text-white">
+    <div class="hidden lg:flex lg:col-span-7 relative overflow-hidden bg-gradient-to-br from-[#3F4369] to-[#1C8E9E] text-white">
       <div class="absolute inset-0">
         <div class="absolute -top-24 -left-24 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
         <div class="absolute top-1/3 -right-16 w-80 h-80 bg-white/10 rounded-full blur-2xl"></div>
@@ -52,16 +52,16 @@
         <div class="mb-10 flex items-center gap-3 lg:hidden">
           <img :src="logoImage" alt="Peerie logo" class="w-10 h-10">
           <div>
-            <p class="uppercase tracking-widest text-xs text-primary-600">Peerie Marketing OS</p>
-            <h1 class="text-xl font-semibold text-gray-900">Grow faster with focus</h1>
+            <p class="uppercase tracking-widest text-xs text-[#3F4369]">Peerie Marketing OS</p>
+            <h1 class="text-xl font-semibold text-[#1C1A1B]">Grow faster with focus</h1>
           </div>
         </div>
 
-        <div class="bg-white shadow-xl shadow-primary-600/10 rounded-3xl border border-neutral-200/70 p-10">
+        <div class="bg-white shadow-xl shadow-[#F34767]/10 rounded-3xl border border-[#DCDCDC] p-10">
           <slot />
         </div>
 
-        <p class="mt-10 text-xs text-neutral-400 text-center">
+        <p class="mt-10 text-xs text-[#3F4369] opacity-60 text-center">
           © {{ new Date().getFullYear() }} Peerie. All rights reserved.
         </p>
       </div>

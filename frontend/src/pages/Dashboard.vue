@@ -4,7 +4,7 @@
     <div class="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 bg-white border-b border-[#DCDCDC]">
       <!-- Logo -->
       <div class="flex items-center space-x-3">
-          <img :src="logoImage" alt="Peerie Logo" class="w-40 h-40 rounded-lg">
+          <img :src="logoImage" alt="Peerie Logo" class="h-10 w-auto">
       </div>
 
       <!-- Right side - User avatar and dropdown -->
@@ -13,7 +13,7 @@
         <div class="relative">
           <button 
             @click="userDropdownOpen = !userDropdownOpen"
-            class="flex items-center space-x-3 p-2 rounded-lg transition-colors hover:bg-[#FFEBD0]"
+            class="flex items-center space-x-3 p-2 rounded-lg transition-colors hover:bg-[#FFEB88] hover:bg-opacity-20"
           >
             <div class="w-8 h-8 bg-[#F34767] rounded-full flex items-center justify-center">
               <span class="text-white text-sm font-medium">{{ userInitials }}</span>
@@ -57,7 +57,7 @@
               <!-- Settings -->
               <button 
                 @click="navigateToSettings"
-                class="w-full flex items-center px-4 py-2 text-sm hover:bg-[#FFEBD0] transition-colors text-[#3F4369]"
+                class="w-full flex items-center px-4 py-2 text-sm hover:bg-[#FFEB88] hover:bg-opacity-20 transition-colors text-[#3F4369]"
               >
                 <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -174,10 +174,10 @@
     <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-black bg-opacity-50 md:hidden"></div>
 
     <!-- Main content area -->
-    <div class="pt-16 md:ml-64 bg-[#FFEBD0] min-h-screen">
+    <div class="pt-16 md:ml-64 bg-white min-h-screen">
       <!-- Mobile menu button -->
       <div class="md:hidden p-4">
-        <button @click="sidebarOpen = true" class="flex items-center px-4 py-2 text-sm text-[#3F4369] hover:bg-white rounded-lg transition-colors shadow-md">
+        <button @click="sidebarOpen = true" class="flex items-center px-4 py-2 text-sm text-[#3F4369] hover:bg-[#FFEB88] hover:bg-opacity-20 rounded-lg transition-colors shadow-md">
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
