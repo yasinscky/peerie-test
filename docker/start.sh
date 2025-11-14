@@ -24,8 +24,9 @@ if [ -n "$DB_HOST" ]; then
   # Запуск сидеров для заполнения начальными данными (хештеги, задачи)
   # Проверяем, есть ли уже данные - чтобы не заполнять повторно
   echo "Checking if database needs seeding..."
-  HASHTAG_COUNT=$(php artisan tinker --execute="echo \App\Models\Hashtag::count();" 2>/dev/null || echo "0")
-  if [ "$HASHTAG_COUNT" = "0" ] || [ -z "$HASHTAG_COUNT" ]; then
+  # Используем прямой SQL запрос для проверки (быстрее и надежнее чем tinker)
+  HASHTAG_COUNT=$(php artisan db:show --counts 2>/dev/null | grep -i hashtags | awk '{print $NF}' || echo "0")
+  if [ "$HASHTAG_COUNT" = "0" ] || [ -z "$HASHTAG_COUNT" ] || [ "$HASHTAG_COUNT" = "0" ]; then
     echo "Database is empty, running seeders..."
     php artisan db:seed --force || echo "Seeding failed, continuing..."
   else
