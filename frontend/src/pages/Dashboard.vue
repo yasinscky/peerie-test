@@ -4,7 +4,7 @@
     <div class="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 bg-white border-b border-[#DCDCDC]">
       <!-- Logo -->
       <div class="flex items-center space-x-3">
-          <img src="/assets/images/logos/logo.png" alt="Peerie Logo" class="w-40 h-40 rounded-lg">
+          <img :src="logoImage" alt="Peerie Logo" class="w-40 h-40 rounded-lg">
       </div>
 
       <!-- Right side - User avatar and dropdown -->
@@ -197,6 +197,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import logoImage from '@/assets/images/logos/logo.png'
 
 const router = useRouter()
 const route = useRoute()

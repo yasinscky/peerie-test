@@ -11,7 +11,7 @@
         <div>
           <div class="flex items-center gap-3 mb-10">
             <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <img src="/assets/images/logos/logo.png" alt="Peerie logo" class="w-10 h-10">
+              <img :src="logoImage" alt="Peerie logo" class="w-10 h-10">
             </div>
             <div>
               <p class="uppercase tracking-widest text-xs text-white/70">Peerie Marketing OS</p>
@@ -50,7 +50,7 @@
     <div class="lg:col-span-5 flex items-center justify-center px-6 py-16 sm:px-10">
       <div class="w-full max-w-md">
         <div class="mb-10 flex items-center gap-3 lg:hidden">
-          <img src="@/assets/images/logos/logo.png" alt="Peerie logo" class="w-10 h-10">
+          <img :src="logoImage" alt="Peerie logo" class="w-10 h-10">
           <div>
             <p class="uppercase tracking-widest text-xs text-primary-600">Peerie Marketing OS</p>
             <h1 class="text-xl font-semibold text-gray-900">Grow faster with focus</h1>
@@ -70,6 +70,8 @@
 </template>
 
 <script>
+import logoImage from '@/assets/images/logos/logo.png'
+
 export default {
   name: 'AuthLayout',
   props: {
@@ -79,7 +81,12 @@ export default {
     },
     subheadline: {
       type: String,
-      default: 'Marketing shouldn’t feel overwhelming. Peerie helps you prioritise, act and learn across all growth channels in one workspace.'
+      default: 'Marketing shouldn't feel overwhelming. Peerie helps you prioritise, act and learn across all growth channels in one workspace.'
+    }
+  },
+  data() {
+    return {
+      logoImage
     }
   }
 }
