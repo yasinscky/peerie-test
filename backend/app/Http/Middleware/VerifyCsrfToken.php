@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'api/*',
+        // Sanctum handles CSRF for stateful API requests automatically
+        // No need to exclude api/* here
     ];
 }
