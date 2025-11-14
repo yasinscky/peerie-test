@@ -16,12 +16,23 @@ else
   echo "WARNING: DB_HOST not set, skipping database connection check"
 fi
 
-# Запуск миграций (если есть подключение к БД)
+# Запуск миграций и сидеров (если есть подключение к БД)
 if [ -n "$DB_HOST" ]; then
   echo "Running migrations..."
   php artisan migrate --force || echo "Migration failed, continuing..."
+  
+  # Запуск сидеров для заполнения начальными данными (хештеги, задачи)
+  # Проверяем, есть ли уже данные - чтобы не заполнять повторно
+  echo "Checking if database needs seeding..."
+  HASHTAG_COUNT=$(php artisan tinker --execute="echo \App\Models\Hashtag::count();" 2>/dev/null || echo "0")
+  if [ "$HASHTAG_COUNT" = "0" ] || [ -z "$HASHTAG_COUNT" ]; then
+    echo "Database is empty, running seeders..."
+    php artisan db:seed --force || echo "Seeding failed, continuing..."
+  else
+    echo "Database already has data ($HASHTAG_COUNT hashtags), skipping seeders"
+  fi
 else
-  echo "Skipping migrations - no DB_HOST"
+  echo "Skipping migrations and seeders - no DB_HOST"
 fi
 
 # Создание файла логов Laravel, если его нет, и установка прав
