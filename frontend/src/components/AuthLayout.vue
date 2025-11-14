@@ -81,7 +81,7 @@ export default {
     },
     subheadline: {
       type: String,
-      default: 'Marketing shouldn't feel overwhelming. Peerie helps you prioritise, act and learn across all growth channels in one workspace.'
+      default: "Marketing shouldn't feel overwhelming. Peerie helps you prioritise, act and learn across all growth channels in one workspace."
     }
   },
   data() {
