@@ -4,7 +4,7 @@
       <div class="card p-8">
         <!-- Header -->
         <div class="text-center mb-8">
-          <img src="@/assets/images/logos/logo.png" alt="Peerie Logo" class="w-40 h-40 mx-auto">
+          <img src="/assets/images/logos/logo.png" alt="Peerie Logo" class="w-40 h-40 mx-auto">
           <h1 class="text-3xl font-bold text-gray-900 mb-4">Create Marketing Plan</h1>
           <p class="text-gray-600 text-lg">
             Answer questions in several steps to create a personalized plan

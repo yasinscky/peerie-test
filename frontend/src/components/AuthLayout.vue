@@ -11,7 +11,7 @@
         <div>
           <div class="flex items-center gap-3 mb-10">
             <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <img src="@/assets/images/logos/logo.png" alt="Peerie logo" class="w-10 h-10">
+              <img src="/assets/images/logos/logo.png" alt="Peerie logo" class="w-10 h-10">
             </div>
             <div>
               <p class="uppercase tracking-widest text-xs text-white/70">Peerie Marketing OS</p>
