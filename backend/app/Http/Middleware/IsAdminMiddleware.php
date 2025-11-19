@@ -21,10 +21,20 @@ class IsAdminMiddleware
         $path = $request->path();
         
         // Пропускаем страницу логина - если пользователь залогинен, но не админ,
-        // Filament сам обработает редирект или покажет ошибку
+        // разлогиним его, чтобы он мог залогиниться заново
         if (str_starts_with($path, 'admin/login') || 
             str_contains($path, 'admin/auth') ||
             $request->routeIs('filament.admin.auth.*')) {
+            // Если пользователь залогинен, но не админ - разлогиниваем его
+            if ($user && !$user->isAdmin()) {
+                \Log::info('Logging out non-admin user from admin panel', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+                auth()->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
             return $next($request);
         }
         
