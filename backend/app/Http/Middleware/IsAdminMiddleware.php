@@ -18,6 +18,15 @@ class IsAdminMiddleware
         // Этот middleware применяется только после Authenticate middleware
         // Если мы здесь, значит пользователь уже залогинен
         $user = auth()->user();
+        $path = $request->path();
+        
+        // Пропускаем страницу логина - если пользователь залогинен, но не админ,
+        // Filament сам обработает редирект или покажет ошибку
+        if (str_starts_with($path, 'admin/login') || 
+            str_contains($path, 'admin/auth') ||
+            $request->routeIs('filament.admin.auth.*')) {
+            return $next($request);
+        }
         
         // Логирование для отладки
         \Log::info('IsAdminMiddleware check', [
@@ -25,7 +34,7 @@ class IsAdminMiddleware
             'email' => $user->email,
             'is_admin' => $user->is_admin,
             'isAdmin()' => $user->isAdmin(),
-            'path' => $request->path(),
+            'path' => $path,
         ]);
 
         // Проверяем, является ли он админом
@@ -34,6 +43,7 @@ class IsAdminMiddleware
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'is_admin' => $user->is_admin,
+                'path' => $path,
             ]);
             abort(403, 'У вас нет прав доступа к админ-панели.');
         }
