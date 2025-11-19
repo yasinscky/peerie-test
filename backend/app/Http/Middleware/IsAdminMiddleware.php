@@ -15,6 +15,17 @@ class IsAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Пропускаем все маршруты аутентификации Filament
+        $path = $request->path();
+        if (str_starts_with($path, 'admin/login') || 
+            str_contains($path, 'admin/auth') ||
+            $request->routeIs('filament.admin.auth.*') ||
+            $path === 'admin') {
+            // Для страницы /admin и страниц логина пропускаем проверку админа
+            // Filament Authenticate middleware обработает редирект на логин
+            return $next($request);
+        }
+
         // Если пользователь не залогинен, пропускаем (Filament Authenticate middleware обработает редирект)
         if (!auth()->check()) {
             return $next($request);
