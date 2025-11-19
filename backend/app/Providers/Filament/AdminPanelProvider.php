@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(url: '/admin-login') // Указываем кастомный route логина
             ->authGuard('web')
             ->colors([
                 'primary' => Color::Amber,
@@ -42,9 +42,6 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
-            ->authMiddleware([
-                Authenticate::class,
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -55,7 +52,10 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                IsAdminMiddleware::class,
+                IsAdminMiddleware::class, // наш middleware
+            ])
+            ->authMiddleware([
+                Authenticate::class,
             ]);
     }
 }
