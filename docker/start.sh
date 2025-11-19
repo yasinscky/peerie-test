@@ -90,20 +90,29 @@ if [ -n "$APP_KEY" ]; then
   echo "Publishing Filament assets..."
   php artisan filament:upgrade --ansi 2>&1 || echo "Filament upgrade failed, continuing..."
   
+  # Явная публикация ассетов Filament и Livewire
+  echo "Publishing Filament assets explicitly..."
+  php artisan vendor:publish --tag=filament-assets --force 2>&1 || echo "Filament assets publish failed, continuing..."
+  php artisan vendor:publish --tag=livewire:config --force 2>&1 || echo "Livewire config publish failed, continuing..."
+  
   # Проверка что файлы Filament опубликованы
   echo "Checking if Filament assets are published..."
   if [ -f "/var/www/html/public/css/filament/filament/app.css" ]; then
     echo "✓ Filament CSS files found"
+    ls -la /var/www/html/public/css/filament/ 2>/dev/null | head -5 || echo "Cannot list css/filament directory"
   else
     echo "✗ WARNING: Filament CSS files NOT found"
-    echo "Trying to publish manually..."
-    php artisan vendor:publish --tag=filament-assets --force 2>&1 || echo "Manual publish failed"
+    echo "Checking public directory structure:"
+    ls -la /var/www/html/public/ 2>/dev/null | head -10 || echo "Cannot list public directory"
   fi
   
   if [ -f "/var/www/html/public/vendor/livewire/livewire.js" ]; then
     echo "✓ Livewire JS file found"
+    ls -la /var/www/html/public/vendor/livewire/ 2>/dev/null | head -5 || echo "Cannot list vendor/livewire directory"
   else
     echo "✗ WARNING: Livewire JS file NOT found"
+    echo "Checking vendor directory:"
+    ls -la /var/www/html/public/vendor/ 2>/dev/null | head -10 || echo "Cannot list vendor directory"
   fi
   
   echo "Caching configuration..."
