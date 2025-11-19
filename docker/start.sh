@@ -94,6 +94,7 @@ if [ -n "$APP_KEY" ]; then
   echo "Publishing Filament assets explicitly..."
   php artisan vendor:publish --tag=filament-assets --force 2>&1 || echo "Filament assets publish failed, continuing..."
   php artisan vendor:publish --tag=livewire:config --force 2>&1 || echo "Livewire config publish failed, continuing..."
+  php artisan vendor:publish --tag=livewire:assets --force 2>&1 || echo "Livewire assets publish failed, continuing..."
   
   # Проверка что файлы Filament опубликованы
   echo "Checking if Filament assets are published..."
@@ -114,6 +115,12 @@ if [ -n "$APP_KEY" ]; then
     echo "Checking vendor directory:"
     ls -la /var/www/html/public/vendor/ 2>/dev/null | head -10 || echo "Cannot list vendor directory"
   fi
+  
+  echo "Clearing caches before caching..."
+  php artisan config:clear 2>&1 || echo "Config clear failed, continuing..."
+  php artisan route:clear 2>&1 || echo "Route clear failed, continuing..."
+  php artisan view:clear 2>&1 || echo "View clear failed, continuing..."
+  php artisan cache:clear 2>&1 || echo "Cache clear failed, continuing..."
   
   echo "Caching configuration..."
   php artisan config:cache || echo "Config cache failed, continuing..."
