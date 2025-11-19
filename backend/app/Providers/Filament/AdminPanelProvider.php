@@ -27,7 +27,6 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login('/admin-login') // Указываем кастомный route логина
             ->authGuard('web')
             ->colors([
                 'primary' => Color::Amber,
