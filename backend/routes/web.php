@@ -20,13 +20,13 @@ Route::get('/sanctum/csrf-cookie', function () {
 });
 
 // Простая страница логина для админки
-Route::get('/admin-login', function () {
+Route::get('/admin/login', function () {
     return view('admin-login');
 })->name('admin.login');
 
-Route::post('/admin-login', function (\Illuminate\Http\Request $request) {
+Route::post('/admin/login', function (\Illuminate\Http\Request $request) {
     $credentials = $request->only('email', 'password');
-    
+
     if (Auth::attempt($credentials, $request->filled('remember'))) {
         $request->session()->regenerate();
         return redirect('/admin');
