@@ -90,6 +90,22 @@ if [ -n "$APP_KEY" ]; then
   echo "Publishing Filament assets..."
   php artisan filament:upgrade --ansi 2>&1 || echo "Filament upgrade failed, continuing..."
   
+  # Проверка что файлы Filament опубликованы
+  echo "Checking if Filament assets are published..."
+  if [ -f "/var/www/html/public/css/filament/filament/app.css" ]; then
+    echo "✓ Filament CSS files found"
+  else
+    echo "✗ WARNING: Filament CSS files NOT found"
+    echo "Trying to publish manually..."
+    php artisan vendor:publish --tag=filament-assets --force 2>&1 || echo "Manual publish failed"
+  fi
+  
+  if [ -f "/var/www/html/public/vendor/livewire/livewire.js" ]; then
+    echo "✓ Livewire JS file found"
+  else
+    echo "✗ WARNING: Livewire JS file NOT found"
+  fi
+  
   echo "Caching configuration..."
   php artisan config:cache || echo "Config cache failed, continuing..."
   php artisan route:cache || echo "Route cache failed, continuing..."
