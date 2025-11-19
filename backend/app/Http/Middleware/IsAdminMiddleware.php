@@ -15,20 +15,9 @@ class IsAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Пропускаем страницу логина - она должна быть доступна всем
-        $path = $request->path();
-        if (str_starts_with($path, 'admin/login') || 
-            str_contains($path, 'admin/auth') ||
-            $request->routeIs('filament.admin.auth.*')) {
-            return $next($request);
-        }
-
-        // Если пользователь не залогинен, пропускаем (Filament Authenticate middleware обработает редирект)
-        if (!auth()->check()) {
-            return $next($request);
-        }
-
-        // Если залогинен, но не админ - запрещаем доступ
+        // Этот middleware применяется только после Authenticate middleware
+        // Если мы здесь, значит пользователь уже залогинен
+        // Проверяем, является ли он админом
         if (!auth()->user()->isAdmin()) {
             abort(403, 'У вас нет прав доступа к админ-панели.');
         }
