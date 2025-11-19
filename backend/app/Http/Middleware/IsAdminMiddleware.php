@@ -16,26 +16,25 @@ class IsAdminMiddleware
     public function handle(Request $request, Closure $next): Response {
         $user = auth()->user();
     
-        // Пропускаем если пользователь не залогинен или на Livewire auth routes
         if (!$user || $request->routeIs('filament.admin.auth.*')) {
             return $next($request);
         }
     
-        // Логирование
+        $user->refresh();
+    
         \Log::info('IsAdminMiddleware check', [
-            'user_id' => $user?->id,
-            'email' => $user?->email,
-            'is_admin' => $user?->is_admin,
-            'isAdmin()' => $user?->isAdmin(),
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'is_admin' => $user->is_admin,
+            'isAdmin()' => $user->isAdmin(),
             'path' => $request->path(),
         ]);
     
-        // Проверяем, является ли он админом
         if (!$user->isAdmin()) {
             \Log::warning('Access denied - user is not admin', [
-                'user_id' => $user?->id,
-                'email' => $user?->email,
-                'is_admin' => $user?->is_admin,
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'is_admin' => $user->is_admin,
                 'path' => $request->path(),
             ]);
             abort(403, 'У вас нет прав доступа к админ-панели.');

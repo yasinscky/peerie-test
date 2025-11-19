@@ -17,14 +17,15 @@ class CreateAdminUser extends Command
     protected $signature = 'app:create-admin-user 
                             {--email= : Email админа}
                             {--password= : Пароль админа}
-                            {--name= : Имя админа}';
+                            {--name= : Имя админа}
+                            {--update : Обновить существующего пользователя до админа}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Создать администратора для доступа в Filament админ-панель';
+    protected $description = 'Создать администратора или назначить админа существующему пользователю';
 
     /**
      * Execute the console command.
@@ -32,6 +33,24 @@ class CreateAdminUser extends Command
     public function handle()
     {
         $email = $this->option('email') ?: $this->ask('Email админа');
+        $update = $this->option('update');
+
+        if ($update) {
+            $user = User::where('email', $email)->first();
+            
+            if (!$user) {
+                $this->error("Пользователь с email {$email} не найден!");
+                return 1;
+            }
+
+            $user->update(['is_admin' => true]);
+            
+            $this->info("Пользователь {$user->email} успешно назначен администратором!");
+            $this->info("\nТеперь вы можете зайти в админку по адресу: /admin");
+            
+            return 0;
+        }
+
         $password = $this->option('password') ?: $this->secret('Пароль админа');
         $name = $this->option('name') ?: $this->ask('Имя админа', 'Admin');
 
