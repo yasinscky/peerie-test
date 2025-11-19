@@ -13,51 +13,34 @@ class IsAdminMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
-    {
-        // Этот middleware применяется только после Authenticate middleware
-        // Если мы здесь, значит пользователь уже залогинен
+    public function handle(Request $request, Closure $next): Response {
         $user = auth()->user();
-        $path = $request->path();
-        
-        // Пропускаем страницу логина - если пользователь залогинен, но не админ,
-        // разлогиним его, чтобы он мог залогиниться заново
-        if (str_starts_with($path, 'admin/login') || 
-            str_contains($path, 'admin/auth') ||
-            $request->routeIs('filament.admin.auth.*')) {
-            // Если пользователь залогинен, но не админ - разлогиниваем его
-            if ($user && !$user->isAdmin()) {
-                \Log::info('Logging out non-admin user from admin panel', [
-                    'user_id' => $user->id,
-                    'email' => $user->email,
-                ]);
-                auth()->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-            }
+    
+        // Пропускаем если пользователь не залогинен или на Livewire auth routes
+        if (!$user || $request->routeIs('filament.admin.auth.*')) {
             return $next($request);
         }
-        
-        // Логирование для отладки
+    
+        // Логирование
         \Log::info('IsAdminMiddleware check', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'is_admin' => $user->is_admin,
-            'isAdmin()' => $user->isAdmin(),
-            'path' => $path,
+            'user_id' => $user?->id,
+            'email' => $user?->email,
+            'is_admin' => $user?->is_admin,
+            'isAdmin()' => $user?->isAdmin(),
+            'path' => $request->path(),
         ]);
-
+    
         // Проверяем, является ли он админом
         if (!$user->isAdmin()) {
             \Log::warning('Access denied - user is not admin', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'is_admin' => $user->is_admin,
-                'path' => $path,
+                'user_id' => $user?->id,
+                'email' => $user?->email,
+                'is_admin' => $user?->is_admin,
+                'path' => $request->path(),
             ]);
             abort(403, 'У вас нет прав доступа к админ-панели.');
         }
-
+    
         return $next($request);
-    }
+    }    
 }
