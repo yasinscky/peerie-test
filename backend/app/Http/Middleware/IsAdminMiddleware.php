@@ -15,7 +15,13 @@ class IsAdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        // Если пользователь не залогинен, пропускаем (Filament Authenticate middleware обработает редирект)
+        if (!auth()->check()) {
+            return $next($request);
+        }
+
+        // Если залогинен, но не админ - запрещаем доступ
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'У вас нет прав доступа к админ-панели.');
         }
 
