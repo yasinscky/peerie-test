@@ -37,7 +37,8 @@ Route::post('/admin-login', function (\Illuminate\Http\Request $request) {
     ]);
 })->name('admin.login.post');
 
-// Маршрут для SPA (исключаем админку)
-Route::get('/{any}', function () {
+// Маршрут для SPA - fallback только если никакой другой маршрут не совпал
+// Filament маршруты (/admin/*) будут обработаны раньше
+Route::fallback(function () {
     return view('app');
-})->where('any', '^(?!admin|sanctum|admin-login).*');
+});

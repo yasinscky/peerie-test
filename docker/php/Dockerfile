@@ -35,6 +35,10 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
+# Настройка PHP-FPM для прослушивания на всех интерфейсах (для Docker)
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.d/www.conf || \
+    sed -i 's/listen = \/run\/php\/php-fpm.sock/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.d/www.conf
+
 # Экспозиция порта
 EXPOSE 9000
 
