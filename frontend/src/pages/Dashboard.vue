@@ -242,7 +242,6 @@ const fetchUser = async () => {
   } catch (error) {
     console.error('Ошибка получения пользователя:', error)
     
-    // Если пользователь не авторизован, перенаправляем на логин
     if (error.response?.status === 401) {
       localStorage.removeItem('user')
       router.push('/login')
@@ -251,7 +250,6 @@ const fetchUser = async () => {
 }
 
 onMounted(async () => {
-  // Загружаем сохраненные данные пользователя
   const savedUser = localStorage.getItem('user')
   if (savedUser) {
     try {
@@ -262,10 +260,8 @@ onMounted(async () => {
     }
   }
   
-  // Загружаем актуальные данные пользователя с сервера
   await fetchUser()
   
-  // Закрываем dropdown при клике вне его
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.relative')) {
       userDropdownOpen.value = false

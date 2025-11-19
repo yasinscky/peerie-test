@@ -89,13 +89,11 @@ const router = createRouter({
   routes
 })
 
-// Route protection
 router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   
   if (requiresAuth) {
     try {
-      // Check user authentication via axios
       const response = await axios.get('/api/user')
       
       if (!response.data) {

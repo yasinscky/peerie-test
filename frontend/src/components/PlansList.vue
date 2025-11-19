@@ -177,7 +177,6 @@ export default {
 </script>
 
 <style scoped>
-/* Дополнительные стили для анимаций */
 .card {
   @apply transition-all duration-300;
 }

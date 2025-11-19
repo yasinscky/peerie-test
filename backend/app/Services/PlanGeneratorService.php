@@ -9,9 +9,6 @@ use Illuminate\Support\Collection;
 
 class PlanGeneratorService
 {
-    /**
-     * Генерирует план с задачами на основе ответов анкеты
-     */
     public function generatePlan(Plan $plan): array
     {
         $hoursPerWeek = max(1, (int) ($plan->marketing_time_per_week ?? 4));
@@ -32,9 +29,6 @@ class PlanGeneratorService
         ];
     }
 
-    /**
-     * Фильтрует задачи по критериям анкеты
-     */
     private function filterTasks(Plan $plan): Collection
     {
         $query = Task::query();
@@ -58,9 +52,6 @@ class PlanGeneratorService
         })->values();
     }
 
-    /**
-     * Приоритизирует задачи в зависимости от типа бизнеса
-     */
     private function prioritizeTasks(Collection $tasks, Plan $plan): Collection
     {
         return $tasks->sortBy(function ($task) use ($plan) {
@@ -68,9 +59,6 @@ class PlanGeneratorService
         })->values();
     }
 
-    /**
-     * Сортирует задачи по зависимостям (топологическая сортировка)
-     */
     private function sortTasksByDependencies(Collection $tasks): Collection
     {
         $sorted = collect();
@@ -86,9 +74,6 @@ class PlanGeneratorService
         return $sorted;
     }
 
-    /**
-     * Рекурсивный обход задач для топологической сортировки
-     */
     private function visitTask(Task $task, Collection $allTasks, array &$visited, array &$visiting, Collection &$sorted): void
     {
         if (isset($visiting[$task->id])) {
@@ -115,9 +100,6 @@ class PlanGeneratorService
         $sorted->push($task);
     }
 
-    /**
-     * Распределяет задачи по неделям с учетом лимита времени
-     */
     private function distributeTasksByWeeks(Collection $tasks, int $hoursPerWeek): array
     {
         $weeks = [
@@ -142,9 +124,6 @@ class PlanGeneratorService
         return $weeks;
     }
 
-    /**
-     * Распределяет одноразовые задачи
-     */
     private function distributeOneTimeTasks(Collection $tasks, array &$weeks, array &$completedTaskIds, int $hoursPerWeek): void
     {
         $sortedTasks = $tasks->sortBy(function ($task) {
@@ -187,9 +166,6 @@ class PlanGeneratorService
         }
     }
 
-    /**
-     * Распределяет повторяющиеся задачи
-     */
     private function distributeRecurringTasks(Collection $tasks, array &$weeks, array &$completedTaskIds, int $hoursPerWeek, string $frequency): void
     {
         foreach ($tasks as $task) {
@@ -237,9 +213,6 @@ class PlanGeneratorService
         }
     }
 
-    /**
-     * Сохраняет план задач в базу данных
-     */
     private function savePlanTasks(Plan $plan, array $weeklyPlan): void
     {
         $plan->tasks()->detach();
@@ -256,9 +229,6 @@ class PlanGeneratorService
         }
     }
 
-    /**
-     * Оцениваем приоритет задачи
-     */
     private function calculatePriority(Task $task, Plan $plan): int
     {
         $baseOrder = $task->global_order ?? 500;
@@ -284,9 +254,6 @@ class PlanGeneratorService
         return max(0, $baseOrder);
     }
 
-    /**
-     * Ограничиваем список задач доступным временем
-     */
     private function limitTasksByCapacity(Collection $tasks, int $hoursPerWeek): Collection
     {
         $availableHours = max(1, $hoursPerWeek) * 4;
@@ -305,9 +272,6 @@ class PlanGeneratorService
         return $selected->isNotEmpty() ? $selected : $tasks->take(10);
     }
 
-    /**
-     * Дополнительные правила фильтрации по анкете
-     */
     private function passesQuestionnaireRules(Task $task, Plan $plan): bool
     {
         if (!empty($task->conditions)) {
@@ -339,9 +303,6 @@ class PlanGeneratorService
         return true;
     }
 
-    /**
-     * Проверяем, относится ли задача к соцсетям
-     */
     private function matchesPlanBasics(Task $task, Plan $plan): bool
     {
         $planCountry = $plan->country;

@@ -598,7 +598,6 @@ export default {
       let completed = 0
       let total = 0
 
-      // Step 1: Basic info (5 fields)
       total += 5
       if (form.value.country) completed++
       if (form.value.industry) completed++
@@ -606,12 +605,10 @@ export default {
       if (form.value.is_local_business !== null) completed++
       if (form.value.marketing_time_per_week !== null) completed++
 
-      // Step 2: Business details (2 fields)
       total += 2
       if (form.value.business_goals_defined !== null) completed++
       if (form.value.marketing_goals_defined !== null) completed++
       
-      // Step 3: Local Presence (только если выбрано)
       if (form.value.is_local_business) {
         total += 4
         if (form.value.google_business_claimed !== null) completed++
@@ -620,19 +617,16 @@ export default {
         if (form.value.business_directories_claimed !== null) completed++
       }
 
-      // Step 4: Marketing tools (4 обязательных поля)
       total += 4
       if (form.value.has_website !== null) completed++
       if (form.value.email_marketing_tool !== null) completed++
       if (form.value.crm_pipeline !== null) completed++
       if (form.value.running_ads) completed++
 
-      // Дополнительные обязательные поля
       total += 2
       if (form.value.has_primary_social_channel !== null) completed++
       if (form.value.has_secondary_social_channel !== null) completed++
       
-      // Если выбрали Yes, добавляем выбор канала
       if (form.value.has_primary_social_channel === true) {
         total += 1
         if (form.value.primary_social_channel) completed++
@@ -647,7 +641,6 @@ export default {
     })
 
     const isLastStep = computed(() => {
-      // Последний шаг всегда 5, независимо от того локальный бизнес или нет
       return currentStep.value === 5
     })
 
@@ -684,7 +677,6 @@ export default {
     })
 
     const updateProgress = () => {
-      // Progress обновляется автоматически через computed
     }
 
     const nextStep = async () => {
@@ -694,7 +686,6 @@ export default {
         await submitQuestionnaire()
       } else {
         currentStep.value++
-        // Пропускаем шаг 3 если бизнес не локальный
         if (currentStep.value === 3 && !form.value.is_local_business) {
           currentStep.value = 4
         }
@@ -704,7 +695,6 @@ export default {
     const prevStep = () => {
       if (currentStep.value > 1) {
         currentStep.value--
-        // Пропускаем шаг 3 если бизнес не локальный
         if (currentStep.value === 3 && !form.value.is_local_business) {
           currentStep.value = 2
         }
@@ -716,10 +706,9 @@ export default {
       error.value = ''
 
       try {
-        // Подготавливаем данные для отправки
         const submitData = {
           ...form.value,
-          business_niche: form.value.industry // Используем индустрию как нишу
+          business_niche: form.value.industry
         }
 
         const response = await axios.post('/api/questionnaire', submitData)
@@ -742,7 +731,6 @@ export default {
       }
     }
 
-    // Очищаем выбранный канал при выборе "No"
     watch(() => form.value.has_primary_social_channel, (newValue) => {
       if (newValue === false) {
         form.value.primary_social_channel = ''

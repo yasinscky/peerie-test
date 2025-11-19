@@ -8,9 +8,6 @@ use App\Models\Hashtag;
 
 class HashtagSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $beautyBroad = [
@@ -88,7 +85,6 @@ class HashtagSeeder extends Seeder
             ['tag' => '#MeineBeautyReise', 'description' => 'Kundengeschichten-Kampagne'],
         ];
         
-        // German broad hashtags for beauty
         $beautyBroadDE = [
             '#HairCareTips', '#HairCareProducts', '#Hairdressing', '#ShortHairstyles', '#HairstylesForGirls', '#HairstylesForMen', '#CurlyHairstyles',
             '#HairstylistLife', '#UpdoHairstyles', '#HairExtensionsSpecialist', '#WeddingMakeupArtist', '#WeddingHairstyles', '#BridesmaidHair',
@@ -99,7 +95,6 @@ class HashtagSeeder extends Seeder
             '#Haarverlängerung', '#Haarpflege', '#Brautfrisur', '#MineralMakeup'
         ];
         
-        // German industry categories for beauty
         $beautyIndustryGeneralDE = [
             '#PamperTime', '#ConfidenceBooster', '#EventReady', '#BeautyTherapistLife', '#BehindTheChair', '#CleanGirlAesthetic',
             '#Selbstpflege', '#FühlDichSchön', '#Kosmetikerin', '#BeautyBehandlung'
@@ -237,7 +232,6 @@ class HashtagSeeder extends Seeder
             ['tag' => '#BewegungsFreiChallenge', 'description' => 'Awareness-Serie'],
         ];
         
-        // German broad hashtags for physio
         $physioBroadDE = [
             '#Physio', '#Physiotherapy', '#Physiotherapist', '#SportsPhysio', '#Rehab', '#InjuryRecovery', '#ManualTherapy',
             '#ExerciseRehab', '#PainRelief', '#Mobility', '#PostureCorrection', '#Musculoskeletal', '#NeuroPhysio', '#PelvicHealth',
@@ -246,7 +240,6 @@ class HashtagSeeder extends Seeder
             '#ConfidenceInMotion', '#SportsPhysiotherapy', '#WorldPhysiotherapyDay', '#Akupunktur'
         ];
         
-        // German industry categories for physio
         $physioIndustrySportsMusculoskeletalDE = [
             '#Physiotherapeut', '#Physiotherapeutin', '#ChronischeSchmerzen', '#SportPhysio', '#SportPhysiotherapie',
             '#SportsPhysio', '#InjuryPrevention', '#ACLRehab', '#RotatorCuff', '#ReturnToSport', '#StrengthAndConditioning',
@@ -375,7 +368,6 @@ class HashtagSeeder extends Seeder
             ['tag' => '#KundenerfolgeWednesday', 'description' => 'Serie oder Social-Proof-Tag'],
         ];
         
-        // German categories for Industry & Expertise
         $coachingIndustryGeneralDE = [
             '#ZieleErreichen', '#SelbstbewusstseinStärken', '#Erfolgsgewohnheiten', '#Erfolgscoaching', '#CoachingTipps', '#GanzheitlichesCoaching',
             '#GrowthMindsetCoach', '#SelfImprovementJourney', '#CoachLifestyle', '#GoalSettingTips', '#GoalSettingForSuccess',
@@ -405,7 +397,6 @@ class HashtagSeeder extends Seeder
         ];
 
         $datasets = [
-            // Beauty
             [
                 'industry' => 'beauty',
                 'country' => 'ie',
@@ -420,7 +411,6 @@ class HashtagSeeder extends Seeder
                 'intro_title' => 'Hashtag Cheat-Sheet for Beauty Salons in the UK',
                 'local' => ['#BeautySalonUK', '#SalonUK', '#UKHairdresser', '#UKHair', '#NailSalonUK', '#BrowBarUK', '#HairAndBeautyUK', '#LondonSalon', '#ManchesterHair', '#BirminghamNails', '#GlasgowBrows', '#LiverpoolHair', '#BristolBeauty', '#LeedsHair', '#EdinburghSalon', '#CardiffNails']
             ],
-            // German language entries for beauty/DE
             [
                 'industry' => 'beauty',
                 'country' => 'de',
@@ -430,7 +420,6 @@ class HashtagSeeder extends Seeder
                 'local' => ['#BeautySalonGermany', '#FriseurDeutschland', '#NagelstudioDeutschland', '#BerlinSalon', '#HamburgFriseur', '#FrankfurtNails', '#StuttgartNägel', '#KosmetikStudioBerlin']
             ],
 
-            // Physio
             [
                 'industry' => 'physio',
                 'country' => 'ie',
@@ -445,7 +434,6 @@ class HashtagSeeder extends Seeder
                 'intro_title' => 'Hashtag Cheat-Sheet for Physiotherapists in the UK',
                 'local' => ['#UKPhysio', '#UKPhysiotherapist', '#PhysioClinicUK', '#PrivatePhysioUK', '#RehabUK', '#LondonPhysio', '#ManchesterPhysio', '#BirminghamPhysio', '#GlasgowPhysio', '#LiverpoolPhysio', '#BristolPhysio', '#LeedsPhysio', '#EdinburghPhysio', '#CardiffPhysio', '#SheffieldPhysio']
             ],
-            // German language entries for physio/DE
             [
                 'industry' => 'physio',
                 'country' => 'de',
@@ -455,7 +443,6 @@ class HashtagSeeder extends Seeder
                 'local' => ['#BerlinKlinik', '#FrankfurtPraxis', '#DüsseldorfPhysio']
             ],
 
-            // Coaching
             [
                 'industry' => 'coaching',
                 'country' => 'ie',
@@ -470,7 +457,6 @@ class HashtagSeeder extends Seeder
                 'intro_title' => 'Hashtag Cheat-Sheet for Coaches in the UK',
                 'local' => ['#UKCoach', '#UKCoaching', '#UKLifeCoach', '#UKBusinessCoach', '#UKConsultant', '#CoachUK', '#UKEntrepreneurCoach', '#LondonCoach', '#ManchesterCoach', '#BirminghamCoach', '#GlasgowCoach', '#LeedsCoach', '#BristolCoach', '#EdinburghCoach', '#LiverpoolCoach', '#CardiffCoach']
             ],
-            // German language entries for coaching/DE
             [
                 'industry' => 'coaching',
                 'country' => 'de',
@@ -484,7 +470,6 @@ class HashtagSeeder extends Seeder
         foreach ($datasets as $data) {
             switch ($data['industry']) {
                 case 'beauty':
-                    // Use German data if language is DE
                     if (($data['language'] ?? 'en') === 'de') {
                         $broad = $beautyBroadDE;
                         $industry = array_merge(
@@ -536,7 +521,6 @@ class HashtagSeeder extends Seeder
                     }
                     break;
                 case 'physio':
-                    // Use German data if language is DE
                     if (($data['language'] ?? 'en') === 'de') {
                         $broad = $physioBroadDE;
                         $industry = array_merge(
@@ -582,7 +566,6 @@ class HashtagSeeder extends Seeder
                     }
                     break;
                 case 'coaching':
-                    // Use German data if language is DE
                     if (($data['language'] ?? 'en') === 'de') {
                         $broad = $coachingBroadDE;
                         $industry = array_merge(
@@ -617,11 +600,9 @@ class HashtagSeeder extends Seeder
                     $industryCategories = null;
             }
 
-            // Custom block descriptions for specific countries/industries (only if provided)
             $blockDescriptions = $data['block_descriptions'] ?? [];
             $language = $data['language'] ?? 'en';
             
-            // Block titles based on language
             $blockTitles = $language === 'de' ? [
                 'local' => '1 – Lokal',
                 'broad' => '2 – Breit',
@@ -636,7 +617,6 @@ class HashtagSeeder extends Seeder
                 'branded' => '5 – Branded',
             ];
 
-            // Don't store default descriptions - they'll be handled on the frontend
             $blocks = [
                 [
                     'title' => $blockTitles['local'],
@@ -666,12 +646,10 @@ class HashtagSeeder extends Seeder
                 ],
             ];
 
-            // Extract tags from branded array (can be strings or objects with 'tag' key)
             $brandedTags = array_map(function($item) {
                 return is_array($item) && isset($item['tag']) ? $item['tag'] : $item;
             }, $branded);
             
-            // $industry already contains all tags from all categories
             $allTags = array_values(array_unique(array_merge(
                 $data['local'],
                 $broad,

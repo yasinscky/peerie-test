@@ -22,9 +22,6 @@ class PlanController extends Controller
         $this->planGenerator = $planGenerator;
     }
 
-    /**
-     * Создать план на основе анкеты
-     */
     public function generateFromQuestionnaire(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -47,7 +44,6 @@ class PlanController extends Controller
         }
 
         try {
-            // Создаем план
             $plan = Plan::create([
                 'user_id' => Auth::id(),
                 'title' => "Маркетинг-план для {$request->business_niche}",
@@ -60,7 +56,6 @@ class PlanController extends Controller
                 'questionnaire_data' => $request->all(),
             ]);
 
-            // Генерируем план с задачами
             $generatedPlan = $this->planGenerator->generatePlan($plan);
 
             return response()->json([
@@ -95,16 +90,12 @@ class PlanController extends Controller
         ]);
     }
 
-    /**
-     * Получить план с задачами по неделям
-     */
     public function show(int $id): JsonResponse
     {
         $plan = Plan::with(['tasks' => function ($query) {
             $query->orderBy('plan_tasks.week')->orderBy('plan_tasks.created_at');
         }])->findOrFail($id);
 
-        // Проверяем, что план принадлежит текущему пользователю
         if ($plan->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
@@ -118,9 +109,6 @@ class PlanController extends Controller
         ]);
     }
 
-    /**
-     * Обновить статус выполнения задачи
-     */
     public function updateTaskStatus(Request $request, int $planId, int $planTaskId): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -138,7 +126,6 @@ class PlanController extends Controller
 
         $plan = Plan::findOrFail($planId);
 
-        // Проверяем права доступа
         if ($plan->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,

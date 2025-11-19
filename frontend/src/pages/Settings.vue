@@ -171,7 +171,6 @@ const router = useRouter()
 const activeTab = ref('profile')
 const isUpdating = ref(false)
 const message = ref(null)
-// Theme removed
 
 const profileForm = ref({
   name: '',
@@ -235,7 +234,6 @@ const updatePassword = async () => {
   }
 }
 
-// Theme switching removed
 
 const handleLogout = async () => {
   try {
@@ -262,6 +260,5 @@ const fetchUser = async () => {
 onMounted(() => {
   fetchUser()
   
-  // Theme removed
 })
 </script>

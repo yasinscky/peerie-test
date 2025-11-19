@@ -325,7 +325,6 @@ const stats = ref({
 const instructionModalOpen = ref(false)
 const selectedTask = ref(null)
 
-// Computed property for the first plan
 const plan = computed(() => plans.value[0] || null)
 const categorisedTasks = computed(() => {
   if (!plan.value || !plan.value.weeks) return []
@@ -366,7 +365,6 @@ const fetchPlans = async () => {
     const response = await axios.get('/api/plans')
     console.log('API Response:', response.data)
     
-    // Check different possible response structures
     let apiPlans = []
     if (response.data.plans) {
       apiPlans = response.data.plans
@@ -376,25 +374,21 @@ const fetchPlans = async () => {
     
     console.log('API Plans:', apiPlans)
     
-    // Если API вернул планы, но у них нет weeks, используем их как есть
     if (apiPlans.length > 0 && (!apiPlans[0].weeks || apiPlans[0].weeks.length === 0)) {
       console.log('API план без weeks, используем как есть')
       plans.value = apiPlans
       updateStats()
     } else if (apiPlans.length > 0) {
-      // Если API план есть и у него есть weeks, используем его
       console.log('Используем план из API с weeks:', apiPlans[0].weeks)
       plans.value = apiPlans
       updateStats()
     } else {
-      // Если планов нет, показываем пустой массив
       plans.value = []
       updateStats()
     }
   } catch (error) {
     console.error('Ошибка загрузки планов:', error)
     
-    // Показываем пустой массив, если нет данных
     plans.value = []
     updateStats()
   } finally {
@@ -431,10 +425,8 @@ const formatDate = (dateString) => {
   })
 }
 
-// Методы для работы с задачами (из PlanView.vue)
 const toggleTask = async (planTaskId, completed) => {
   try {
-    // Находим план, которому принадлежит задача
     const plan = plans.value.find(p => p.weeks?.some(w => w.tasks?.some(t => t.pivot?.id === planTaskId)))
     if (!plan) return
 
@@ -442,7 +434,6 @@ const toggleTask = async (planTaskId, completed) => {
       completed: completed
     })
 
-    // Обновляем локальное состояние
     plan.weeks.forEach(week => {
       const task = week.tasks.find(t => t.pivot?.id === planTaskId)
       if (task) {
@@ -455,7 +446,6 @@ const toggleTask = async (planTaskId, completed) => {
     }, 0)
     plan.total_tasks = plan.weeks.reduce((sum, week) => sum + week.tasks.length, 0)
 
-    // Обновляем статистику
     updateStats()
   } catch (error) {
     console.error('Ошибка обновления задачи:', error)

@@ -11,9 +11,6 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
-    /**
-     * Обновить профиль пользователя
-     */
     public function update(Request $request): JsonResponse
     {
         $user = Auth::user();
@@ -44,9 +41,6 @@ class ProfileController extends Controller
         }
     }
 
-    /**
-     * Обновить пароль пользователя
-     */
     public function updatePassword(Request $request): JsonResponse
     {
         $request->validate([
@@ -56,7 +50,6 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        // Проверяем текущий пароль
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'success' => false,

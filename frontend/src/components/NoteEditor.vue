@@ -348,7 +348,6 @@ const fileInput = ref(null)
 const noteTitle = ref(props.initialTitle)
 
 const hasContent = computed(() => {
-  // Use contentUpdated to force reactivity
   contentUpdated.value
   if (!textEditor.value) return false
   const text = textEditor.value.innerText?.trim()
@@ -357,7 +356,6 @@ const hasContent = computed(() => {
   return (text && text.length > 0) || hasImages || hasTitle
 })
 
-// Force reactivity for hasContent
 const contentUpdated = ref(0)
 const forceUpdate = () => {
   contentUpdated.value++
@@ -372,7 +370,6 @@ onMounted(() => {
 })
 
 const updateContent = () => {
-  // Content is automatically handled by the contenteditable div
   forceUpdate()
 }
 
@@ -412,7 +409,6 @@ const processFiles = (files) => {
     if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        // Insert image directly into text editor (no separate preview)
         if (file.type.startsWith('image/')) {
           insertImageIntoText(e.target.result, file.name)
         }
@@ -425,15 +421,12 @@ const processFiles = (files) => {
 
 const insertImageIntoText = (imageUrl, imageName) => {
   if (textEditor.value) {
-    // Ensure the text editor is focused
     textEditor.value.focus()
     
-    // Get current cursor position
     const selection = window.getSelection()
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0)
       
-      // Create image element with inline styling
       const img = document.createElement('img')
       img.src = imageUrl
       img.alt = imageName
@@ -445,20 +438,16 @@ const insertImageIntoText = (imageUrl, imageName) => {
       img.style.display = 'inline-block'
       img.style.verticalAlign = 'middle'
       
-      // Insert image at cursor position
       range.insertNode(img)
       
-      // Add a space after the image
       const spaceNode = document.createTextNode(' ')
       range.insertNode(spaceNode)
       
-      // Move cursor after the space
       range.setStartAfter(spaceNode)
       range.setEndAfter(spaceNode)
       selection.removeAllRanges()
       selection.addRange(range)
     } else {
-      // If no selection, append to the end
       const img = document.createElement('img')
       img.src = imageUrl
       img.alt = imageName
@@ -472,12 +461,10 @@ const insertImageIntoText = (imageUrl, imageName) => {
       
       textEditor.value.appendChild(img)
       
-      // Add a space after the image
       const spaceNode = document.createTextNode(' ')
       textEditor.value.appendChild(spaceNode)
     }
     
-    // Trigger input event to update content
     const event = new Event('input', { bubbles: true })
     textEditor.value.dispatchEvent(event)
     
@@ -499,33 +486,26 @@ const setEmojiCategory = (category) => {
 
 const insertEmojiAtCursor = (emoji) => {
   if (textEditor.value) {
-    // Ensure the text editor is focused
     textEditor.value.focus()
     
-    // Get current cursor position
     const selection = window.getSelection()
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0)
       
-      // Insert emoji at cursor position
       const textNode = document.createTextNode(emoji)
       range.insertNode(textNode)
       
-      // Move cursor after the emoji
       range.setStartAfter(textNode)
       range.setEndAfter(textNode)
       selection.removeAllRanges()
       selection.addRange(range)
     } else {
-      // If no selection, append to the end
       textEditor.value.innerHTML += emoji
     }
     
-    // Trigger input event to update content
     const event = new Event('input', { bubbles: true })
     textEditor.value.dispatchEvent(event)
     
-    // Add to frequently used
     if (!frequentlyUsedEmojis.value.includes(emoji)) {
       frequentlyUsedEmojis.value.unshift(emoji)
       if (frequentlyUsedEmojis.value.length > 9) {
@@ -545,7 +525,6 @@ const emojiCategory = ref('frequently')
 const emojiSearch = ref('')
 const emojiInput = ref('')
 
-// Emoji data
 const frequentlyUsedEmojis = ref(['👍', '😀', '😘', '😍', '😆', '😜', '🙂', '😭', '🤯'])
 
 const smileyEmojis = ref([
@@ -606,14 +585,12 @@ const saveNote = () => {
   emit('save', noteData)
 }
 
-// Add placeholder functionality
 const addPlaceholder = () => {
   if (textEditor.value && !textEditor.value.innerText.trim()) {
     textEditor.value.setAttribute('data-placeholder', 'What would you like to share?')
   }
 }
 
-// Close emoji picker when clicking outside
 const handleClickOutside = (event) => {
   if (showEmojiPicker.value && !event.target.closest('.emoji-picker-container')) {
     closeEmojiPicker()

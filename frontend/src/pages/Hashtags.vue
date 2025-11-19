@@ -141,7 +141,6 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
-// Localized constants
 const LOCALES = {
   en: {
     introDescription: 'Hashtags are no longer about chasing viral reach. From 2025 onward, they are more about being found by the right audience than trying to reach everyone. Hashtags now function more like keywords. Platforms prioritise content that\'s easy to categorise and surface in search. Use hashtags the same way someone would search for your service: clear, specific, and relevant.',
@@ -406,26 +405,21 @@ const fetchPlanData = async () => {
     if (data?.success && Array.isArray(data?.plans) && data.plans.length > 0) {
       const plan = data.plans[0]
       title.value = plan?.title || title.value
-      // Get language from plan, default to 'en'
       userLanguage.value = plan?.language || 'en'
     }
   } catch (_) {
-    // ignore
   }
 }
 
 const fetchHashtags = async () => {
   loading.value = true
   try {
-    // First, get plan data to determine language
     await fetchPlanData()
     
     const { data } = await axios.get('/api/hashtags')
     if (data?.success && data?.data) {
       introTitle.value = data.data.intro_title || ''
-      // Use localized intro description if backend doesn't provide one
       introDescription.value = data.data.intro_description || (LOCALES[userLanguage.value]?.introDescription || LOCALES.en.introDescription)
-      // Use localized guidelines if backend doesn't provide them
       guidelines.value = Array.isArray(data.data.guidelines) && data.data.guidelines.length > 0 
         ? data.data.guidelines 
         : getDefaultGuidelines(userLanguage.value)
@@ -433,9 +427,7 @@ const fetchHashtags = async () => {
       
       const blocks = Array.isArray(data?.data?.hashtag_blocks) ? data.data.hashtag_blocks : null
       if (Array.isArray(blocks) && blocks.length > 0) {
-        // Apply default block descriptions if missing
         hashtagBlocks.value = blocks.map(block => {
-          // Determine block type from title
           let blockType = null
           if (block.title?.includes('Local') || block.title?.includes('Lokal')) blockType = 'local'
           else if (block.title?.includes('Broad') || block.title?.includes('Breit')) blockType = 'broad'
@@ -443,7 +435,6 @@ const fetchHashtags = async () => {
           else if (block.title?.includes('Niche') || block.title?.includes('Nische')) blockType = 'niche'
           else if (block.title?.includes('Branded') || block.title?.includes('Marke')) blockType = 'branded'
           
-          // Use default description if block doesn't have one (null, undefined, or empty string)
           if ((!block.description || block.description === null) && blockType && LOCALES[userLanguage.value]?.blockDescriptions?.[blockType]) {
             return { ...block, description: LOCALES[userLanguage.value].blockDescriptions[blockType] }
           }
@@ -452,7 +443,6 @@ const fetchHashtags = async () => {
         return
       }
 
-      // Fallback: собрать блоки из плоского массива tags
       const tags = Array.isArray(data?.data?.tags) ? data.data.tags : []
       if (tags.length > 0) {
         const localTags = tags.filter(tag =>
@@ -486,7 +476,6 @@ const fetchHashtags = async () => {
         return
       }
 
-      // Если ничего не пришло — явно очищаем
         hashtagBlocks.value = []
     } else {
       await fetchPlanData() // Ensure we have language
@@ -529,7 +518,6 @@ const isBrandedFormat = (tags) => {
 
 const copyBlock = (tags) => {
   if (!tags.length) return
-  // Extract tags from branded format if needed
   const tagsToCopy = isBrandedFormat(tags) 
     ? tags.map(item => item.tag || item).join(' ')
     : tags.join(' ')

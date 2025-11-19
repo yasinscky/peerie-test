@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class HashtagController extends Controller
 {
-    /**
-     * Return hashtags for the latest user plan by industry and country.
-     */
     public function index(): JsonResponse
     {
         $userId = Auth::id();
@@ -28,9 +25,9 @@ class HashtagController extends Controller
             ], 404);
         }
 
-        $country = $plan->country; // ie|uk|de
-        $industry = is_array($plan->industries) && count($plan->industries) > 0 ? $plan->industries[0] : null; // beauty|physio|coaching
-        $language = $plan->language ?? 'en'; // en|de
+        $country = $plan->country;
+        $industry = is_array($plan->industries) && count($plan->industries) > 0 ? $plan->industries[0] : null;
+        $language = $plan->language ?? 'en';
 
         if (!$country || !$industry) {
             return response()->json([
@@ -44,8 +41,6 @@ class HashtagController extends Controller
             ->where('language', $language)
             ->first(['title', 'intro_title', 'intro_description', 'guidelines', 'tags', 'hashtag_blocks']);
 
-        // Fallbacks: если точного совпадения нет, пробуем по индустрии и языку без учета страны,
-        // затем по индустрии и стране без учета языка, чтобы пользователь всегда получил рабочий список.
         if (!$hashtags) {
             $hashtags = Hashtag::where('industry', $industry)
                 ->where('language', $language)

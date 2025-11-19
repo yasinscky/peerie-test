@@ -20,9 +20,6 @@ class QuestionnaireController extends Controller
         $this->planGenerator = $planGenerator;
     }
 
-    /**
-     * Обработка анкеты и создание плана
-     */
     public function submit(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [

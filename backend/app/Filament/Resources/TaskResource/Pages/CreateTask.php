@@ -17,12 +17,10 @@ class CreateTask extends CreateRecord
 
     protected function normalizeTaskData(array $data): array
     {
-        // Нормализуем dependencies - если есть, преобразуем в массив ID
         if (isset($data['dependencies']) && is_array($data['dependencies'])) {
             $data['dependencies'] = array_values(array_filter(array_map('intval', $data['dependencies'])));
         }
 
-        // Нормализуем allowed_capacities - преобразуем строки в числа
         if (isset($data['allowed_capacities']) && is_array($data['allowed_capacities'])) {
             $data['allowed_capacities'] = array_values(array_filter(array_map(function ($capacity) {
                 return is_numeric($capacity) ? (int) $capacity : null;
@@ -30,7 +28,6 @@ class CreateTask extends CreateRecord
             sort($data['allowed_capacities']);
         }
 
-        // Нормализуем target_countries и target_industries - убираем пустые значения
         foreach (['target_countries', 'target_industries', 'local_presence_options'] as $field) {
             if (isset($data[$field]) && is_array($data[$field])) {
                 $data[$field] = array_values(array_filter($data[$field]));

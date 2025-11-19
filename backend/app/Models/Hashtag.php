@@ -9,11 +9,6 @@ class Hashtag extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'industry',
         'country',
@@ -26,11 +21,6 @@ class Hashtag extends Model
         'hashtag_blocks',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'tags' => 'array',
         'hashtag_blocks' => 'array',

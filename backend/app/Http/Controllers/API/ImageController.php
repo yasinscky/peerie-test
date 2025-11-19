@@ -16,9 +16,6 @@ class ImageController extends Controller
         $this->imageServiceManager = $imageServiceManager;
     }
 
-    /**
-     * Поиск изображений
-     */
     public function search(Request $request): JsonResponse
     {
         $request->validate([
@@ -49,9 +46,6 @@ class ImageController extends Controller
         }
     }
 
-    /**
-     * Поиск по категории
-     */
     public function searchByCategory(Request $request): JsonResponse
     {
         $request->validate([
@@ -82,9 +76,6 @@ class ImageController extends Controller
         }
     }
 
-    /**
-     * Получить популярные изображения
-     */
     public function popular(Request $request): JsonResponse
     {
         $request->validate([
@@ -113,9 +104,6 @@ class ImageController extends Controller
         }
     }
 
-    /**
-     * Получить информацию об изображении
-     */
     public function getImage(Request $request, int $id): JsonResponse
     {
         try {
@@ -150,9 +138,6 @@ class ImageController extends Controller
         }
     }
 
-    /**
-     * Получить URL для скачивания изображения
-     */
     public function download(Request $request, int $id): JsonResponse
     {
         try {

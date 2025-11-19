@@ -18,20 +18,17 @@ class CreateHashtag extends CreateRecord
 
     protected function normalizeHashtagData(array $data): array
     {
-        // Нормализуем хештеги в блоках (добавляем # если отсутствует)
         if (isset($data['hashtag_blocks']) && is_array($data['hashtag_blocks'])) {
             foreach ($data['hashtag_blocks'] as &$block) {
                 if (isset($block['tags']) && is_array($block['tags'])) {
                     $block['tags'] = array_map(function ($tag) {
                         if (is_string($tag)) {
                             $tag = trim($tag);
-                            // Если хештег не начинается с #, добавляем его
                             if (!empty($tag) && !Str::startsWith($tag, '#')) {
                                 return '#' . $tag;
                             }
                             return $tag;
                         }
-                        // Если это объект с 'tag' ключом, извлекаем его
                         if (is_array($tag) && isset($tag['tag'])) {
                             $tagStr = trim($tag['tag']);
                             if (!empty($tagStr) && !Str::startsWith($tagStr, '#')) {
@@ -44,7 +41,6 @@ class CreateHashtag extends CreateRecord
                     $block['tags'] = array_values(array_filter($block['tags']));
                 }
                 
-                // Нормализуем хештеги в категориях
                 if (isset($block['categories']) && is_array($block['categories'])) {
                     foreach ($block['categories'] as &$category) {
                         if (isset($category['tags']) && is_array($category['tags'])) {
@@ -65,7 +61,6 @@ class CreateHashtag extends CreateRecord
             }
         }
 
-        // Нормализуем общий список хештегов
         if (isset($data['tags']) && is_array($data['tags'])) {
             $data['tags'] = array_map(function ($tag) {
                 if (is_string($tag)) {

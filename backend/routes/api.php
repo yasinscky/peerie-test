@@ -11,23 +11,12 @@ use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Http\Controllers\API\HashtagController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 
-// Маршруты аутентификации для SPA
 Route::post('/register', function (Request $request) {
     $request->validate([
         'name' => 'required|string|max:255',
@@ -41,7 +30,6 @@ Route::post('/register', function (Request $request) {
         'password' => Hash::make($request->password),
     ]);
 
-    // Для SPA используем сессионную аутентификацию
     Auth::login($user);
 
     return response()->json([
@@ -83,26 +71,20 @@ Route::post('/logout', function (Request $request) {
     ]);
 });
 
-// Временный маршрут для перенаправления неавторизованных
 Route::get('/login', function () {
     return response()->json(['message' => 'Unauthenticated.'], 401);
 })->name('login');
 
-// Маршруты для работы с планами
 Route::middleware('auth:sanctum')->group(function () {
-    // Анкета и создание планов
     Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
     
-    // Планы
     Route::get('/plans', [PlanController::class, 'index']);
     Route::get('/plan/{id}', [PlanController::class, 'show']);
     Route::put('/plan/{planId}/plan-task/{planTaskId}', [PlanController::class, 'updateTaskStatus']);
     
-    // Задачи
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::get('/tasks/{id}', [TaskController::class, 'show']);
     
-    // Маршруты для изображений
     Route::prefix('images')->group(function () {
         Route::post('/search', [App\Http\Controllers\API\ImageController::class, 'search']);
         Route::post('/search/category', [App\Http\Controllers\API\ImageController::class, 'searchByCategory']);
@@ -112,12 +94,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/download-proxy', [App\Http\Controllers\API\ImageController::class, 'downloadProxy']);
     });
 
-    // Маршруты для профиля
     Route::prefix('profile')->group(function () {
         Route::put('/', [App\Http\Controllers\API\ProfileController::class, 'update']);
         Route::put('/password', [App\Http\Controllers\API\ProfileController::class, 'updatePassword']);
     });
 
-    // Hashtags by latest plan (country + industry)
     Route::get('/hashtags', [HashtagController::class, 'index']);
 });

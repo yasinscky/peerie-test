@@ -10,14 +10,10 @@ use Illuminate\Http\JsonResponse;
 
 class TaskController extends Controller
 {
-    /**
-     * Получить список всех задач
-     */
     public function index(Request $request): JsonResponse
     {
         $query = Task::query();
 
-        // Фильтры
         if ($request->has('category')) {
             $query->where('category', $request->category);
         }
@@ -50,9 +46,6 @@ class TaskController extends Controller
         ]);
     }
 
-    /**
-     * Получить конкретную задачу
-     */
     public function show(int $id): JsonResponse
     {
         $task = Task::findOrFail($id);
