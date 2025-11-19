@@ -57,6 +57,7 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->is_admin;
+        // Явное приведение к boolean для надежности
+        return (bool) $this->is_admin;
     }
 }
