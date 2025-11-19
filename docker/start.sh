@@ -87,6 +87,9 @@ if [ -n "$APP_KEY" ]; then
   composer dump-autoload --optimize --no-interaction 2>&1 || echo "Autoload dump failed, continuing..."
   php artisan package:discover --ansi 2>&1 || echo "Package discover failed, continuing..."
   
+  echo "Publishing Filament assets..."
+  php artisan filament:upgrade --ansi 2>&1 || echo "Filament upgrade failed, continuing..."
+  
   echo "Caching configuration..."
   php artisan config:cache || echo "Config cache failed, continuing..."
   php artisan route:cache || echo "Route cache failed, continuing..."
