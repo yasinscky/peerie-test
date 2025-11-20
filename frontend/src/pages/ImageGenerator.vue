@@ -60,12 +60,6 @@
 
     <!-- Results -->
     <div v-if="images.length > 0" class="mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-          Found images: {{ images.length }}
-        </h2>
-      </div>
-
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div 
           v-for="image in images" 
@@ -133,19 +127,23 @@
 
         </div>
       </div>
-      
-      <!-- Load More Indicator -->
-      <div v-if="isLoadingMore" class="flex justify-center py-8">
-        <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+
+      <!-- Load More Button / Indicator -->
+      <div class="flex justify-center py-8">
+        <button
+          v-if="hasMoreImages && !isLoadingMore"
+          @click="loadMoreImages"
+          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Load more images
+        </button>
+
+        <div v-else-if="isLoadingMore" class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
           <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#F34767]"></div>
           <span>Loading more images...</span>
         </div>
       </div>
-      
-      <!-- No More Images -->
-      <div v-if="!hasMoreImages && images.length > 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
-        No more images available
-      </div>
+
     </div>
 
     <!-- No Results -->
@@ -206,7 +204,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const searchQuery = ref('')
 const isLoading = ref(false)
@@ -220,8 +218,7 @@ const hasMoreImages = ref(true)
 const currentSearchQuery = ref('')
 
 const categories = [
-  'Business', 'Technology', 'Nature', 'People', 'Food', 
-  'Sports', 'Travel', 'Architecture', 'Art', 'Animals'
+  'Business', 'Coach', 'Therapy', 'Beauty', 'Style', 'Nails', 'Sports', 'Massage', 'Doctor'
 ]
 
 const searchImages = async () => {
@@ -426,19 +423,7 @@ const loadMoreImages = async () => {
   }
 }
 
-const handleScroll = () => {
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-  const windowHeight = window.innerHeight
-  const documentHeight = document.documentElement.scrollHeight
-
-  if (scrollTop + windowHeight >= documentHeight - 200) {
-    loadMoreImages()
-  }
-}
-
 onMounted(async () => {
-  window.addEventListener('scroll', handleScroll)
-  
   isLoading.value = true
   hasSearched.value = true
   images.value = []
@@ -464,9 +449,5 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
-})
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
 })
 </script>

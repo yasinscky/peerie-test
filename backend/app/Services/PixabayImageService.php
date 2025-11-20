@@ -62,16 +62,15 @@ class PixabayImageService
     public function searchByCategory(string $category, int $page = 1, int $perPage = 16): array
     {
         $categoryKeywords = [
-            'Business' => 'business office work',
-            'Technology' => 'technology computer digital',
-            'Nature' => 'nature landscape forest',
-            'People' => 'people portrait human',
-            'Food' => 'food restaurant meal',
-            'Sports' => 'sport fitness exercise',
-            'Travel' => 'travel vacation journey',
-            'Architecture' => 'architecture building design',
-            'Art' => 'art creative artistic',
-            'Animals' => 'animals pets wildlife'
+            'Business' => 'business office work team meeting startup marketing',
+            'Coach' => 'coach coaching mentor consulting business training',
+            'Therapy' => 'therapy therapist counseling mental health psychology',
+            'Beauty' => 'beauty salon makeup skincare cosmetics hair stylist',
+            'Style' => 'fashion style outfit clothes street style modern',
+            'Nails' => 'nail salon manicure pedicure nails beauty hands',
+            'Sports' => 'sport fitness exercise gym workout athlete',
+            'Massage' => 'massage spa relaxation wellness body care',
+            'Doctor' => 'doctor medical clinic hospital healthcare nurse',
         ];
 
         $keywords = $categoryKeywords[$category] ?? $category;
