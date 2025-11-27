@@ -22,10 +22,6 @@ class IsAdminMiddleware
 
         $user->refresh();
 
-        if ($user->email === 'a.yasinscky123@gmail.com') {
-            return $next($request);
-        }
-
         \Log::info('IsAdminMiddleware check', [
             'user_id' => $user->id,
             'email' => $user->email,
