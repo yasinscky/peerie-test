@@ -22,24 +22,6 @@ class IsAdminMiddleware
 
         $user->refresh();
 
-        \Log::info('IsAdminMiddleware check', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'is_admin' => $user->is_admin,
-            'isAdmin()' => $user->isAdmin(),
-            'path' => $request->path(),
-        ]);
-
-        if (!$user->isAdmin()) {
-            \Log::warning('Access denied - user is not admin', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'is_admin' => $user->is_admin,
-                'path' => $request->path(),
-            ]);
-            abort(403, 'You do not have permission to access the admin panel.');
-        }
-
         return $next($request);
     }    
 }
