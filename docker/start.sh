@@ -6,8 +6,9 @@ echo "Starting on port: $PORT"
 
 # Ожидание PostgreSQL (если DB_HOST установлен)
 if [ -n "$DB_HOST" ]; then
-  echo "Waiting for PostgreSQL at $DB_HOST:5432..."
-  until nc -z $DB_HOST 5432; do
+  DB_PORT_VAR="${DB_PORT:-5432}"
+  echo "Waiting for PostgreSQL at $DB_HOST:${DB_PORT_VAR}..."
+  until nc -z "$DB_HOST" "$DB_PORT_VAR"; do
     echo "PostgreSQL is unavailable - sleeping"
     sleep 1
   done
