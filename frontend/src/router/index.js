@@ -96,7 +96,7 @@ router.beforeEach(async (to, from, next) => {
     try {
       const response = await axios.get('/api/user')
       
-      if (!response.data) {
+      if (!response.data.success) {
         next('/login')
         return
       }

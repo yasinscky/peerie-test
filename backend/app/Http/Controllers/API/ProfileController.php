@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,6 +11,25 @@ use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
+    public function show(): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not authenticated'
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ]);
+    }
+
     public function update(Request $request): JsonResponse
     {
         $user = Auth::user();
@@ -28,14 +47,14 @@ class ProfileController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Профиль успешно обновлен',
+                'message' => 'Profile updated successfully',
                 'user' => $user->fresh()
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при обновлении профиля',
+                'message' => 'An error occurred while updating profile',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -53,7 +72,7 @@ class ProfileController extends Controller
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Текущий пароль неверен'
+                'message' => 'Current password is incorrect'
             ], 422);
         }
 
@@ -64,13 +83,13 @@ class ProfileController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Пароль успешно изменен'
+                'message' => 'Password updated successfully'
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при смене пароля',
+                'message' => 'An error occurred while updating password',
                 'error' => $e->getMessage()
             ], 500);
         }

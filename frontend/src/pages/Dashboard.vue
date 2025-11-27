@@ -1,166 +1,128 @@
 <template>
   <div class="min-h-screen bg-white">
-    <!-- Top Header -->
-    <div class="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 bg-white border-b border-[#DCDCDC]">
-      <!-- Logo -->
-      <div class="flex items-center space-x-3">
-          <img :src="logoImage" alt="Peerie Logo" class="h-10 w-auto">
-      </div>
+    <!-- Left Sidebar -->
+    <div class="fixed top-0 left-0 bottom-0 z-40 w-80 xl:w-96 bg-white border-r-2 border-[#3f4369] overflow-y-auto transition-transform duration-300 md:translate-x-0" 
+         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+         style="border-right: 2px solid #3f4369;">
+      <div class="flex flex-col h-full p-4 lg:p-6">
+        <!-- Logo -->
+        <div class="mb-6">
+          <img :src="logoImage" alt="Peerie Logo" class="w-full max-w-[150px]">
+        </div>
 
-      <!-- Right side - User avatar and dropdown -->
-      <div class="flex items-center space-x-4">
-        <!-- User dropdown -->
-        <div class="relative">
-          <button 
-            @click="userDropdownOpen = !userDropdownOpen"
-            class="flex items-center space-x-3 p-2 rounded-lg transition-colors hover:bg-[#FFEB88] hover:bg-opacity-20"
-          >
-            <div class="w-8 h-8 bg-[#F34767] rounded-full flex items-center justify-center">
-              <span class="text-white text-sm font-medium">{{ userInitials }}</span>
+        <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-14 h-14 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
+              <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
+              <span v-else class="text-[#3f4369] text-lg font-bold">{{ userInitials }}</span>
             </div>
-            <div class="hidden md:block text-left">
-              <p class="text-sm font-medium text-[#3F4369]">{{ user?.name }}</p>
-              <p class="text-xs text-[#3F4369] opacity-70">{{ user?.email }}</p>
+            <div class="flex-1">
+              <p class="text-[#1c1a1b] text-sm font-medium">My account</p>
+              <p class="text-[#3f4369] text-xl font-bold">{{ user?.name || 'User' }}</p>
             </div>
-            <svg class="w-4 h-4 text-[#3F4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button @click="navigateToSettings" class="flex items-center space-x-1 text-[#1c1a1b] text-xs font-bold uppercase px-2 py-1 hover:bg-[#FFEB88] hover:bg-opacity-20 rounded">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              <span>Edit</span>
+            </button>
+            <button @click="handleLogout" class="flex items-center space-x-1 text-[#1c1a1b] text-xs font-bold uppercase px-2 py-1 hover:bg-[#FFEB88] hover:bg-opacity-20 rounded">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+              <span>Exit</span>
+            </button>
+          </div>
+        </div>
 
-          <!-- Dropdown menu -->
-          <div 
-            v-if="userDropdownOpen" 
-            class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-[#DCDCDC] py-2 z-50"
-          >
-            <!-- User info header -->
-            <div class="px-4 py-3 border-b border-[#DCDCDC]">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-[#F34767] rounded-full flex items-center justify-center">
-                    <span class="text-white text-sm font-medium">{{ userInitials }}</span>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-[#3F4369]">{{ user?.name }}</p>
-                    <p class="text-xs text-[#3F4369] opacity-70">{{ user?.email }}</p>
-                  </div>
-                </div>
-                <button @click="userDropdownOpen = false" class="text-[#3F4369] hover:text-[#F34767]">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
+        <nav class="space-y-6 flex-1">
+          <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
+            <div class="flex items-center space-x-2 mb-3">
+              <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                <svg class="w-5 h-5 text-[#3f4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
               </div>
+              <h3 class="text-[#3f4369] text-2xl font-bold">Create</h3>
             </div>
-
-            <!-- Menu items -->
-            <div class="py-2">
-              <!-- Settings -->
-              <button 
-                @click="navigateToSettings"
-                class="w-full flex items-center px-4 py-2 text-sm hover:bg-[#FFEB88] hover:bg-opacity-20 transition-colors text-[#3F4369]"
+            <div class="ml-10 space-y-2 flex flex-col">
+              <router-link 
+                to="/dashboard/marketing-plans"
+                class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                :class="currentRoute === '/dashboard/marketing-plans' 
+                  ? 'bg-[#f34767] text-white border-[#f34767]' 
+                  : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
               >
-                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                Your Marketing Plan
+              </router-link>
+              <router-link 
+                to="/dashboard/image-generator"
+                class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                :class="currentRoute === '/dashboard/image-generator' 
+                  ? 'bg-[#f34767] text-white border-[#f34767]' 
+                  : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+              >
+                Image Library
+              </router-link>
+              <router-link 
+                to="/dashboard/hashtags"
+                class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                :class="currentRoute === '/dashboard/hashtags' 
+                  ? 'bg-[#f34767] text-white border-[#f34767]' 
+                  : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+              >
+                Hashtags
+              </router-link>
+            </div>
+          </div>
+
+          <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
+            <div class="flex items-center space-x-2 mb-3">
+              <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                <svg class="w-5 h-5 text-[#3f4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
                 </svg>
-                Settings
+              </div>
+              <h3 class="text-[#3f4369] text-2xl font-bold">Engage</h3>
+            </div>
+            <div class="ml-10 space-y-2 flex flex-col">
+              <p class="block w-fit rounded-[17px] border border-[#DCDCDC] bg-white px-3 py-2 text-[#1c1a1b] text-lg font-medium hover:bg-[#f34767] hover:text-white transition-colors cursor-pointer">Community</p>
+            </div>
+          </div>
+
+          <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
+            <div class="flex items-center space-x-2 mb-3">
+              <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                <svg class="w-5 h-5 text-[#3f4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+              <h3 class="text-[#3f4369] text-2xl font-bold">Account</h3>
+            </div>
+            <div class="ml-10 space-y-2 flex flex-col">
+              <router-link 
+                to="/dashboard/settings" 
+                class="block w-fit text-left px-3 py-2 rounded-[17px] border text-lg font-medium transition-colors"
+                :class="currentRoute === '/dashboard/settings' 
+                  ? 'bg-[#f34767] text-white border-[#f34767]' 
+                  : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+              >
+                Profile
+              </router-link>
+              <button class="block w-fit text-left px-3 py-2 rounded-[17px] border border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white text-lg font-medium transition-colors">
+                Billing
               </button>
-            </div>
-
-            <div class="border-t py-2 border-[#DCDCDC]">
-              <!-- Logout -->
-              <button 
-                @click="handleLogout"
-                class="w-full flex items-center px-4 py-2 text-sm text-[#F34767] hover:bg-red-50 transition-colors"
-              >
-                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                </svg>
-                Logout
+              <button class="block w-fit text-left px-3 py-2 rounded-[17px] border border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white text-lg font-medium transition-colors">
+                Orders
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Left Sidebar -->
-    <div class="fixed top-16 left-0 bottom-0 z-40 w-64 md:translate-x-0" 
-         :class="[
-           'bg-[#3F4369]',
-           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-         ]">
-      <div class="flex flex-col h-full">
-        
-        <!-- Sidebar Header -->
-        <div class="px-6 py-6 border-b border-[#1C8E9E]">
-          <h2 class="text-sm font-medium text-white opacity-70">NAVIGATION</h2>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="flex-1 px-4 py-6 space-y-3">
-          
-
-          <router-link 
-            to="/dashboard/marketing-plans" 
-            class="flex items-center px-4 py-3 rounded-lg transition-colors group"
-            :class="currentRoute === '/dashboard/marketing-plans' 
-              ? 'bg-[#F34767] text-white shadow-lg' 
-              : 'text-white hover:bg-[#1C8E9E] hover:shadow-md'"
-          >
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3"
-                 :class="currentRoute === '/dashboard/marketing-plans' 
-                   ? 'bg-white bg-opacity-20' 
-                   : 'group-hover:bg-white group-hover:bg-opacity-10'">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-            </div>
-            Marketing Plans
-          </router-link>
-
-          <router-link 
-            to="/dashboard/image-generator" 
-            class="flex items-center px-4 py-3 rounded-lg transition-colors group"
-            :class="currentRoute === '/dashboard/image-generator' 
-              ? 'bg-[#F34767] text-white shadow-lg' 
-              : 'text-white hover:bg-[#1C8E9E] hover:shadow-md'"
-          >
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3"
-                 :class="currentRoute === '/dashboard/image-generator' 
-                   ? 'bg-white bg-opacity-20' 
-                   : 'group-hover:bg-white group-hover:bg-opacity-10'">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </div>
-            Image Generator
-          </router-link>
-
-          <router-link 
-            to="/dashboard/hashtags" 
-            class="flex items-center px-4 py-3 rounded-lg transition-colors group"
-            :class="currentRoute === '/dashboard/hashtags' 
-              ? 'bg-[#F34767] text-white shadow-lg' 
-              : 'text-white hover:bg-[#1C8E9E] hover:shadow-md'"
-          >
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3"
-                 :class="currentRoute === '/dashboard/hashtags' 
-                   ? 'bg-white bg-opacity-20' 
-                   : 'group-hover:bg-white group-hover:bg-opacity-10'">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
-              </svg>
-            </div>
-            Hashtags
-          </router-link>
-
-          
         </nav>
 
-        <!-- Mobile close button -->
-        <div class="p-4 md:hidden border-t border-[#1C8E9E]">
-          <button @click="sidebarOpen = false" class="w-full flex items-center justify-center px-4 py-2 text-sm text-white hover:bg-[#1C8E9E] rounded-lg transition-colors">
+        <div class="md:hidden border-t border-[#3f4369] pt-4 mt-4">
+          <button @click="sidebarOpen = false" class="w-full flex items-center justify-center px-4 py-2 text-sm text-[#3f4369] hover:bg-[#FFEB88] hover:bg-opacity-20 rounded-lg transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
@@ -171,10 +133,10 @@
     </div>
 
     <!-- Mobile sidebar overlay -->
-    <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-black bg-opacity-50 md:hidden"></div>
+    <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-[#1C1A1B] bg-opacity-50 md:hidden"></div>
 
     <!-- Main content area -->
-    <div class="pt-16 md:ml-64 bg-white min-h-screen">
+    <div class="md:ml-80 xl:ml-96 bg-white min-h-screen">
       <!-- Mobile menu button -->
       <div class="md:hidden p-4">
         <button @click="sidebarOpen = true" class="flex items-center px-4 py-2 text-sm text-[#3F4369] hover:bg-[#FFEB88] hover:bg-opacity-20 rounded-lg transition-colors shadow-md">
@@ -203,25 +165,27 @@ const router = useRouter()
 const route = useRoute()
 
 const sidebarOpen = ref(false)
-const userDropdownOpen = ref(false)
 const user = ref(null)
 
 const currentRoute = computed(() => route.path)
 const userInitials = computed(() => {
   if (!user.value?.name) return 'U'
-  return user.value.name.split(' ').map(n => n[0]).join('').toUpperCase()
+  const names = user.value.name.split(' ')
+  if (names.length >= 2) {
+    return (names[0][0] + names[1][0]).toUpperCase()
+  }
+  return names[0][0].toUpperCase()
 })
 
 const handleLogout = async () => {
   try {
     await axios.post('/api/logout')
     localStorage.removeItem('user')
-    userDropdownOpen.value = false
     user.value = null
     
     router.push('/login')
   } catch (error) {
-    console.error('Ошибка выхода:', error)
+    console.error('Logout error:', error)
     localStorage.removeItem('user')
     user.value = null
     router.push('/login')
@@ -229,21 +193,30 @@ const handleLogout = async () => {
 }
 
 const navigateToSettings = () => {
-  userDropdownOpen.value = false
   router.push('/dashboard/settings')
 }
 
 const fetchUser = async () => {
   try {
     const response = await axios.get('/api/user')
-    user.value = response.data
     
-    localStorage.setItem('user', JSON.stringify(response.data))
+    if (response.data.success) {
+      user.value = {
+        id: response.data.id,
+        name: response.data.name,
+        email: response.data.email
+      }
+    
+      localStorage.setItem('user', JSON.stringify(user.value))
+    } else {
+      throw new Error('Failed to fetch user')
+    }
   } catch (error) {
-    console.error('Ошибка получения пользователя:', error)
+    console.error('Failed to fetch user:', error)
     
     if (error.response?.status === 401) {
       localStorage.removeItem('user')
+      user.value = null
       router.push('/login')
     }
   }
@@ -255,17 +228,11 @@ onMounted(async () => {
     try {
       user.value = JSON.parse(savedUser)
     } catch (error) {
-      console.error('Ошибка парсинга сохраненных данных пользователя:', error)
+      console.error('Failed to parse saved user data:', error)
       localStorage.removeItem('user')
     }
   }
   
   await fetchUser()
-  
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.relative')) {
-      userDropdownOpen.value = false
-    }
-  })
 })
 </script>

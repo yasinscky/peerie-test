@@ -16,16 +16,16 @@ class Task extends Model
      */
     protected $fillable = [
         'external_id',
+        'action_id',
         'title',
         'description',
         'duration_hours',
+        'duration_minutes',
         'frequency',
         'dependencies',
-        'business_type',
         'language',
         'is_local',
         'requires_website',
-        'difficulty_level',
         'category',
         'global_order',
         'is_global',
@@ -34,6 +34,8 @@ class Task extends Model
         'allowed_capacities',
         'local_presence_options',
         'conditions',
+        'prerequisites',
+        'template',
     ];
 
     /**
@@ -49,13 +51,26 @@ class Task extends Model
         'target_countries' => 'array',
         'target_industries' => 'array',
         'allowed_capacities' => 'array',
-        'local_presence_options' => 'array',
         'conditions' => 'array',
+        'prerequisites' => 'array',
     ];
 
-    /**
-     * Получить планы, связанные с этой задачей
-     */
+    protected function getLocalPresenceOptionsAttribute($value)
+    {
+        if (is_array($value)) {
+            return !empty($value) ? $value[0] : 'no';
+        }
+        return $value ?? 'no';
+    }
+
+    protected function getTemplateAttribute($value)
+    {
+        if (is_array($value)) {
+            return !empty($value) ? $value[0] : 'no';
+        }
+        return $value ?? 'no';
+    }
+
     public function plans()
     {
         return $this->belongsToMany(Plan::class, 'plan_tasks')
@@ -64,7 +79,7 @@ class Task extends Model
     }
 
     /**
-     * Получить задачи-зависимости
+     * Get dependency tasks
      */
     public function dependencyTasks()
     {
@@ -76,7 +91,7 @@ class Task extends Model
     }
 
     /**
-     * Проверить, можно ли выполнить задачу (все зависимости выполнены)
+     * Check if task can be executed (all dependencies are completed)
      */
     public function canBeExecuted(array $completedTaskIds = []): bool
     {

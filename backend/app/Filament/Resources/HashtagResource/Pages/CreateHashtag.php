@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\HashtagResource\Pages;
 
 use App\Filament\Resources\HashtagResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Str;
 
 class CreateHashtag extends CreateRecord
 {
     protected static string $resource = HashtagResource::class;
+    protected static bool $canCreateAnother = false;
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {

@@ -102,7 +102,7 @@
               </div>
               <div class="w-full bg-[#DCDCDC] rounded-full h-3">
                 <div 
-                  class="bg-gradient-to-r from-[#F34767] to-[#1C8E9E] h-3 rounded-full transition-all duration-300"
+                  class="bg-[#F34767] h-3 rounded-full transition-all duration-300"
                   :style="{ width: `${Math.round(((plan.completed_tasks || 0) / (plan.total_tasks || 1)) * 100)}%` }"
                 ></div>
               </div>

@@ -22,10 +22,6 @@ class TaskController extends Controller
             $query->where('business_type', $request->business_type);
         }
 
-        if ($request->has('difficulty_level')) {
-            $query->where('difficulty_level', $request->difficulty_level);
-        }
-
         if ($request->has('language')) {
             $query->where('language', $request->language);
         }

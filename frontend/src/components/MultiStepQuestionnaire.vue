@@ -217,7 +217,7 @@
 
             <!-- Core Directories -->
             <div>
-              <label class="form-label">Core directories claimed</label>
+              <label class="form-label">Apple Business and Bing Places</label>
               <div class="grid grid-cols-2 gap-4">
                 <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.core_directories_claimed === true }">
                   <input v-model="form.core_directories_claimed" type="radio" :value="true" class="sr-only" @change="updateProgress">
@@ -350,13 +350,48 @@
             <div>
               <label class="form-label">Running ads</label>
               <div class="grid grid-cols-2 gap-3">
-                <label v-for="option in adsOptions" :key="option.value" class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.running_ads === option.value }">
-                  <input v-model="form.running_ads" type="radio" :value="option.value" class="sr-only" @change="updateProgress">
+                <label
+                  v-for="option in adsChannelOptions"
+                  :key="option.value"
+                  class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                  :class="{
+                    'border-primary-500 bg-primary-50': Array.isArray(form.running_ads) && form.running_ads.includes(option.value)
+                  }"
+                >
+                  <input
+                    v-model="form.running_ads"
+                    type="checkbox"
+                    :value="option.value"
+                    class="sr-only"
+                    @change="() => { onRunningAdsChange(); updateProgress() }"
+                  >
                   <div class="flex items-center">
                     <span class="text-2xl mr-3">{{ option.icon }}</span>
                     <div>
                       <div class="font-medium">{{ option.label }}</div>
                       <div class="text-sm text-gray-500">{{ option.description }}</div>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  v-if="noAdsOption"
+                  class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                  :class="{
+                    'border-primary-500 bg-primary-50': form.running_ads_none === true
+                  }"
+                >
+                  <input
+                    v-model="form.running_ads_none"
+                    type="checkbox"
+                    class="sr-only"
+                    @change="() => { onRunningAdsNoneChange(); updateProgress() }"
+                  >
+                  <div class="flex items-center">
+                    <span class="text-2xl mr-3">{{ noAdsOption.icon }}</span>
+                    <div>
+                      <div class="font-medium">{{ noAdsOption.label }}</div>
+                      <div class="text-sm text-gray-500">{{ noAdsOption.description }}</div>
                     </div>
                   </div>
                 </label>
@@ -527,7 +562,8 @@ export default {
       has_website: null,
       email_marketing_tool: null,
       crm_pipeline: null,
-      running_ads: '',
+      running_ads: [],
+      running_ads_none: false,
       
       has_primary_social_channel: null,
       primary_social_channel: '',
@@ -559,6 +595,14 @@ export default {
       { value: 'prospecting_social', label: 'Prospecting social', description: 'Social prospecting', icon: '📱' },
       { value: 'none', label: 'None', description: 'No ads yet', icon: '❌' }
     ]
+
+    const adsChannelOptions = computed(() => {
+      return adsOptions.filter(option => option.value !== 'none')
+    })
+
+    const noAdsOption = computed(() => {
+      return adsOptions.find(option => option.value === 'none')
+    })
 
     const socialChannels = [
       { value: 'instagram', label: 'Instagram', icon: '📸' },
@@ -621,7 +665,7 @@ export default {
       if (form.value.has_website !== null) completed++
       if (form.value.email_marketing_tool !== null) completed++
       if (form.value.crm_pipeline !== null) completed++
-      if (form.value.running_ads) completed++
+      if ((Array.isArray(form.value.running_ads) && form.value.running_ads.length > 0) || form.value.running_ads_none === true) completed++
 
       total += 2
       if (form.value.has_primary_social_channel !== null) completed++
@@ -665,7 +709,7 @@ export default {
           return form.value.has_website !== null &&
                  form.value.email_marketing_tool !== null &&
                  form.value.crm_pipeline !== null &&
-                 form.value.running_ads !== ''
+                 ((Array.isArray(form.value.running_ads) && form.value.running_ads.length > 0) || form.value.running_ads_none === true)
         case 5:
           return form.value.has_primary_social_channel !== null &&
                  form.value.has_secondary_social_channel !== null &&
@@ -677,6 +721,18 @@ export default {
     })
 
     const updateProgress = () => {
+    }
+
+    const onRunningAdsChange = () => {
+      if (Array.isArray(form.value.running_ads) && form.value.running_ads.length > 0) {
+        form.value.running_ads_none = false
+      }
+    }
+
+    const onRunningAdsNoneChange = () => {
+      if (form.value.running_ads_none) {
+        form.value.running_ads = []
+      }
     }
 
     const nextStep = async () => {
@@ -717,14 +773,14 @@ export default {
           planId.value = response.data.plan.id
           isSubmitted.value = true
         } else {
-          error.value = response.data.message || 'Произошла ошибка при создании плана'
+          error.value = response.data.message || 'An error occurred while creating the plan'
         }
       } catch (err) {
         if (err.response?.data?.errors) {
           const errors = Object.values(err.response.data.errors).flat()
           error.value = errors.join(', ')
         } else {
-          error.value = err.response?.data?.message || 'Произошла ошибка при создании плана'
+          error.value = err.response?.data?.message || 'An error occurred while creating the plan'
         }
       } finally {
         isLoading.value = false
@@ -756,7 +812,7 @@ export default {
           router.push('/dashboard')
         }
       } catch (error) {
-        console.log('Не удалось проверить существующие планы')
+        console.log('Could not check existing plans')
       }
     })
 
@@ -777,10 +833,14 @@ export default {
       industries,
       timeOptions,
       adsOptions,
+      adsChannelOptions,
+      noAdsOption,
       socialChannels,
       availablePrimaryChannels,
       availableSecondaryChannels,
       updateProgress,
+      onRunningAdsChange,
+      onRunningAdsNoneChange,
       nextStep,
       prevStep,
       submitQuestionnaire,

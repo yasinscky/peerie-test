@@ -19,55 +19,129 @@ class ImageServiceManager
     }
 
     /**
-     * Search images using random service rotation
+     * Search images using all services simultaneously
      */
     public function searchImages(string $query, int $page = 1, int $perPage = 20): array
     {
-        $serviceName = $this->getNextService();
-        $service = $this->services[$serviceName];
+        $results = [];
+        $allImages = [];
+        $totalResults = 0;
+        $servicesUsed = [];
         
-        $result = $service->searchImages($query, $page, $perPage);
-        $result['service_used'] = $serviceName;
+        foreach ($this->services as $serviceName => $service) {
+            try {
+                $result = $service->searchImages($query, $page, $perPage);
+                if ($result['success'] && !empty($result['images'])) {
+                    $allImages = array_merge($allImages, $result['images']);
+                    $totalResults += $result['total'] ?? 0;
+                    $servicesUsed[] = $serviceName;
+                }
+                $results[$serviceName] = $result;
+            } catch (\Exception $e) {
+                $results[$serviceName] = [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
         
-        return $result;
+        $perServicePerPage = ceil($perPage / count($this->services));
+        $hasNextPage = count($allImages) >= $perPage;
+        
+        return [
+            'success' => !empty($allImages),
+            'images' => array_slice($allImages, 0, $perPage),
+            'total' => $totalResults,
+            'page' => $page,
+            'perPage' => $perPage,
+            'hasNextPage' => $hasNextPage,
+            'service_used' => implode(', ', $servicesUsed),
+            'all_results' => $results
+        ];
     }
 
     /**
-     * Search by category using random service rotation
+     * Search by category using all services simultaneously
      */
     public function searchByCategory(string $category, int $page = 1, int $perPage = 16): array
     {
-        $serviceName = $this->getNextService();
-        $service = $this->services[$serviceName];
+        $results = [];
+        $allImages = [];
+        $totalResults = 0;
+        $servicesUsed = [];
         
-        $result = $service->searchByCategory($category, $page, $perPage);
-        $result['service_used'] = $serviceName;
+        foreach ($this->services as $serviceName => $service) {
+            try {
+                $result = $service->searchByCategory($category, $page, $perPage);
+                if ($result['success'] && !empty($result['images'])) {
+                    $allImages = array_merge($allImages, $result['images']);
+                    $totalResults += $result['total'] ?? 0;
+                    $servicesUsed[] = $serviceName;
+                }
+                $results[$serviceName] = $result;
+            } catch (\Exception $e) {
+                $results[$serviceName] = [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
         
-        return $result;
+        $hasNextPage = count($allImages) >= $perPage;
+        
+        return [
+            'success' => !empty($allImages),
+            'images' => array_slice($allImages, 0, $perPage),
+            'total' => $totalResults,
+            'page' => $page,
+            'perPage' => $perPage,
+            'hasNextPage' => $hasNextPage,
+            'service_used' => implode(', ', $servicesUsed),
+            'all_results' => $results
+        ];
     }
 
     /**
-     * Get popular images using random service rotation
+     * Get popular images using all services simultaneously
      */
     public function getPopularImages(int $page = 1, int $perPage = 20): array
     {
-        $serviceName = $this->getNextService();
-        $service = $this->services[$serviceName];
+        $results = [];
+        $allImages = [];
+        $totalResults = 0;
+        $servicesUsed = [];
         
-        $result = $service->getPopularImages($page, $perPage);
-        $result['service_used'] = $serviceName;
+        foreach ($this->services as $serviceName => $service) {
+            try {
+                $result = $service->getPopularImages($page, $perPage);
+                if ($result['success'] && !empty($result['images'])) {
+                    $allImages = array_merge($allImages, $result['images']);
+                    $totalResults += $result['total'] ?? 0;
+                    $servicesUsed[] = $serviceName;
+                }
+                $results[$serviceName] = $result;
+            } catch (\Exception $e) {
+                $results[$serviceName] = [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
         
-        return $result;
+        $hasNextPage = count($allImages) >= $perPage;
+        
+        return [
+            'success' => !empty($allImages),
+            'images' => array_slice($allImages, 0, $perPage),
+            'total' => $totalResults,
+            'page' => $page,
+            'perPage' => $perPage,
+            'hasNextPage' => $hasNextPage,
+            'service_used' => implode(', ', $servicesUsed),
+            'all_results' => $results
+        ];
     }
 
-    /**
-     * Get random service
-     */
-    private function getNextService(): string
-    {
-        $serviceNames = array_keys($this->services);
-        return $serviceNames[array_rand($serviceNames)];
-    }
 
     /**
      * Get specific service by name

@@ -37,12 +37,22 @@ class PexelsImageService
             if (!$response->successful()) {
                 Log::error('Pexels API error', [
                     'status' => $response->status(),
-                    'body' => $response->body()
+                    'body' => $response->body(),
+                    'query' => $query,
+                    'url' => $this->baseUrl . '/search'
                 ]);
                 return $this->getEmptyResponse();
             }
 
             $data = $response->json();
+            
+            if (!isset($data['photos']) || empty($data['photos'])) {
+                Log::warning('Pexels API returned empty photos', [
+                    'query' => $query,
+                    'total_results' => $data['total_results'] ?? 0
+                ]);
+            }
+            
             return $this->transformResponse($data);
 
         } catch (\Exception $e) {

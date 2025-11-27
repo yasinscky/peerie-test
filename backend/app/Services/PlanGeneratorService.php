@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Plan;
 use App\Models\Task;
 use App\Models\PlanTask;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class PlanGeneratorService
@@ -12,44 +13,65 @@ class PlanGeneratorService
     public function generatePlan(Plan $plan): array
     {
         $hoursPerWeek = max(1, (int) ($plan->marketing_time_per_week ?? 4));
+        $minutesPerWeek = $hoursPerWeek * 60;
 
         $filteredTasks = $this->filterTasks($plan);
         $prioritizedTasks = $this->prioritizeTasks($filteredTasks, $plan);
-        $capacityAlignedTasks = $this->limitTasksByCapacity($prioritizedTasks, $hoursPerWeek);
-        $sortedTasks = $this->sortTasksByDependencies($capacityAlignedTasks);
-        $weeklyPlan = $this->distributeTasksByWeeks($sortedTasks, $hoursPerWeek);
+        $sortedTasks = $this->sortTasksByDependencies($prioritizedTasks);
+        $limitedTasks = $this->limitTasksByCapacity($sortedTasks, $minutesPerWeek);
+        $weeklyPlan = $this->distributeTasksByWeeks($limitedTasks, $minutesPerWeek, $plan);
         $this->savePlanTasks($plan, $weeklyPlan);
         
         return [
             'plan_id' => $plan->id,
             'title' => $plan->title,
             'weeks' => $weeklyPlan,
-            'total_tasks' => $filteredTasks->count(),
-            'total_hours' => $filteredTasks->sum('duration_hours'),
+            'total_tasks' => $limitedTasks->count(),
+            'total_minutes' => $limitedTasks->sum(function (Task $task) {
+                return $this->getTaskDurationMinutes($task);
+            }),
         ];
     }
 
     private function filterTasks(Plan $plan): Collection
     {
-        $query = Task::query();
+        $tasks = Task::query()
+            ->whereIn('language', [$plan->language, 'en'])
+            ->get();
 
-        $query->where(function ($q) use ($plan) {
-            $q->where('language', $plan->language);
-
-            if ($plan->language !== 'en') {
-                $q->orWhere(function ($nested) use ($plan) {
-                    $nested->where('language', 'en')
-                           ->where('is_global', true);
-                });
-            }
-        });
-
-        $tasks = $query->get();
-
-        return $tasks->filter(function (Task $task) use ($plan) {
+        $filtered = $tasks->filter(function (Task $task) use ($plan) {
             return $this->matchesPlanBasics($task, $plan)
                 && $this->passesQuestionnaireRules($task, $plan);
         })->values();
+
+        return $filtered
+            ->groupBy(function (Task $task) {
+                if (!empty($task->external_id)) {
+                    return $task->external_id;
+                }
+
+                if (!empty($task->category)) {
+                    return $task->category . '|' . ($task->action_id ?? $task->id);
+                }
+
+                return $task->action_id ?? $task->id;
+            })
+            ->map(function (Collection $group) use ($plan) {
+                $preferred = $group->firstWhere('language', $plan->language);
+
+                if ($preferred) {
+                    return $preferred;
+                }
+
+                $fallback = $group->firstWhere('language', 'en');
+
+                if ($fallback) {
+                    return $fallback;
+                }
+
+                return $group->first();
+            })
+            ->values();
     }
 
     private function prioritizeTasks(Collection $tasks, Plan $plan): Collection
@@ -72,6 +94,19 @@ class PlanGeneratorService
         }
 
         return $sorted;
+    }
+
+    private function getTaskDurationMinutes(Task $task): int
+    {
+        if (!empty($task->duration_minutes)) {
+            return (int) $task->duration_minutes;
+        }
+
+        if (!empty($task->duration_hours)) {
+            return (int) $task->duration_hours * 60;
+        }
+
+        return 60;
     }
 
     private function visitTask(Task $task, Collection $allTasks, array &$visited, array &$visiting, Collection &$sorted): void
@@ -100,7 +135,7 @@ class PlanGeneratorService
         $sorted->push($task);
     }
 
-    private function distributeTasksByWeeks(Collection $tasks, int $hoursPerWeek): array
+    private function distributeTasksByWeeks(Collection $tasks, int $minutesPerWeek, Plan $plan): array
     {
         $weeks = [
             1 => ['tasks' => [], 'hours' => 0],
@@ -112,104 +147,65 @@ class PlanGeneratorService
         $completedTaskIds = [];
         
         $oneTimeTasks = $tasks->where('frequency', 'once');
-        $weeklyTasks = $tasks->where('frequency', 'weekly');
-        $monthlyTasks = $tasks->where('frequency', 'monthly');
-        $quarterlyTasks = $tasks->where('frequency', 'quarterly');
+        $recurringTasks = $tasks->filter(function (Task $task) {
+            return in_array($task->frequency, [
+                'weekly',
+                'bi_weekly',
+                'monthly',
+                'quarterly',
+                'half_yearly',
+                'yearly',
+            ], true);
+        });
 
-        $this->distributeOneTimeTasks($oneTimeTasks, $weeks, $completedTaskIds, $hoursPerWeek);
-        $this->distributeRecurringTasks($weeklyTasks, $weeks, $completedTaskIds, $hoursPerWeek, 'weekly');
-        $this->distributeRecurringTasks($monthlyTasks, $weeks, $completedTaskIds, $hoursPerWeek, 'monthly');
-        $this->distributeRecurringTasks($quarterlyTasks, $weeks, $completedTaskIds, $hoursPerWeek, 'quarterly');
+        $this->distributeOneTimeTasks($oneTimeTasks, $weeks, $completedTaskIds, $minutesPerWeek);
+
+        foreach ($recurringTasks as $task) {
+            if (!$this->shouldIncludeTaskThisMonth($task, $plan)) {
+                continue;
+            }
+
+            $this->assignTaskToWeek($task, $weeks, $completedTaskIds, $minutesPerWeek);
+        }
 
         return $weeks;
     }
 
-    private function distributeOneTimeTasks(Collection $tasks, array &$weeks, array &$completedTaskIds, int $hoursPerWeek): void
+    private function distributeOneTimeTasks(Collection $tasks, array &$weeks, array &$completedTaskIds, int $minutesPerWeek): void
     {
         $sortedTasks = $tasks->sortBy(function ($task) {
-            $priority = 0;
-            if ($task->difficulty_level === 'beginner') $priority = 1;
-            elseif ($task->difficulty_level === 'intermediate') $priority = 2;
-            else $priority = 3;
-            
-            return [$priority, $task->duration_hours];
+            return $task->duration_hours;
         });
 
-        $currentWeek = 1;
         foreach ($sortedTasks as $task) {
-            $assigned = false;
-            $startWeek = $currentWeek;
-
-            do {
-                if ($weeks[$currentWeek]['hours'] + $task->duration_hours <= $hoursPerWeek) {
-                    $weeks[$currentWeek]['tasks'][] = $task;
-                    $weeks[$currentWeek]['hours'] += $task->duration_hours;
-                    $completedTaskIds[] = $task->id;
-                    $assigned = true;
-                    $currentWeek = ($currentWeek % 4) + 1;
-                    break;
-                }
-
-                $currentWeek = ($currentWeek % 4) + 1;
-            } while ($currentWeek !== $startWeek);
-
-            if (!$assigned) {
-                for ($week = 1; $week <= 4; $week++) {
-                    if ($weeks[$week]['hours'] + $task->duration_hours <= $hoursPerWeek * 1.3) {
-                        $weeks[$week]['tasks'][] = $task;
-                        $weeks[$week]['hours'] += $task->duration_hours;
-                        $completedTaskIds[] = $task->id;
-                        break;
-                    }
-                }
-            }
+            $this->assignTaskToWeek($task, $weeks, $completedTaskIds, $minutesPerWeek);
         }
     }
 
-    private function distributeRecurringTasks(Collection $tasks, array &$weeks, array &$completedTaskIds, int $hoursPerWeek, string $frequency): void
+    private function assignTaskToWeek(Task $task, array &$weeks, array &$completedTaskIds, int $minutesPerWeek): void
     {
-        foreach ($tasks as $task) {
-            switch ($frequency) {
-                case 'weekly':
-                    for ($week = 1; $week <= 4; $week++) {
-                        if ($weeks[$week]['hours'] + $task->duration_hours <= $hoursPerWeek * 1.2) {
-                            $weeks[$week]['tasks'][] = $task;
-                            $weeks[$week]['hours'] += $task->duration_hours;
-                            if (!in_array($task->id, $completedTaskIds)) {
-                                $completedTaskIds[] = $task->id;
-                            }
-                        }
-                    }
-                    break;
-                    
-                case 'monthly':
-                    $assignedWeeks = [];
-                    for ($week = 1; $week <= 4; $week++) {
-                        if ($weeks[$week]['hours'] + $task->duration_hours <= $hoursPerWeek * 1.2) {
-                            $weeks[$week]['tasks'][] = $task;
-                            $weeks[$week]['hours'] += $task->duration_hours;
-                            $assignedWeeks[] = $week;
-                            if (!in_array($task->id, $completedTaskIds)) {
-                                $completedTaskIds[] = $task->id;
-                            }
-                            if (count($assignedWeeks) >= 2) break;
-                        }
-                    }
-                    break;
-                    
-                case 'quarterly':
-                    for ($week = 1; $week <= 4; $week++) {
-                        if ($weeks[$week]['hours'] + $task->duration_hours <= $hoursPerWeek * 1.2) {
-                            $weeks[$week]['tasks'][] = $task;
-                            $weeks[$week]['hours'] += $task->duration_hours;
-                            if (!in_array($task->id, $completedTaskIds)) {
-                                $completedTaskIds[] = $task->id;
-                            }
-                            break;
-                        }
-                    }
-                    break;
+        $taskMinutes = $this->getTaskDurationMinutes($task);
+        $selectedWeek = null;
+
+        foreach ($weeks as $weekNumber => $weekData) {
+            $weekMinutes = $weekData['hours'] * 60;
+
+            if ($weekMinutes + $taskMinutes <= $minutesPerWeek) {
+                if ($selectedWeek === null || $weekMinutes < $weeks[$selectedWeek]['hours'] * 60) {
+                    $selectedWeek = $weekNumber;
+                }
             }
+        }
+
+        if ($selectedWeek === null) {
+            return;
+        }
+
+        $weeks[$selectedWeek]['tasks'][] = $task;
+        $weeks[$selectedWeek]['hours'] += $taskMinutes / 60;
+
+        if (!in_array($task->id, $completedTaskIds, true)) {
+            $completedTaskIds[] = $task->id;
         }
     }
 
@@ -231,70 +227,47 @@ class PlanGeneratorService
 
     private function calculatePriority(Task $task, Plan $plan): int
     {
-        $baseOrder = $task->global_order ?? 500;
-
-        if ($plan->is_local_business && $task->is_local) {
-            $baseOrder -= 50;
-        }
-
-        if (!$plan->business_goals_defined && $this->taskContains($task, ['goal', 'kpi'])) {
-            $baseOrder -= 25;
-        }
-
-        if (!$plan->marketing_goals_defined && $this->taskContains($task, ['strategy', 'plan', 'roadmap'])) {
-            $baseOrder -= 20;
-        }
-
-        if ($task->difficulty_level === 'beginner') {
-            $baseOrder -= 10;
-        } elseif ($task->difficulty_level === 'advanced') {
-            $baseOrder += 5;
-        }
-
-        return max(0, $baseOrder);
+        return (int) ($task->global_order ?? 500);
     }
 
-    private function limitTasksByCapacity(Collection $tasks, int $hoursPerWeek): Collection
+    private function limitTasksByCapacity(Collection $tasks, int $minutesPerWeek): Collection
     {
-        $availableHours = max(1, $hoursPerWeek) * 4;
+        $availableMinutes = max(1, $minutesPerWeek) * 4;
         $selected = collect();
-        $usedHours = 0;
-
+        $usedMinutes = 0;
         foreach ($tasks as $task) {
-            if (($usedHours + $task->duration_hours) > $availableHours) {
+            $taskMinutes = $this->getTaskDurationMinutes($task);
+
+            if (($usedMinutes + $taskMinutes) > $availableMinutes) {
                 continue;
             }
 
             $selected->push($task);
-            $usedHours += $task->duration_hours;
+            $usedMinutes += $taskMinutes;
         }
 
-        return $selected->isNotEmpty() ? $selected : $tasks->take(10);
+        return $selected->isNotEmpty() ? $selected : $tasks;
     }
 
     private function passesQuestionnaireRules(Task $task, Plan $plan): bool
     {
-        if (!empty($task->conditions)) {
+        if (!empty($task->conditions) && is_array($task->conditions)) {
             foreach ($task->conditions as $condition) {
-                $field = $condition['field'] ?? null;
-                $operator = $condition['operator'] ?? '=';
-                $expected = $condition['value'] ?? null;
-
-                if (!$field) {
+                if (!isset($condition['field']) || !isset($condition['operator']) || !isset($condition['value'])) {
                     continue;
                 }
 
-                $actual = data_get($plan, $field);
+                $field = $condition['field'];
+                $operator = $condition['operator'];
+                $requiredValue = $condition['value'];
 
-                if ($field === 'running_ads') {
-                    $actual = $actual ?? 'none';
+                $planValue = $this->getPlanConditionValue($plan, $field);
+
+                if ($planValue === null) {
+                    continue;
                 }
 
-                if ($operator === '=' && $actual !== $expected) {
-                    return false;
-                }
-
-                if ($operator === '!=' && $actual === $expected) {
+                if (!$this->evaluateCondition($planValue, $operator, $requiredValue)) {
                     return false;
                 }
             }
@@ -303,45 +276,214 @@ class PlanGeneratorService
         return true;
     }
 
+    private function evaluateCondition($planValue, string $operator, $requiredValue): bool
+    {
+        return match ($operator) {
+            'equals', '==' => $planValue == $requiredValue,
+            'not_equals', '!=' => $planValue != $requiredValue,
+            'in' => is_array($requiredValue) && in_array($planValue, $requiredValue, true),
+            'not_in' => is_array($requiredValue) && !in_array($planValue, $requiredValue, true),
+            default => true,
+        };
+    }
+
     private function matchesPlanBasics(Task $task, Plan $plan): bool
     {
-        $planCountry = $plan->country;
+        $planCountry = $this->normalizeCountryCode($plan->country);
 
-        if (!$task->is_global && !empty($task->target_countries) && !in_array($planCountry, $task->target_countries, true)) {
-            return false;
-        }
+        $taskCountries = $this->normalizeArrayValues($task->target_countries ?? null);
 
-        $planIndustries = is_array($plan->industries) ? $plan->industries : [$plan->business_niche];
-        $planIndustries = array_filter(array_map('strtolower', $planIndustries));
+        if (!empty($taskCountries)) {
+            $normalizedTaskCountries = array_map(
+                fn ($country) => $this->normalizeCountryCode($country),
+                $taskCountries
+            );
 
-        if (!empty($task->target_industries)) {
-            $intersection = array_intersect($task->target_industries, $planIndustries);
-            if (empty($intersection)) {
+            if (!in_array($planCountry, $normalizedTaskCountries, true)) {
                 return false;
             }
         }
 
-        if (!empty($task->allowed_capacities)) {
+        $planIndustries = is_array($plan->industries) ? $plan->industries : [];
+        $planIndustries = array_filter(array_map('strtolower', $planIndustries));
+
+        $taskIndustries = $this->normalizeArrayValues($task->target_industries ?? null);
+
+        if (!empty($taskIndustries) && !empty($planIndustries)) {
+            $taskIndustries = array_filter(array_map(static function ($value) {
+                return strtolower(trim((string) $value));
+            }, $taskIndustries));
+
+            $hasAllIndustriesFlag = in_array('all', $taskIndustries, true)
+                || in_array('all industries', $taskIndustries, true);
+
+            if (!$hasAllIndustriesFlag) {
+                $intersection = array_intersect($planIndustries, $taskIndustries);
+
+                if (count($intersection) === 0) {
+                    return false;
+                }
+            }
+        }
+
+        $capacities = $this->normalizeArrayValues($task->allowed_capacities ?? null);
+
+        if (!empty($capacities)) {
+            $capacities = array_map(static fn ($value) => (int) $value, $capacities);
             $capacity = (int) $plan->marketing_time_per_week;
-            if (!in_array($capacity, $task->allowed_capacities, true)) {
+
+            if (!in_array($capacity, $capacities, true)) {
                 return false;
             }
         }
 
         if (!empty($task->local_presence_options)) {
-            $options = $task->local_presence_options;
+            $option = $task->local_presence_options;
             $isLocal = (bool) $plan->is_local_business;
 
-            if ($isLocal && !in_array('yes', $options, true)) {
+            if ($option === 'yes' && !$isLocal) {
                 return false;
             }
 
-            if (!$isLocal && !in_array('no', $options, true)) {
+            if ($option === 'no' && $isLocal) {
                 return false;
             }
         }
 
+        if (!empty($task->prerequisites) && is_array($task->prerequisites)) {
+            foreach ($task->prerequisites as $prerequisite) {
+                if (!isset($prerequisite['condition']) || !isset($prerequisite['value'])) {
+                    continue;
+                }
+
+                $condition = $prerequisite['condition'];
+                $requiredValueRaw = $prerequisite['value'];
+
+                $planValue = $this->getPlanConditionValue($plan, $condition);
+
+                if ($planValue === null && !$this->isBooleanCondition($condition)) {
+                    continue;
+                }
+
+                $planValueBool = $planValue === true;
+                $requiredValueBool = $this->normalizePrerequisiteValue($requiredValueRaw);
+
+                if ($planValueBool !== $requiredValueBool) {
+                    return false;
+                }
+            }
+        }
+
         return true;
+    }
+
+    private function getPlanConditionValue(Plan $plan, string $condition): ?bool
+    {
+        $value = match ($condition) {
+            'business_goals_defined' => $plan->business_goals_defined,
+            'marketing_goals_defined' => $plan->marketing_goals_defined,
+            'google_business_claimed' => $plan->google_business_claimed,
+            'core_directories_claimed' => $plan->core_directories_claimed,
+            'industry_directories_claimed' => $plan->industry_directories_claimed,
+            'business_directories_claimed' => $plan->business_directories_claimed,
+            'has_website' => $plan->has_website,
+            'email_marketing_tool' => $plan->email_marketing_tool,
+            'crm_pipeline' => $plan->crm_pipeline,
+            'has_primary_social_channel' => $plan->has_primary_social_channel,
+            'has_secondary_social_channel' => $plan->has_secondary_social_channel,
+            default => null,
+        };
+
+        if ($value === null && $this->isBooleanCondition($condition)) {
+            return false;
+        }
+
+        return $value === null ? null : (bool) $value;
+    }
+
+    private function isBooleanCondition(string $condition): bool
+    {
+        return in_array($condition, [
+            'business_goals_defined',
+            'marketing_goals_defined',
+            'google_business_claimed',
+            'core_directories_claimed',
+            'industry_directories_claimed',
+            'business_directories_claimed',
+            'has_website',
+            'email_marketing_tool',
+            'crm_pipeline',
+            'has_primary_social_channel',
+            'has_secondary_social_channel',
+        ], true);
+    }
+
+    private function normalizePrerequisiteValue($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            return in_array($normalized, ['yes', 'true', '1'], true);
+        }
+
+        if (is_numeric($value)) {
+            return (bool) $value;
+        }
+
+        return false;
+    }
+
+    private function shouldIncludeTaskThisMonth(Task $task, Plan $plan): bool
+    {
+        $frequency = $task->frequency;
+
+        if (in_array($frequency, ['once', 'weekly', 'bi_weekly'], true)) {
+            return true;
+        }
+
+        $planCreatedAt = $plan->created_at instanceof Carbon
+            ? $plan->created_at
+            : Carbon::parse($plan->created_at ?? Carbon::now());
+
+        $now = Carbon::now();
+        $monthsSinceStart = $planCreatedAt->startOfMonth()->diffInMonths($now->copy()->startOfMonth());
+
+        if ($frequency === 'monthly') {
+            return true;
+        }
+
+        if ($frequency === 'quarterly') {
+            return $monthsSinceStart % 3 === 0;
+        }
+
+        if ($frequency === 'half_yearly') {
+            return $monthsSinceStart % 6 === 0;
+        }
+
+        if ($frequency === 'yearly') {
+            return $monthsSinceStart % 12 === 0;
+        }
+
+        return true;
+    }
+
+    private function normalizeCountryCode(?string $country): string
+    {
+        if ($country === null) {
+            return '';
+        }
+
+        $code = strtolower(trim($country));
+
+        return match ($code) {
+            'uk', 'gb', 'united kingdom' => 'uk',
+            'ire', 'ie', 'ireland' => 'ie',
+            'de', 'ger', 'germany' => 'de',
+            default => $code,
+        };
     }
 
     private function isSocialTask(Task $task): bool
@@ -364,5 +506,39 @@ class PlanGeneratorService
         }
 
         return false;
+    }
+
+    private function normalizeArrayValues($value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        $result = [];
+        $stack = is_array($value) ? $value : [$value];
+
+        foreach ($stack as $item) {
+            if (is_array($item)) {
+                if (array_key_exists('s', $item) && $item['s'] === 'arr' && count($item) === 1) {
+                    continue;
+                }
+
+                foreach ($this->normalizeArrayValues($item) as $nested) {
+                    $result[] = $nested;
+                }
+
+                continue;
+            }
+
+            if ($item === null || $item === '') {
+                continue;
+            }
+
+            if (is_scalar($item)) {
+                $result[] = $item;
+            }
+        }
+
+        return array_values(array_unique($result));
     }
 }

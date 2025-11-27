@@ -45,7 +45,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Получить планы пользователя
+     * Get user plans
      */
     public function plans()
     {
@@ -53,11 +53,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Проверить, является ли пользователь администратором
+     * Last created user plan
+     */
+    public function latestPlan()
+    {
+        return $this->hasOne(Plan::class)->latestOfMany();
+    }
+
+    /**
+     * Check if user is an admin
      */
     public function isAdmin(): bool
     {
-        // Явное приведение к boolean для надежности
+        // Explicit cast to boolean for reliability
         return (bool) $this->is_admin;
     }
 }

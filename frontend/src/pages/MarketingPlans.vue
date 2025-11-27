@@ -3,7 +3,7 @@
     <div class="mb-8">
       <div>
         <h1 class="text-3xl font-bold text-[#3F4369]">Your Marketing Plan</h1>
-        <p class="text-[#3F4369] opacity-70 mt-2">Track your personalized marketing tasks by week</p>
+        <p class="text-[#3F4369] opacity-70 mt-2">Track your personalized marketing tasks by category</p>
       </div>
     </div>
 
@@ -55,7 +55,7 @@
 
     <!-- Plan Overview -->
     <div v-if="plan" class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] mb-8">
-      <div class="bg-gradient-to-r from-[#FFEBD0] to-white p-6 border-b border-[#DCDCDC]">
+      <div class="bg-gradient-to-r to-white p-6 border-b border-[#DCDCDC]">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-2xl font-bold text-[#3F4369] mb-2">{{ plan.title }}</h3>
@@ -67,11 +67,11 @@
                 </svg>
                 {{ plan.country }}
               </span>
-              <span class="flex items-center">
+              <span class="flex items-center" v-if="plan.industries && plan.industries.length">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
-                {{ plan.business_niche }}
+                {{ plan.industries.join(', ') }}
               </span>
             </div>
           </div>
@@ -87,7 +87,7 @@
         <div class="mt-4">
           <div class="w-full bg-[#DCDCDC] rounded-full h-3">
             <div 
-              class="bg-gradient-to-r from-[#F34767] to-[#1C8E9E] h-3 rounded-full transition-all duration-300"
+              class="bg-[#F34767] h-3 rounded-full transition-all duration-300"
               :style="{ width: getProgressPercentage(plan) + '%' }"
             ></div>
           </div>
@@ -106,7 +106,7 @@
         :key="category.name"
         class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] overflow-hidden"
       >
-        <div class="bg-gradient-to-r from-[#FFEBD0] to-white p-6 border-b border-[#DCDCDC] flex items-center justify-between">
+        <div class="bg-gradient-to-r to-white p-6 border-b border-[#DCDCDC] flex items-center justify-between">
           <div>
             <h3 class="text-2xl font-bold text-[#3F4369]">{{ category.name }}</h3>
             <p class="text-[#3F4369] opacity-70">{{ category.tasks.length }} tasks • {{ category.totalHours }}h estimated</p>
@@ -164,7 +164,7 @@
                       <!-- Task Meta -->
                       <div class="flex flex-wrap gap-2 mt-2">
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#FFEBD0] text-[#3F4369]">
-                          ⏱️ {{ task.duration_hours }}h
+                          ⏱️ {{ getTaskHours(task) }}h
                         </span>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#1C8E9E]/10 text-[#1C8E9E]">
                           📅 {{ formatFrequency(task.frequency) }}
@@ -255,7 +255,7 @@
         <div class="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
           <div class="flex flex-wrap gap-3 items-start mb-6">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#DCDCDC] text-[#3F4369]">
-              ⏱️ {{ selectedTask.duration_hours }}h
+              ⏱️ {{ getTaskHours(selectedTask) }}h
             </span>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#1C8E9E]/10 text-[#1C8E9E]">
               📅 {{ formatFrequency(selectedTask.frequency) }}
@@ -264,7 +264,17 @@
 
           <h2 class="text-2xl font-semibold text-[#3F4369] mb-4">{{ selectedTask.title }}</h2>
 
-          <div class="space-y-4 text-[#3F4369] leading-relaxed">
+          <div
+            v-if="selectedTaskIsHtml"
+            class="prose max-w-none text-[#3F4369] leading-relaxed"
+          >
+            <div v-html="instructionHtml" />
+          </div>
+
+          <div
+            v-else
+            class="space-y-4 text-[#3F4369] leading-relaxed"
+          >
             <p
               v-for="(section, idx) in instructionContent.sections"
               :key="idx"
@@ -274,7 +284,7 @@
             </p>
           </div>
 
-          <div v-if="instructionContent.prerequisites.length" class="mt-6">
+          <div v-if="!selectedTaskIsHtml && instructionContent.prerequisites.length" class="mt-6">
             <h3 class="text-sm font-semibold text-[#3F4369] uppercase tracking-wide mb-2">Prerequisites</h3>
             <ul class="space-y-2 text-sm text-[#3F4369]">
               <li v-for="(pr, idx) in instructionContent.prerequisites" :key="idx" class="flex items-start gap-2">
@@ -284,7 +294,7 @@
             </ul>
           </div>
 
-          <div v-if="instructionContent.resources.length" class="mt-6">
+          <div v-if="!selectedTaskIsHtml && instructionContent.resources.length" class="mt-6">
             <h3 class="text-sm font-semibold text-[#3F4369] uppercase tracking-wide mb-2">Resources</h3>
             <div class="flex flex-wrap gap-3">
               <a
@@ -326,39 +336,6 @@ const instructionModalOpen = ref(false)
 const selectedTask = ref(null)
 
 const plan = computed(() => plans.value[0] || null)
-const categorisedTasks = computed(() => {
-  if (!plan.value || !plan.value.weeks) return []
-
-  const categories = new Map()
-
-  plan.value.weeks.forEach(week => {
-    week.tasks?.forEach(task => {
-      const categoryName = task.category || 'General'
-      if (!categories.has(categoryName)) {
-        categories.set(categoryName, {
-          name: categoryName,
-          tasks: [],
-          totalHours: 0,
-          completed: 0
-        })
-      }
-
-      const category = categories.get(categoryName)
-      category.tasks.push(task)
-      category.totalHours += task.duration_hours || 0
-      if (task.pivot?.completed) {
-        category.completed += 1
-      }
-    })
-  })
-
-  return Array.from(categories.values()).map(category => ({
-    ...category,
-    progress: category.tasks.length > 0
-      ? Math.round((category.completed / category.tasks.length) * 100)
-      : 0
-  }))
-})
 
 const fetchPlans = async () => {
   try {
@@ -375,11 +352,11 @@ const fetchPlans = async () => {
     console.log('API Plans:', apiPlans)
     
     if (apiPlans.length > 0 && (!apiPlans[0].weeks || apiPlans[0].weeks.length === 0)) {
-      console.log('API план без weeks, используем как есть')
+      console.log('API plan without weeks, using as is')
       plans.value = apiPlans
       updateStats()
     } else if (apiPlans.length > 0) {
-      console.log('Используем план из API с weeks:', apiPlans[0].weeks)
+      console.log('Using API plan with weeks:', apiPlans[0].weeks)
       plans.value = apiPlans
       updateStats()
     } else {
@@ -387,7 +364,7 @@ const fetchPlans = async () => {
       updateStats()
     }
   } catch (error) {
-    console.error('Ошибка загрузки планов:', error)
+    console.error('Failed to load plans:', error)
     
     plans.value = []
     updateStats()
@@ -411,12 +388,139 @@ const getProgressPercentage = (plan) => {
   return Math.round((plan.completed_tasks || 0) / plan.total_tasks * 100)
 }
 
-const getTotalHours = (plan) => {
-  return (plan.total_tasks || 0) * 2 // Примерно 2 часа на задачу
+function getTaskMinutes(task) {
+  if (!task) {
+    return 0
+  }
+
+  if (task.duration_minutes !== undefined && task.duration_minutes !== null) {
+    return task.duration_minutes
+  }
+
+  if (task.duration_hours !== undefined && task.duration_hours !== null) {
+    return task.duration_hours * 60
+  }
+
+  return 60
 }
 
+function getTaskHours(task) {
+  const minutes = getTaskMinutes(task)
+  return Number((minutes / 60).toFixed(1))
+}
+
+const categorisedTasks = computed(() => {
+  if (!plan.value) return []
+
+  if (Array.isArray(plan.value.categories) && plan.value.categories.length > 0) {
+    return plan.value.categories.map(category => {
+      const tasks = category.tasks || []
+      const totalMinutes = tasks.reduce((sum, task) => sum + getTaskMinutes(task), 0)
+      const totalHours = Number((totalMinutes / 60).toFixed(1))
+      const completed = tasks.filter(task => task.pivot?.completed).length
+      const progress = tasks.length > 0
+        ? Math.round((completed / tasks.length) * 100)
+        : 0
+
+      return {
+        ...category,
+        tasks,
+        totalMinutes,
+        totalHours,
+        completed,
+        progress,
+      }
+    })
+  }
+
+  if (!plan.value.weeks) return []
+
+  const categoryMapping = {
+    Goals: 'Goals',
+    'Digital Marketing Foundations': 'Digital Marketing Foundations',
+    'Local SEO': 'Local SEO',
+    Content: 'Content',
+    'Social Media': 'Social Media',
+    Website: 'Website',
+    'Email Marketing': 'Email Marketing',
+    'Paid Ads': 'Paid Advertising',
+    'Paid Advertising': 'Paid Advertising',
+    CRM: 'CRM',
+    Buffer: null
+  }
+
+  const desiredOrder = [
+    'Goals',
+    'Digital Marketing Foundations',
+    'Local SEO',
+    'Content',
+    'Social Media',
+    'Website',
+    'Email Marketing',
+    'Paid Advertising',
+    'CRM'
+  ]
+
+  const categories = new Map()
+
+  plan.value.weeks.forEach(week => {
+    week.tasks?.forEach(task => {
+      const rawCategory = task.category || 'General'
+      const mappedCategory = Object.prototype.hasOwnProperty.call(categoryMapping, rawCategory)
+        ? categoryMapping[rawCategory]
+        : rawCategory
+
+      if (!mappedCategory || mappedCategory === 'Buffer') {
+        return
+      }
+
+      if (!categories.has(mappedCategory)) {
+        categories.set(mappedCategory, {
+          name: mappedCategory,
+          tasks: [],
+          totalMinutes: 0,
+          completed: 0
+        })
+      }
+
+      const category = categories.get(mappedCategory)
+      category.tasks.push(task)
+      category.totalMinutes += getTaskMinutes(task)
+      if (task.pivot?.completed) {
+        category.completed += 1
+      }
+    })
+  })
+
+  const result = Array.from(categories.values()).map(category => {
+    const totalHours = Number((category.totalMinutes / 60).toFixed(1))
+
+    return {
+      ...category,
+      totalHours,
+      progress: category.tasks.length > 0
+        ? Math.round((category.completed / category.tasks.length) * 100)
+        : 0
+    }
+  })
+
+  result.sort((a, b) => {
+    const indexA = desiredOrder.indexOf(a.name)
+    const indexB = desiredOrder.indexOf(b.name)
+
+    if (indexA === -1 && indexB === -1) {
+      return a.name.localeCompare(b.name)
+    }
+    if (indexA === -1) return 1
+    if (indexB === -1) return -1
+    return indexA - indexB
+  })
+
+  return result
+})
+
 const formatDate = (dateString) => {
-  if (!dateString) return 'Не указана'
+  if (!dateString) return 'Not specified'
   const date = new Date(dateString)
   return date.toLocaleDateString('ru-RU', {
     year: 'numeric',
@@ -444,11 +548,31 @@ const toggleTask = async (planTaskId, completed) => {
     plan.completed_tasks = plan.weeks.reduce((sum, week) => {
       return sum + week.tasks.filter(task => task.pivot?.completed).length
     }, 0)
+
     plan.total_tasks = plan.weeks.reduce((sum, week) => sum + week.tasks.length, 0)
+
+    if (Array.isArray(plan.categories)) {
+      plan.categories.forEach(category => {
+        category.tasks?.forEach(task => {
+          if (task.pivot?.id === planTaskId) {
+            task.pivot.completed = completed
+          }
+        })
+
+        const completedCount = category.tasks
+          ? category.tasks.filter(task => task.pivot?.completed).length
+          : 0
+
+        category.completed = completedCount
+        category.progress = category.tasks && category.tasks.length > 0
+          ? Math.round((completedCount / category.tasks.length) * 100)
+          : 0
+      })
+    }
 
     updateStats()
   } catch (error) {
-    console.error('Ошибка обновления задачи:', error)
+    console.error('Failed to update task:', error)
   }
 }
 
@@ -456,9 +580,11 @@ const formatFrequency = (frequency) => {
   const map = {
     once: 'Once',
     weekly: 'Weekly',
+    bi_weekly: 'Bi-weekly',
     monthly: 'Monthly',
     quarterly: 'Quarterly',
-    bi_weekly: 'Bi-weekly'
+    half_yearly: 'Half-yearly',
+    yearly: 'Yearly',
   }
 
   if (!frequency) {
@@ -509,12 +635,17 @@ const parseInstruction = (description = '') => {
 
 const getInstructionPreview = (task) => {
   if (!task?.description) return ''
-  const { sections } = parseInstruction(task.description)
-  const preview = sections[0] || ''
-  if (preview.length > 220) {
-    return preview.slice(0, 220).trimEnd() + '…'
+  const text = task.description
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  if (!text) return ''
+
+  if (text.length > 220) {
+    return text.slice(0, 220).trimEnd() + '…'
   }
-  return preview
+  return text
 }
 
 const openTaskModal = (task) => {
@@ -526,6 +657,30 @@ const closeTaskModal = () => {
   instructionModalOpen.value = false
   selectedTask.value = null
 }
+
+const selectedTaskIsHtml = computed(() => {
+  const description = selectedTask.value?.description
+  if (!description || typeof description !== 'string') {
+    return false
+  }
+  return /<\/?[a-z][\s\S]*>/i.test(description)
+})
+
+const instructionHtml = computed(() => {
+  if (!selectedTask.value?.description) {
+    return ''
+  }
+
+  if (selectedTaskIsHtml.value) {
+    return selectedTask.value.description
+  }
+
+  const { sections } = parseInstruction(selectedTask.value.description)
+
+  return sections
+    .map(section => `<p>${section.replace(/\n/g, '<br>')}</p>`)
+    .join('')
+})
 
 const instructionContent = computed(() => {
   if (!selectedTask.value?.description) {

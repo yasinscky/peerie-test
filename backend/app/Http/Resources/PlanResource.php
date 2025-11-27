@@ -13,7 +13,7 @@ class PlanResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'country' => $this->country,
-            'business_niche' => $this->business_niche,
+            'industries' => $this->industries,
             'language' => $this->language,
             'is_local_business' => $this->is_local_business,
             'has_website' => $this->has_website,
@@ -23,6 +23,9 @@ class PlanResource extends JsonResource
             'updated_at' => $this->updated_at,
             'weeks' => $this->when($this->relationLoaded('tasks'), function () {
                 return $this->getPlanByWeeks();
+            }),
+            'categories' => $this->when($this->relationLoaded('tasks'), function () {
+                return $this->getPlanByCategories();
             }),
             'total_tasks' => $this->when($this->relationLoaded('tasks'), function () {
                 return $this->tasks->count();

@@ -15,44 +15,44 @@ class CreateAdminUser extends Command
      * @var string
      */
     protected $signature = 'app:create-admin-user 
-                            {--email= : Email админа}
-                            {--password= : Пароль админа}
-                            {--name= : Имя админа}
-                            {--update : Обновить существующего пользователя до админа}';
+                            {--email= : Admin email}
+                            {--password= : Admin password}
+                            {--name= : Admin name}
+                            {--update : Promote existing user to admin}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Создать администратора или назначить админа существующему пользователю';
+    protected $description = 'Create administrator or promote existing user to admin';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $email = $this->option('email') ?: $this->ask('Email админа');
+        $email = $this->option('email') ?: $this->ask('Admin email');
         $update = $this->option('update');
 
         if ($update) {
             $user = User::where('email', $email)->first();
             
             if (!$user) {
-                $this->error("Пользователь с email {$email} не найден!");
+                $this->error("User with email {$email} not found!");
                 return 1;
             }
 
             $user->update(['is_admin' => true]);
             
-            $this->info("Пользователь {$user->email} успешно назначен администратором!");
-            $this->info("\nТеперь вы можете зайти в админку по адресу: /admin");
+            $this->info("User {$user->email} has been successfully promoted to admin!");
+            $this->info("\nYou can now access the admin panel at: /admin");
             
             return 0;
         }
 
-        $password = $this->option('password') ?: $this->secret('Пароль админа');
-        $name = $this->option('name') ?: $this->ask('Имя админа', 'Admin');
+        $password = $this->option('password') ?: $this->secret('Admin password');
+        $name = $this->option('name') ?: $this->ask('Admin name', 'Admin');
 
         $validator = Validator::make([
             'email' => $email,
@@ -65,7 +65,7 @@ class CreateAdminUser extends Command
         ]);
 
         if ($validator->fails()) {
-            $this->error('Ошибки валидации:');
+            $this->error('Validation errors:');
             foreach ($validator->errors()->all() as $error) {
                 $this->error('  - ' . $error);
             }
@@ -79,10 +79,10 @@ class CreateAdminUser extends Command
             'is_admin' => true,
         ]);
 
-        $this->info("Админ-пользователь успешно создан!");
+        $this->info("Admin user created successfully!");
         $this->info("Email: {$user->email}");
-        $this->info("Имя: {$user->name}");
-        $this->info("\nТеперь вы можете зайти в админку по адресу: /admin");
+        $this->info("Name: {$user->name}");
+        $this->info("\nYou can now access the admin panel at: /admin");
 
         return 0;
     }

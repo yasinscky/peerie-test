@@ -2,7 +2,7 @@
   "name": "marketing-planner-frontend",
   "version": "1.0.0",
   "private": true,
-  "description": "Frontend для маркетинг-планера на Vue.js",
+  "description": "Frontend for the Peerie marketing planner (Vue.js)",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

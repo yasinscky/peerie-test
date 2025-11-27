@@ -18,185 +18,217 @@ class TaskResource extends Resource
     protected static ?string $model = Task::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
-    protected static ?string $navigationLabel = 'Задачи';
-    protected static ?string $modelLabel = 'Задача';
-    protected static ?string $pluralModelLabel = 'Задачи';
+    protected static ?string $navigationLabel = 'Tasks';
+    protected static ?string $modelLabel = 'Task';
+    protected static ?string $pluralModelLabel = 'Tasks';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Основная информация')
-                    ->schema([
-                        Forms\Components\TextInput::make('external_id')
-                            ->label('Внешний ID')
-                            ->maxLength(255)
-                            ->unique(ignoreRecord: true)
-                            ->helperText('Уникальный идентификатор из внешней системы'),
-                        Forms\Components\TextInput::make('title')
-                            ->label('Название')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('description')
-                            ->label('Описание')
-                            ->required()
-                            ->rows(3),
-                        Forms\Components\Select::make('category')
-                            ->label('Категория')
-                            ->options([
-                                'SEO' => 'SEO',
-                                'Content' => 'Контент',
-                                'Social Media' => 'Социальные сети',
-                                'Local SEO' => 'Локальное SEO',
-                                'Email Marketing' => 'Email-маркетинг',
-                                'Paid Ads' => 'Платная реклама',
-                                'E-commerce' => 'E-commerce',
-                                'SaaS' => 'SaaS',
-                                'Analytics' => 'Аналитика',
-                            ])
-                            ->required(),
-                        Forms\Components\Select::make('dependencies')
-                            ->label('Зависимости')
-                            ->options(fn () => Task::orderBy('title')->pluck('title', 'id'))
-                            ->multiple()
-                            ->searchable()
-                            ->helperText('Задачи, которые должны быть выполнены перед этой (ID задач сохраняются в JSON)'),
-                    ]),
-                
-                Forms\Components\Section::make('Параметры выполнения')
-                    ->schema([
-                        Forms\Components\TextInput::make('duration_hours')
-                            ->label('Длительность (часы)')
-                            ->numeric()
-                            ->required()
-                            ->min(1)
-                            ->max(40),
-                        Forms\Components\Select::make('frequency')
-                            ->label('Частота')
-                            ->options([
-                                'once' => 'Однократно',
-                                'weekly' => 'Еженедельно',
-                                'monthly' => 'Ежемесячно',
-                                'quarterly' => 'Ежеквартально',
-                            ])
-                            ->required(),
-                        Forms\Components\Select::make('difficulty_level')
-                            ->label('Уровень сложности')
-                            ->options([
-                                'beginner' => 'Начальный',
-                                'intermediate' => 'Средний',
-                                'advanced' => 'Продвинутый',
-                            ])
-                            ->required(),
-                        Forms\Components\TextInput::make('global_order')
-                            ->label('Глобальный порядок')
-                            ->numeric()
-                            ->helperText('Порядок сортировки для глобальных задач'),
-                    ]),
-                
-                Forms\Components\Section::make('Условия применения')
-                    ->schema([
-                        Forms\Components\Select::make('business_type')
-                            ->label('Тип бизнеса')
-                            ->options([
-                                'any' => 'Любой',
-                                'ecommerce' => 'E-commerce',
-                                'service' => 'Услуги',
-                                'saas' => 'SaaS',
-                                'content' => 'Контент',
-                            ])
-                            ->required(),
-                        Forms\Components\Select::make('language')
-                            ->label('Язык')
-                            ->options([
-                                'en' => 'English',
-                                'de' => 'Deutsch',
-                                'ru' => 'Русский',
-                                'any' => 'Любой',
-                            ])
-                            ->default('en')
-                            ->required(),
-                        Forms\Components\Toggle::make('is_local')
-                            ->label('Для локального бизнеса'),
-                        Forms\Components\Toggle::make('requires_website')
-                            ->label('Требует наличие сайта'),
-                        Forms\Components\Toggle::make('is_global')
-                            ->label('Глобальная задача')
-                            ->helperText('Если включено, задача доступна для всех стран'),
-                    ]),
+                Forms\Components\TextInput::make('action_id')
+                    ->label('1. ActionID')
+                    ->numeric()
+                    ->helperText('Numeric part of ID (prefix is set automatically from category)'),
 
-                Forms\Components\Section::make('Целевая аудитория')
+                Forms\Components\TextInput::make('global_order')
+                    ->label('2. GlobalOrder')
+                    ->numeric()
+                    ->minValue(0)
+                    ->required()
+                    ->helperText('Only positive numbers allowed'),
+
+                Forms\Components\Select::make('category')
+                    ->label('3. Category')
+                    ->options([
+                        'Goals' => 'Goals',
+                        'Digital Marketing Foundations' => 'Digital Marketing Foundations',
+                        'Local SEO' => 'Local SEO',
+                        'Content' => 'Content',
+                        'Social Media' => 'Social Media',
+                        'Website' => 'Website',
+                        'Email Marketing' => 'Email Marketing',
+                        'Paid Advertising' => 'Paid Advertising',
+                        'CRM' => 'CRM',
+                    ])
+                    ->required(),
+
+                Forms\Components\TextInput::make('title')
+                    ->label('4. Action')
+                    ->required()
+                    ->maxLength(255),
+
+                Forms\Components\Section::make('5. Prerequisites')
                     ->schema([
-                        Forms\Components\Select::make('target_countries')
-                            ->label('Целевые страны')
-                            ->options([
-                                'ie' => 'Ireland (IE)',
-                                'uk' => 'United Kingdom (UK)',
-                                'de' => 'Germany (DE)',
+                        Forms\Components\Repeater::make('prerequisites')
+                            ->label('Prerequisites')
+                            ->schema([
+                                Forms\Components\Select::make('condition')
+                                    ->label('Condition')
+                                    ->options([
+                                        'business_goals_defined' => 'Business goals defined',
+                                        'marketing_goals_defined' => 'Marketing goals defined',
+                                        'google_business_claimed' => 'Google Business Profile claimed & filled out',
+                                        'core_directories_claimed' => 'Apple Business and Bing Places',
+                                        'industry_directories_claimed' => 'Industry directories claimed',
+                                        'business_directories_claimed' => 'Business directories claimed',
+                                        'has_website' => 'Website in place',
+                                        'email_marketing_tool' => 'Email marketing tool in place',
+                                        'crm_pipeline' => 'CRM or simple pipeline to track leads',
+                                        'has_primary_social_channel' => 'Primary social media channel',
+                                        'has_secondary_social_channel' => 'Secondary social media channel',
+                                    ])
+                                    ->required()
+                                    ->searchable(),
+                                Forms\Components\Select::make('value')
+                                    ->label('Value')
+                                    ->options([
+                                        'no' => 'No (when answer is No)',
+                                        'yes' => 'Yes (when answer is Yes)',
+                                    ])
+                                    ->required()
+                                    ->default('no')
+                                    ->helperText('If value is \"No\", task is shown when the answer is No. If \"Yes\", task is shown when the answer is Yes.'),
                             ])
-                            ->multiple()
-                            ->native(false)
-                            ->helperText('Если не выбрано и задача не глобальная, используется фильтр по стране плана'),
-                        Forms\Components\Select::make('target_industries')
-                            ->label('Целевые индустрии')
-                            ->options([
-                                'beauty' => 'Beauty',
-                                'physio' => 'Physio',
-                                'coaching' => 'Coaching',
-                            ])
-                            ->multiple()
-                            ->native(false)
-                            ->helperText('Индустрии, для которых предназначена задача'),
-                        Forms\Components\TagsInput::make('allowed_capacities')
-                            ->label('Разрешенные мощности')
-                            ->placeholder('Введите количество часов в неделю')
-                            ->helperText('Количество часов маркетинга в неделю, для которых доступна задача (например: 5, 10, 20)')
-                            ->separator(',')
-                            ->splitKeys(['Tab', ',']),
-                        Forms\Components\Select::make('local_presence_options')
-                            ->label('Опции локального присутствия')
-                            ->options([
-                                'yes' => 'Да (только для локального бизнеса)',
-                                'no' => 'Нет (только для нелокального бизнеса)',
-                            ])
-                            ->multiple()
-                            ->native(false)
-                            ->helperText('Ограничения по типу локального присутствия'),
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->collapsible()
+                            ->itemLabel(function (array $state): ?string {
+                                $condition = $state['condition'] ?? null;
+                                $value = $state['value'] ?? null;
+                                
+                                if (!$condition) {
+                                    return 'New prerequisite';
+                                }
+                                
+                                $conditionLabels = [
+                                    'business_goals_defined' => 'Business goals defined',
+                                    'marketing_goals_defined' => 'Marketing goals defined',
+                                    'google_business_claimed' => 'Google Business Profile',
+                                    'core_directories_claimed' => 'Apple Business and Bing Places',
+                                    'industry_directories_claimed' => 'Industry directories',
+                                    'business_directories_claimed' => 'Business directories',
+                                    'has_website' => 'Website in place',
+                                    'email_marketing_tool' => 'Email marketing tool',
+                                    'crm_pipeline' => 'CRM pipeline',
+                                    'has_primary_social_channel' => 'Primary social channel',
+                                    'has_secondary_social_channel' => 'Secondary social channel',
+                                ];
+                                
+                                $label = $conditionLabels[$condition] ?? $condition;
+                                $valueLabel = $value === 'no' ? 'No (when answer is No)' : 'Yes (when answer is Yes)';
+                                
+                                return $label . ': ' . $valueLabel;
+                            })
+                            ->helperText('Add prerequisites based on questionnaire answers. If condition is "No", task will be shown.'),
                     ])
                     ->collapsible(),
 
-                Forms\Components\Section::make('Условия и правила')
-                    ->schema([
-                        Forms\Components\Repeater::make('conditions')
-                            ->label('Условия')
-                            ->schema([
-                                Forms\Components\TextInput::make('field')
-                                    ->label('Поле')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\Select::make('operator')
-                                    ->label('Оператор')
-                                    ->options([
-                                        'equals' => 'Равно',
-                                        'not_equals' => 'Не равно',
-                                        'greater_than' => 'Больше',
-                                        'less_than' => 'Меньше',
-                                        'in' => 'В списке',
-                                        'not_in' => 'Не в списке',
-                                    ])
-                                    ->required(),
-                                Forms\Components\TextInput::make('value')
-                                    ->label('Значение')
-                                    ->required(),
-                            ])
-                            ->columns(3)
-                            ->defaultItems(0)
-                            ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => ($state['field'] ?? '') . ' ' . ($state['operator'] ?? '') . ' ' . ($state['value'] ?? ''))
-                            ->helperText('Дополнительные условия для показа задачи'),
+                Forms\Components\Select::make('frequency')
+                    ->label('6. Cadence')
+                    ->options([
+                        'once' => 'Once',
+                        'weekly' => 'Weekly',
+                        'bi_weekly' => 'Bi-weekly',
+                        'monthly' => 'Monthly',
+                        'quarterly' => 'Quarterly',
+                        'half_yearly' => 'Half-yearly',
+                        'yearly' => 'Yearly',
                     ])
-                    ->collapsible()
-                    ->collapsed(),
+                    ->required(),
+
+                Forms\Components\Select::make('target_countries')
+                    ->label('7. Country')
+                    ->options([
+                        'UK' => 'United Kingdom (UK)',
+                        'IRE' => 'Ireland (IRE)',
+                        'DE' => 'Germany (DE)',
+                    ])
+                    ->multiple()
+                    ->native(false)
+                    ->helperText('Select one or multiple countries'),
+
+                Forms\Components\Select::make('language')
+                    ->label('8. Language')
+                    ->options([
+                        'en' => 'English',
+                        'de' => 'Deutsch',
+                    ])
+                    ->default('en')
+                    ->required(),
+
+                Forms\Components\Select::make('target_industries')
+                    ->label('9. Industries')
+                    ->options([
+                        'all' => 'All industries',
+                        'beauty' => 'Beauty',
+                        'physio' => 'Physio',
+                        'coaching' => 'Coaching',
+                    ])
+                    ->multiple()
+                    ->native(false)
+                    ->helperText('Select one or multiple industries or choose "All industries" for tasks valid for any industry.'),
+
+                Forms\Components\Select::make('allowed_capacities')
+                    ->label('10. CapacityAllowed')
+                    ->options([
+                        2 => '2 hours',
+                        4 => '4 hours',
+                        6 => '6 hours',
+                    ])
+                    ->multiple()
+                    ->native(false)
+                    ->helperText('Select one or multiple capacities'),
+
+                Forms\Components\Select::make('duration_minutes')
+                    ->label('11. EffortMin')
+                    ->options([
+                        15 => '15 minutes',
+                        30 => '30 minutes',
+                        45 => '45 minutes',
+                        60 => '60 minutes',
+                        90 => '90 minutes',
+                    ])
+                    ->required(),
+
+                Forms\Components\Select::make('local_presence_options')
+                    ->label('12. LocalPresence')
+                    ->options([
+                        'yes' => 'Yes',
+                        'no' => 'No',
+                    ])
+                    ->native(false)
+                    ->required(),
+
+                Forms\Components\Select::make('template')
+                    ->label('13. Template')
+                    ->options([
+                        'yes' => 'Yes',
+                        'no' => 'No',
+                    ])
+                    ->native(false)
+                    ->required(),
+
+                Forms\Components\RichEditor::make('description')
+                    ->label('14. Instruction')
+                    ->required()
+                    ->toolbarButtons([
+                        'attachFiles',
+                        'blockquote',
+                        'bold',
+                        'bulletList',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                        'italic',
+                        'link',
+                        'orderedList',
+                        'redo',
+                        'strike',
+                        'underline',
+                        'undo',
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -204,78 +236,239 @@ class TaskResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('external_id')
-                    ->label('Внешний ID')
+                Tables\Columns\TextColumn::make('action_id')
+                    ->label('ActionID')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('title')
-                    ->label('Название')
-                    ->searchable()
+                    ->formatStateUsing(function ($state, Task $record) {
+                        $number = is_numeric($state) ? (int) $state : null;
+
+                        if ($number === null) {
+                            return '—';
+                        }
+
+                        $prefix = match ($record->category) {
+                            'Goals' => 'G',
+                            'Digital Marketing Foundations' => 'F',
+                            'Local SEO' => 'SEO',
+                            'Content' => 'CON',
+                            'Social Media' => 'SM',
+                            'Website' => 'WEB',
+                            'Email Marketing' => 'EM',
+                            'Paid Advertising' => 'PA',
+                            'CRM' => 'CRM',
+                            default => '',
+                        };
+
+                        $formattedNumber = str_pad((string) $number, 3, '0', STR_PAD_LEFT);
+
+                        return $prefix !== ''
+                            ? $prefix . '-' . $formattedNumber
+                            : $formattedNumber;
+                    }),
+                Tables\Columns\TextColumn::make('global_order')
+                    ->label('GlobalOrder')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('category')
-                    ->label('Категория')
+                    ->label('Category')
                     ->badge()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('duration_hours')
-                    ->label('Часы')
-                    ->suffix('ч')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('difficulty_level')
-                    ->label('Сложность')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'beginner' => 'success',
-                        'intermediate' => 'warning',
-                        'advanced' => 'danger',
-                    }),
-                Tables\Columns\TextColumn::make('business_type')
-                    ->label('Тип бизнеса')
-                    ->badge(),
-                Tables\Columns\IconColumn::make('is_global')
-                    ->label('Глобальная')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('global_order')
-                    ->label('Порядок')
+                Tables\Columns\TextColumn::make('title')
+                    ->label('Action')
+                    ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\IconColumn::make('requires_website')
-                    ->label('Нужен сайт')
-                    ->boolean(),
+                    ->wrap()
+                    ->extraAttributes(['style' => 'min-width:420px; white-space:normal;'])
+                    ->extraHeaderAttributes(['style' => 'min-width:420px;']),
+                Tables\Columns\TextColumn::make('prerequisites')
+                    ->label('Prerequisites')
+                    ->formatStateUsing(function ($state, Task $record) {
+                        $prerequisites = $record->prerequisites ?? [];
+
+                        if (!is_array($prerequisites) || empty($prerequisites)) {
+                            return '—';
+                        }
+
+                        $conditionLabels = [
+                            'business_goals_defined' => 'Business goals',
+                            'marketing_goals_defined' => 'Marketing goals',
+                            'google_business_claimed' => 'Google Business',
+                            'core_directories_claimed' => 'Apple Business and Bing Places',
+                            'industry_directories_claimed' => 'Industry directories',
+                            'business_directories_claimed' => 'Business directories',
+                            'has_website' => 'Website',
+                            'email_marketing_tool' => 'Email tool',
+                            'crm_pipeline' => 'CRM',
+                            'has_primary_social_channel' => 'Primary social',
+                            'has_secondary_social_channel' => 'Secondary social',
+                        ];
+
+                        $conditions = [];
+
+                        foreach ($prerequisites as $prerequisite) {
+                            if (!isset($prerequisite['condition'], $prerequisite['value'])) {
+                                continue;
+                            }
+
+                            $label = $conditionLabels[$prerequisite['condition']] ?? $prerequisite['condition'];
+                            $valueLabel = $prerequisite['value'] === 'no' ? 'No' : 'Yes';
+                            $conditions[] = $label . ': ' . $valueLabel;
+                        }
+
+                        return count($conditions) > 0 ? implode(', ', $conditions) : '—';
+                    })
+                    ->badge()
+                    ->separator(',')
+                    ->wrap()
+                    ->extraAttributes(['style' => 'min-width:260px; white-space:normal;'])
+                    ->extraHeaderAttributes(['style' => 'min-width:260px;']),
+                Tables\Columns\TextColumn::make('description')
+                    ->label('Instruction')
+                    ->limit(80)
+                    ->wrap()
+                    ->extraAttributes(['style' => 'min-width:360px; white-space:normal;'])
+                    ->extraHeaderAttributes(['style' => 'min-width:360px;']),
+                Tables\Columns\TextColumn::make('frequency')
+                    ->label('Cadence')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'once' => 'Once',
+                        'weekly' => 'Weekly',
+                        'bi_weekly' => 'Bi-weekly',
+                        'monthly' => 'Monthly',
+                        'quarterly' => 'Quarterly',
+                        'half_yearly' => 'Half-yearly',
+                        'yearly' => 'Yearly',
+                        default => $state ?? '—',
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('target_countries')
-                    ->label('Страны')
-                    ->formatStateUsing(fn ($state): string => is_array($state) ? implode(', ', $state) : '—')
+                    ->label('Country')
+                    ->formatStateUsing(function ($state) {
+                        if (is_array($state) && count($state) > 0) {
+                            $labels = array_map(function ($code) {
+                                $code = strtolower((string) $code);
+
+                                return match ($code) {
+                                    'uk' => 'UK',
+                                    'ire', 'ie' => 'IRE',
+                                    'de' => 'DE',
+                                    default => strtoupper($code),
+                                };
+                            }, $state);
+
+                            return implode(', ', $labels);
+                        }
+
+                        if (is_string($state) && $state !== '') {
+                            return strtoupper($state);
+                        }
+
+                        return '—';
+                    })
+                    ->wrap()
+                    ->extraAttributes(['style' => 'min-width:260px; white-space:nowrap;'])
+                    ->extraHeaderAttributes(['style' => 'min-width:260px; text-align:left;']),
+                Tables\Columns\TextColumn::make('language')
+                    ->label('Language')
                     ->badge()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'en' => 'EN',
+                        'de' => 'DE',
+                        default => $state ?? '—',
+                    })
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('target_industries')
-                    ->label('Индустрии')
-                    ->formatStateUsing(fn ($state): string => is_array($state) ? implode(', ', $state) : '—')
-                    ->badge()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Создано')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Industry')
+                    ->formatStateUsing(function ($state) {
+                        if (is_string($state) && $state !== '') {
+                            $decoded = json_decode($state, true);
+
+                            if (is_array($decoded)) {
+                                $state = $decoded;
+                            } else {
+                                $state = array_map('trim', explode(',', $state));
+                            }
+                        }
+
+                        if (is_array($state) && count($state) > 0) {
+                            $normalized = array_map(static fn ($value) => strtolower((string) $value), $state);
+                            $normalized = array_values(array_unique($normalized));
+
+                            if (in_array('all', $normalized, true) && count($normalized) === 1) {
+                                return 'All industries';
+                            }
+
+                            $filtered = array_filter($normalized, static fn ($value) => $value !== 'all');
+
+                            if (count($filtered) === 0) {
+                                return 'All industries';
+                            }
+
+                            $labels = array_map(static function ($value) {
+                                return match ($value) {
+                                    'beauty' => 'Beauty',
+                                    'physio' => 'Physio',
+                                    'coaching' => 'Coaching',
+                                    default => (string) $value,
+                                };
+                            }, $filtered);
+
+                            return implode(', ', $labels);
+                        }
+
+                        return 'All industries';
+                    })
+                    ->badge(),
+                Tables\Columns\TextColumn::make('allowed_capacities')
+                    ->label('CapacityAllowed')
+                    ->formatStateUsing(function ($state) {
+                        if (is_array($state) && count($state) > 0) {
+                            $labels = array_map(function ($value) {
+                                return (string) $value . 'h';
+                            }, $state);
+
+                            return implode(', ', $labels);
+                        }
+
+                        if ($state !== null && $state !== '') {
+                            return (string) $state . 'h';
+                        }
+
+                        return '—';
+                    })
+                    ->badge(),
+                Tables\Columns\TextColumn::make('duration_minutes')
+                    ->label('EffortMin')
+                    ->formatStateUsing(fn ($state) => $state ? $state . ' min' : '—')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('local_presence_options')
+                    ->label('LocalPresence')
+                    ->formatStateUsing(function ($state) {
+                        if (is_array($state) && count($state) > 0) {
+                            return $state[0];
+                        }
+                        return $state ?? '—';
+                    })
+                    ->badge(),
+                Tables\Columns\TextColumn::make('template')
+                    ->label('Template')
+                    ->formatStateUsing(fn ($state) => $state ?? '—')
+                    ->badge(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('category')
-                    ->label('Категория'),
-                Tables\Filters\SelectFilter::make('business_type')
-                    ->label('Тип бизнеса'),
-                Tables\Filters\SelectFilter::make('difficulty_level')
-                    ->label('Сложность'),
+                    ->label('Category'),
                 Tables\Filters\TernaryFilter::make('is_global')
-                    ->label('Глобальная задача')
-                    ->placeholder('Все')
-                    ->trueLabel('Только глобальные')
-                    ->falseLabel('Только не глобальные'),
+                    ->label('Global task')
+                    ->placeholder('All')
+                    ->trueLabel('Only global')
+                    ->falseLabel('Only non-global'),
                 Tables\Filters\SelectFilter::make('language')
-                    ->label('Язык')
+                    ->label('Language')
                     ->options([
                         'en' => 'English',
                         'de' => 'Deutsch',
-                        'ru' => 'Русский',
                     ]),
             ])
             ->actions([
@@ -287,7 +480,12 @@ class TaskResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('global_order', 'asc');
+            ->defaultSort('global_order', 'asc')
+            ->groups([
+                Tables\Grouping\Group::make('category')
+                    ->label('Category')
+                    ->collapsible(),
+            ]);
     }
 
     public static function getRelations(): array

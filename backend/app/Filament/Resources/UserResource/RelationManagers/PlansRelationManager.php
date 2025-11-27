@@ -12,16 +12,16 @@ class PlansRelationManager extends RelationManager
 {
     protected static string $relationship = 'plans';
 
-    protected static ?string $title = 'Планы пользователя';
-    protected static ?string $modelLabel = 'План';
-    protected static ?string $pluralModelLabel = 'Планы';
+    protected static ?string $title = 'User plans';
+    protected static ?string $modelLabel = 'Plan';
+    protected static ?string $pluralModelLabel = 'Plans';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')
-                    ->label('Название плана')
+                    ->label('Plan title')
                     ->maxLength(255),
             ]);
     }
@@ -35,57 +35,31 @@ class PlansRelationManager extends RelationManager
                     ->label('ID')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('title')
-                    ->label('Название')
+                    ->label('Title')
                     ->searchable()
                     ->sortable()
-                    ->default('Без названия'),
-                Tables\Columns\TextColumn::make('business_type')
-                    ->label('Тип бизнеса')
-                    ->badge()
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'ecommerce' => 'E-commerce',
-                        'service' => 'Услуги',
-                        'saas' => 'SaaS',
-                        'content' => 'Контент',
-                        default => $state ?? 'Не указан',
-                    }),
+                    ->default('Untitled'),
                 Tables\Columns\TextColumn::make('language')
-                    ->label('Язык')
+                    ->label('Language')
+                    ->badge(),
+                Tables\Columns\TextColumn::make('completed_tasks')
+                    ->label('Completed tasks')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'ru' => 'Русский',
-                        'en' => 'Английский',
-                        default => $state ?? 'Не указан',
-                    }),
-                Tables\Columns\TextColumn::make('tasks_count')
-                    ->label('Задач')
-                    ->counts('tasks')
-                    ->badge()
-                    ->color('info'),
+                    ->formatStateUsing(fn ($state, $record) => $record->completed_tasks . ' / ' . $record->total_tasks),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Создан')
+                    ->label('Created at')
                     ->dateTime('d.m.Y H:i')
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('business_type')
-                    ->label('Тип бизнеса')
-                    ->options([
-                        'ecommerce' => 'E-commerce',
-                        'service' => 'Услуги',
-                        'saas' => 'SaaS',
-                        'content' => 'Контент',
-                    ]),
                 Tables\Filters\SelectFilter::make('language')
-                    ->label('Язык')
+                    ->label('Language')
                     ->options([
-                        'ru' => 'Русский',
-                        'en' => 'Английский',
+                        'en' => 'English',
+                        'de' => 'German',
                     ]),
             ])
-            ->headerActions([
-                // Создание планов через анкету на фронтенде
-            ])
+            ->headerActions([])
             ->actions([
                 Tables\Actions\DeleteAction::make()
                     ->requiresConfirmation(),

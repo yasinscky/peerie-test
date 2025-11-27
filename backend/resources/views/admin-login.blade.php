@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Вход в админку - Маркетинг-Планер</title>
+    <title>Admin Login - Peerie</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -88,8 +88,8 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>Вход в админку</h1>
-            <p>Маркетинг-Планер</p>
+            <h1>Admin Login</h1>
+            <p>Peerie</p>
         </div>
         
         <form method="POST" action="{{ route('admin.login.post') }}">
@@ -104,7 +104,7 @@
             </div>
             
             <div class="form-group">
-                <label for="password">Пароль</label>
+                <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
                 @error('password')
                     <div class="error-message">{{ $message }}</div>
@@ -113,15 +113,15 @@
             
             <div class="form-group">
                 <label>
-                    <input type="checkbox" name="remember"> Запомнить меня
+                    <input type="checkbox" name="remember"> Remember me
                 </label>
             </div>
             
-            <button type="submit" class="login-button">Войти</button>
+            <button type="submit" class="login-button">Sign in</button>
         </form>
         
         <div class="admin-link">
-            <a href="/admin">Перейти к Filament админке</a>
+            <a href="/admin">Go to Filament admin</a>
         </div>
     </div>
 </body>

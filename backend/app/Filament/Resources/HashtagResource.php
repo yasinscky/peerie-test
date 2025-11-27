@@ -18,18 +18,18 @@ class HashtagResource extends Resource
     protected static ?string $model = Hashtag::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-hashtag';
-    protected static ?string $navigationLabel = 'Хештеги';
-    protected static ?string $modelLabel = 'Хештег';
-    protected static ?string $pluralModelLabel = 'Хештеги';
+    protected static ?string $navigationLabel = 'Hashtags';
+    protected static ?string $modelLabel = 'Hashtag';
+    protected static ?string $pluralModelLabel = 'Hashtags';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Основная информация')
+                Forms\Components\Section::make('Main information')
                     ->schema([
                         Forms\Components\Select::make('industry')
-                            ->label('Индустрия')
+                            ->label('Industry')
                             ->options([
                                 'beauty' => 'Beauty',
                                 'physio' => 'Physio',
@@ -38,7 +38,7 @@ class HashtagResource extends Resource
                             ->required()
                             ->native(false),
                         Forms\Components\Select::make('country')
-                            ->label('Страна')
+                            ->label('Country')
                             ->options([
                                 'ie' => 'Ireland (IE)',
                                 'uk' => 'United Kingdom (UK)',
@@ -47,7 +47,7 @@ class HashtagResource extends Resource
                             ->required()
                             ->native(false),
                         Forms\Components\Select::make('language')
-                            ->label('Язык')
+                            ->label('Language')
                             ->options([
                                 'en' => 'English',
                                 'de' => 'Deutsch',
@@ -56,55 +56,55 @@ class HashtagResource extends Resource
                             ->required()
                             ->native(false),
                         Forms\Components\TextInput::make('title')
-                            ->label('Название')
+                            ->label('Title')
                             ->required()
                             ->maxLength(255)
                             ->placeholder('Например: Beauty Salon - IRL'),
                     ]),
                 
-                Forms\Components\Section::make('Интро')
+                Forms\Components\Section::make('Intro')
                     ->schema([
                         Forms\Components\TextInput::make('intro_title')
-                            ->label('Заголовок интро')
+                            ->label('Intro title')
                             ->maxLength(255),
                         Forms\Components\Textarea::make('intro_description')
-                            ->label('Описание интро')
+                            ->label('Intro description')
                             ->rows(3),
                     ])
                     ->collapsible(),
 
-                Forms\Components\Section::make('Блоки хештегов')
-                    ->description('Настройка категорий хештегов: Local, Broad, Industry, Niche, Branded')
+                Forms\Components\Section::make('Hashtag blocks')
+                    ->description('Configure hashtag categories: Local, Broad, Industry, Niche, Branded')
                     ->schema([
                         Forms\Components\Repeater::make('hashtag_blocks')
-                            ->label('Блоки')
+                            ->label('Blocks')
                             ->schema([
                                 Forms\Components\TextInput::make('title')
-                                    ->label('Заголовок блока')
+                                    ->label('Block title')
                                     ->required()
                                     ->maxLength(255)
                                     ->placeholder('Например: 1 – Local'),
                                 Forms\Components\Textarea::make('description')
-                                    ->label('Описание блока')
+                                    ->label('Block description')
                                     ->rows(2)
                                     ->columnSpanFull(),
                                 Forms\Components\TagsInput::make('tags')
-                                    ->label('Хештеги')
-                                    ->placeholder('Добавьте хештег и нажмите Enter')
-                                    ->helperText('Введите хештеги с # или без, они автоматически добавятся с #')
+                                    ->label('Hashtags')
+                                    ->placeholder('Add hashtag and press Enter')
+                                    ->helperText('You can enter tags with or without #, it will be added automatically')
                                     ->separator(',')
                                     ->splitKeys(['Tab', ','])
                                     ->columnSpanFull(),
                                 Forms\Components\Repeater::make('categories')
-                                    ->label('Категории (опционально, только для Industry блока)')
+                                    ->label('Categories (optional, only for Industry block)')
                                     ->schema([
                                         Forms\Components\TextInput::make('name')
-                                            ->label('Название категории')
+                                            ->label('Category name')
                                             ->required()
                                             ->maxLength(255),
                                         Forms\Components\TagsInput::make('tags')
-                                            ->label('Хештеги категории')
-                                            ->placeholder('Добавьте хештеги категории')
+                                            ->label('Category hashtags')
+                                            ->placeholder('Add category hashtags')
                                             ->separator(',')
                                             ->splitKeys(['Tab', ',']),
                                     ])
@@ -123,15 +123,15 @@ class HashtagResource extends Resource
                             ->required(),
                     ]),
 
-                Forms\Components\Section::make('Все хештеги')
-                    ->description('Автоматически генерируется из блоков, можно редактировать вручную')
+                Forms\Components\Section::make('All hashtags')
+                    ->description('Automatically generated from blocks, can be edited manually')
                     ->schema([
                         Forms\Components\TagsInput::make('tags')
-                            ->label('Все хештеги')
-                            ->placeholder('Добавьте хештег и нажмите Enter')
+                            ->label('All hashtags')
+                            ->placeholder('Add hashtag and press Enter')
                             ->separator(',')
                             ->splitKeys(['Tab', ','])
-                            ->helperText('Этот список объединяет все хештеги из блоков выше'),
+                            ->helperText('This list merges all hashtags from the blocks above'),
                     ])
                     ->collapsible()
                     ->collapsed(),
@@ -143,11 +143,11 @@ class HashtagResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')
-                    ->label('Название')
+                    ->label('Title')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('industry')
-                    ->label('Индустрия')
+                    ->label('Industry')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'beauty' => 'success',
@@ -157,7 +157,7 @@ class HashtagResource extends Resource
                     })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('country')
-                    ->label('Страна')
+                    ->label('Country')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'ie' => '🇮🇪 IE',
@@ -167,7 +167,7 @@ class HashtagResource extends Resource
                     })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('language')
-                    ->label('Язык')
+                    ->label('Language')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'en' => '🇬🇧 EN',
@@ -176,33 +176,33 @@ class HashtagResource extends Resource
                     })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Создано')
+                    ->label('Created at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Обновлено')
+                    ->label('Updated at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('industry')
-                    ->label('Индустрия')
+                    ->label('Industry')
                     ->options([
                         'beauty' => 'Beauty',
                         'physio' => 'Physio',
                         'coaching' => 'Coaching',
                     ]),
                 Tables\Filters\SelectFilter::make('country')
-                    ->label('Страна')
+                    ->label('Country')
                     ->options([
                         'ie' => 'Ireland (IE)',
                         'uk' => 'United Kingdom (UK)',
                         'de' => 'Germany (DE)',
                     ]),
                 Tables\Filters\SelectFilter::make('language')
-                    ->label('Язык')
+                    ->label('Language')
                     ->options([
                         'en' => 'English',
                         'de' => 'Deutsch',

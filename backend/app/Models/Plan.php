@@ -18,8 +18,6 @@ class Plan extends Model
         'user_id',
         'title',
         'country',
-        'business_niche',
-        'business_type',
         'language',
         'is_local_business',
         'has_website',
@@ -59,12 +57,13 @@ class Plan extends Model
         'business_directories_claimed' => 'boolean',
         'email_marketing_tool' => 'boolean',
         'crm_pipeline' => 'boolean',
+        'running_ads' => 'array',
         'has_primary_social_channel' => 'boolean',
         'has_secondary_social_channel' => 'boolean',
     ];
 
     /**
-     * Получить пользователя, которому принадлежит план
+     * Get user that owns the plan
      */
     public function user()
     {
@@ -72,7 +71,7 @@ class Plan extends Model
     }
 
     /**
-     * Получить задачи плана
+     * Get plan tasks
      */
     public function tasks()
     {
@@ -81,8 +80,18 @@ class Plan extends Model
                     ->withTimestamps();
     }
 
+    public function getTotalTasksAttribute(): int
+    {
+        return $this->tasks()->count();
+    }
+
+    public function getCompletedTasksAttribute(): int
+    {
+        return $this->tasks()->wherePivot('completed', true)->count();
+    }
+
     /**
-     * Получить задачи для конкретной недели
+     * Get tasks for a specific week
      */
     public function tasksForWeek(int $week)
     {
@@ -90,7 +99,7 @@ class Plan extends Model
     }
 
     /**
-     * Получить план по неделям
+     * Get plan grouped by weeks
      */
     public function getPlanByWeeks()
     {
@@ -105,5 +114,111 @@ class Plan extends Model
         }
 
         return array_values($weeks);
+    }
+
+    public function getPlanByCategories(): array
+    {
+        $tasks = $this->tasks;
+
+        if ($tasks->isEmpty()) {
+            return [];
+        }
+
+        $categoryMapping = [
+            'Goals' => 'Goals',
+            'Digital Marketing Foundations' => 'Digital Marketing Foundations',
+            'Local SEO' => 'Local SEO',
+            'Content' => 'Content',
+            'Social Media' => 'Social Media',
+            'Website' => 'Website',
+            'Email Marketing' => 'Email Marketing',
+            'Paid Ads' => 'Paid Advertising',
+            'Paid Advertising' => 'Paid Advertising',
+            'CRM' => 'CRM',
+        ];
+
+        $desiredOrder = [
+            'Goals',
+            'Digital Marketing Foundations',
+            'Local SEO',
+            'Content',
+            'Social Media',
+            'Website',
+            'Email Marketing',
+            'Paid Advertising',
+            'CRM',
+        ];
+
+        $categories = [];
+
+        foreach ($tasks as $task) {
+            $rawCategory = $task->category ?? 'General';
+            $mappedCategory = array_key_exists($rawCategory, $categoryMapping)
+                ? $categoryMapping[$rawCategory]
+                : $rawCategory;
+
+            if ($mappedCategory === null || $mappedCategory === 'Buffer') {
+                continue;
+            }
+
+            if (!array_key_exists($mappedCategory, $categories)) {
+                $categories[$mappedCategory] = [
+                    'name' => $mappedCategory,
+                    'tasks' => [],
+                    'totalHours' => 0,
+                    'completed' => 0,
+                ];
+            }
+
+            $categories[$mappedCategory]['tasks'][] = $task;
+            $categories[$mappedCategory]['totalHours'] += $task->duration_hours ?? 0;
+
+            if ($task->pivot && $task->pivot->completed) {
+                $categories[$mappedCategory]['completed']++;
+            }
+        }
+
+        foreach ($categories as &$category) {
+            $category['tasks'] = collect($category['tasks'])
+                ->sortBy(function ($task) {
+                    $actionId = $task->action_id ?? 0;
+                    $globalOrder = $task->global_order ?? 0;
+
+                    return [$actionId, $globalOrder];
+                })
+                ->values()
+                ->all();
+        }
+        unset($category);
+
+        $result = array_map(function (array $category) {
+            $taskCount = count($category['tasks']);
+            $category['progress'] = $taskCount > 0
+                ? (int) round(($category['completed'] / $taskCount) * 100)
+                : 0;
+
+            return $category;
+        }, array_values($categories));
+
+        usort($result, function (array $a, array $b) use ($desiredOrder) {
+            $indexA = array_search($a['name'], $desiredOrder, true);
+            $indexB = array_search($b['name'], $desiredOrder, true);
+
+            if ($indexA === false && $indexB === false) {
+                return strcmp($a['name'], $b['name']);
+            }
+
+            if ($indexA === false) {
+                return 1;
+            }
+
+            if ($indexB === false) {
+                return -1;
+            }
+
+            return $indexA <=> $indexB;
+        });
+
+        return $result;
     }
 }

@@ -16,7 +16,7 @@ class HashtagController extends Controller
 
         $plan = Plan::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
-            ->first(['country', 'industries']);
+            ->first(['country', 'industries', 'language']);
 
         if (!$plan) {
             return response()->json([
@@ -36,29 +36,29 @@ class HashtagController extends Controller
             ], 422);
         }
 
-        $hashtags = Hashtag::where('country', $country)
-            ->where('industry', $industry)
+        // 1. Exact match by country + industry + language
+        $hashtags = Hashtag::where('industry', $industry)
+            ->where('country', $country)
             ->where('language', $language)
             ->first(['title', 'intro_title', 'intro_description', 'guidelines', 'tags', 'hashtag_blocks']);
 
+        // 2. If there is no required language for this country, take any tags for the same country and industry
+        if (!$hashtags) {
+            $hashtags = Hashtag::where('industry', $industry)
+                ->where('country', $country)
+                ->first(['title', 'intro_title', 'intro_description', 'guidelines', 'tags', 'hashtag_blocks']);
+        }
+
+        // 3. If there is nothing for this country, try by industry and language (different country, same language)
         if (!$hashtags) {
             $hashtags = Hashtag::where('industry', $industry)
                 ->where('language', $language)
-                ->orderByRaw("CASE country WHEN ? THEN 0 ELSE 1 END", [$country])
                 ->first(['title', 'intro_title', 'intro_description', 'guidelines', 'tags', 'hashtag_blocks']);
         }
-        
-        if (!$hashtags) {
-            $hashtags = Hashtag::where('country', $country)
-                ->where('industry', $industry)
-                ->orderByRaw("CASE language WHEN ? THEN 0 ELSE 1 END", [$language])
-                ->first(['title', 'intro_title', 'intro_description', 'guidelines', 'tags', 'hashtag_blocks']);
-        }
-        
+
+        // 4. Final fallback – any tags by industry
         if (!$hashtags) {
             $hashtags = Hashtag::where('industry', $industry)
-                ->orderByRaw("CASE country WHEN ? THEN 0 ELSE 1 END", [$country])
-                ->orderByRaw("CASE language WHEN ? THEN 0 ELSE 1 END", [$language])
                 ->first(['title', 'intro_title', 'intro_description', 'guidelines', 'tags', 'hashtag_blocks']);
         }
 

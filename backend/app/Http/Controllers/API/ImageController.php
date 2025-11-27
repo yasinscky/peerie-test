@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Services\ImageServiceManager;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class ImageController extends Controller
 {
@@ -34,13 +35,13 @@ class ImageController extends Controller
             return response()->json([
                 'success' => $result['success'],
                 'data' => $result,
-                'message' => $result['success'] ? 'Изображения найдены' : ($result['error'] ?? 'Ошибка поиска')
+                'message' => $result['success'] ? 'Images found' : ($result['error'] ?? 'Search error')
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при поиске изображений',
+                'message' => 'An error occurred while searching images',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -59,18 +60,37 @@ class ImageController extends Controller
         $perPage = $request->input('per_page', 16);
 
         try {
+            Log::info('Image search by category request', [
+                'category' => $category,
+                'page' => $page,
+                'per_page' => $perPage
+            ]);
+            
             $result = $this->imageServiceManager->searchByCategory($category, $page, $perPage);
+            
+            Log::info('Image search by category result', [
+                'success' => $result['success'] ?? false,
+                'images_count' => count($result['images'] ?? []),
+                'error' => $result['error'] ?? null,
+                'service_used' => $result['service_used'] ?? null
+            ]);
             
             return response()->json([
                 'success' => $result['success'],
                 'data' => $result,
-                'message' => $result['success'] ? 'Изображения найдены' : ($result['error'] ?? 'Ошибка поиска')
+                'message' => $result['success'] ? 'Images found' : ($result['error'] ?? 'Search error')
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Image search by category exception', [
+                'category' => $category,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при поиске изображений',
+                'message' => 'An error occurred while searching images',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -92,13 +112,13 @@ class ImageController extends Controller
             return response()->json([
                 'success' => $result['success'],
                 'data' => $result,
-                'message' => $result['success'] ? 'Популярные изображения загружены' : ($result['error'] ?? 'Ошибка загрузки')
+                'message' => $result['success'] ? 'Popular images loaded' : ($result['error'] ?? 'Load error')
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при загрузке изображений',
+                'message' => 'An error occurred while loading images',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -119,20 +139,20 @@ class ImageController extends Controller
             if (!$image) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Изображение не найдено'
+                    'message' => 'Image not found'
                 ], 404);
             }
             
             return response()->json([
                 'success' => true,
                 'data' => $image,
-                'message' => 'Информация об изображении получена'
+                'message' => 'Image information loaded'
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при получении информации об изображении',
+                'message' => 'An error occurred while loading image information',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -153,7 +173,7 @@ class ImageController extends Controller
             if (!$image) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Изображение не найдено'
+                    'message' => 'Image not found'
                 ], 404);
             }
             
@@ -165,20 +185,20 @@ class ImageController extends Controller
                     'title' => $image['title'],
                     'photographer' => $image['photographer']
                 ],
-                'message' => 'URL для скачивания получен'
+                'message' => 'Download URL received'
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при получении URL для скачивания',
+                'message' => 'An error occurred while getting download URL',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Скачать изображение через прокси сервера
+     * Download image via server proxy
      */
     public function downloadProxy(Request $request)
     {
@@ -195,7 +215,7 @@ class ImageController extends Controller
             if (!$headers || !str_contains($headers[0], '200')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Изображение недоступно'
+                    'message' => 'Image is unavailable'
                 ], 404);
             }
 
@@ -204,7 +224,7 @@ class ImageController extends Controller
             if ($imageContent === false) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Не удалось загрузить изображение'
+                    'message' => 'Failed to download image'
                 ], 500);
             }
 
@@ -227,7 +247,7 @@ class ImageController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Произошла ошибка при скачивании изображения',
+                'message' => 'An error occurred while downloading image',
                 'error' => $e->getMessage()
             ], 500);
         }

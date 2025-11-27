@@ -205,6 +205,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 
 const searchQuery = ref('')
 const isLoading = ref(false)
@@ -220,6 +221,12 @@ const currentSearchQuery = ref('')
 const categories = [
   'Business', 'Coach', 'Therapy', 'Beauty', 'Style', 'Nails', 'Sports', 'Massage', 'Doctor'
 ]
+
+const industryToCategoryMap = {
+  'beauty': 'Beauty',
+  'physio': 'Therapy',
+  'coaching': 'Coach'
+}
 
 const searchImages = async () => {
   if (!searchQuery.value.trim()) return
@@ -252,14 +259,16 @@ const searchImages = async () => {
   }
 }
 
-const searchByCategory = async (category) => {
+const searchByCategory = async (category, setQuery = true) => {
   isLoading.value = true
   hasSearched.value = true
   images.value = []
   currentPage.value = 1
   hasMoreImages.value = true
   currentSearchQuery.value = category
-  searchQuery.value = category
+  if (setQuery) {
+    searchQuery.value = category
+  }
 
   try {
     const response = await axios.post('/api/images/search/category', {
@@ -268,21 +277,30 @@ const searchByCategory = async (category) => {
       per_page: 16
     })
     
-    if (response.data.success) {
-      images.value = response.data.data.images
-      hasMoreImages.value = response.data.data.hasNextPage && response.data.data.images.length >= 16
+    console.log('Category search response:', {
+      success: response.data.success,
+      data: response.data.data,
+      message: response.data.message,
+      category: category
+    })
+    
+    if (response.data.success && response.data.data) {
+      images.value = response.data.data.images || []
+      hasMoreImages.value = response.data.data.hasNextPage && images.value.length >= 16
       
       if (images.value.length === 0) {
-        console.log('No images found for category, trying fallback search...')
-        await searchImages() // Try regular search with category name
+        console.log('No images found for category:', category)
       }
     } else {
-      console.error('API Error:', response.data.message)
-      await searchImages()
+      console.error('API Error:', response.data.message || 'Unknown error', response.data)
+      images.value = []
     }
   } catch (error) {
     console.error('Category search error:', error)
-    await searchImages()
+    if (error.response) {
+      console.error('Error response:', error.response.data)
+    }
+    images.value = []
   } finally {
     isLoading.value = false
   }
@@ -358,7 +376,7 @@ const downloadImage = async (image) => {
       console.log('Download completed successfully')
       
     } catch (proxyError) {
-      console.log('Прокси скачивание не удалось, используем прямой метод:', proxyError)
+      console.log('Proxy download failed, falling back to direct method:', proxyError)
       
       const link = document.createElement('a')
       link.href = downloadUrl
@@ -375,7 +393,7 @@ const downloadImage = async (image) => {
     }
     
   } catch (error) {
-    console.error('Ошибка скачивания:', error)
+    console.error('Download error:', error)
     alert('Error downloading image. Please try again.')
   } finally {
     downloadingImages.value.delete(imageId)
@@ -423,30 +441,32 @@ const loadMoreImages = async () => {
   }
 }
 
-onMounted(async () => {
-  isLoading.value = true
-  hasSearched.value = true
-  images.value = []
-  currentPage.value = 1
-  hasMoreImages.value = true
-  currentSearchQuery.value = 'popular'
-
+const getUserIndustry = async () => {
   try {
-    const response = await axios.get('/api/images/popular?per_page=16')
+    const response = await axios.get('/api/plans')
     
-    if (response.data.success) {
-      images.value = response.data.data.images
-      hasMoreImages.value = response.data.data.hasNextPage && response.data.data.images.length >= 16
-    } else {
-      console.error('Popular images error:', response.data.message)
-      searchQuery.value = 'business'
-      await searchImages()
+    if (response.data.success && response.data.plans && response.data.plans.length > 0) {
+      const latestPlan = response.data.plans[0]
+      if (latestPlan.industries && Array.isArray(latestPlan.industries) && latestPlan.industries.length > 0) {
+        const industry = latestPlan.industries[0]
+        const mappedCategory = industryToCategoryMap[industry]
+        if (mappedCategory && categories.includes(mappedCategory)) {
+          return mappedCategory
+        }
+      }
     }
   } catch (error) {
-    console.error('Popular images error:', error)
-    searchQuery.value = 'business'
-    images.value = generateMockImages('business', 'pexels')
-  } finally {
+    console.error('Error fetching user industry:', error)
+  }
+  return null
+}
+
+onMounted(async () => {
+  const userIndustry = await getUserIndustry()
+  if (userIndustry) {
+    await searchByCategory(userIndustry, false)
+  } else {
+    hasSearched.value = false
     isLoading.value = false
   }
 })

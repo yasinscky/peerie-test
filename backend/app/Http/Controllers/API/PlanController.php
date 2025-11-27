@@ -26,19 +26,18 @@ class PlanController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'country' => 'required|string|max:100',
-            'business_niche' => 'required|string|max:100',
-            'language' => 'required|string|in:ru,en',
+            'title' => 'required|string|max:150',
+            'language' => 'required|string|in:de,en',
             'is_local_business' => 'required|boolean',
             'has_website' => 'required|boolean',
             'marketing_time_per_week' => 'required|integer|min:1|max:40',
-            'business_type' => 'required|string|in:any,ecommerce,service,saas,content',
             'additional_requirements' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка валидации',
+                'message' => 'Validation error',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -46,9 +45,8 @@ class PlanController extends Controller
         try {
             $plan = Plan::create([
                 'user_id' => Auth::id(),
-                'title' => "Маркетинг-план для {$request->business_niche}",
+                'title' => $request->title,
                 'country' => $request->country,
-                'business_niche' => $request->business_niche,
                 'language' => $request->language,
                 'is_local_business' => $request->is_local_business,
                 'has_website' => $request->has_website,
@@ -60,20 +58,20 @@ class PlanController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'План успешно создан',
+                'message' => 'Plan created successfully',
                 'plan' => $generatedPlan
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка при создании плана: ' . $e->getMessage()
+                'message' => 'Failed to create plan: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Получить список планов пользователя
+     * Get user plans list
      */
     public function index(): JsonResponse
     {
@@ -99,7 +97,7 @@ class PlanController extends Controller
         if ($plan->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Доступ запрещен'
+                'message' => 'Access denied'
             ], 403);
         }
 
@@ -119,7 +117,7 @@ class PlanController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ошибка валидации',
+                'message' => 'Validation error',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -129,7 +127,7 @@ class PlanController extends Controller
         if ($plan->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Доступ запрещен'
+                'message' => 'Access denied'
             ], 403);
         }
 
@@ -140,7 +138,7 @@ class PlanController extends Controller
         if (!$planTask) {
             return response()->json([
                 'success' => false,
-                'message' => 'Задача не найдена в плане'
+                'message' => 'Task not found in plan'
             ], 404);
         }
 
@@ -150,19 +148,19 @@ class PlanController extends Controller
         ]);
 
         return response()->json([
-            'success' => true,
-            'message' => 'Статус задачи обновлен'
+                'success' => true,
+                'message' => 'Task status updated'
         ]);
     }
 
     /**
-     * Получить список планов пользователя
+     * Get user plans list
      */
     public function getUserPlans(): JsonResponse
     {
         $plans = Plan::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
-            ->get(['id', 'title', 'business_niche', 'created_at']);
+            ->get(['id', 'title', 'created_at']);
 
         return response()->json([
             'success' => true,

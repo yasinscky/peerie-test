@@ -20,7 +20,6 @@ class TaskResource extends JsonResource
             'language' => $this->language,
             'is_local' => $this->is_local,
             'requires_website' => $this->requires_website,
-            'difficulty_level' => $this->difficulty_level,
             'category' => $this->category,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

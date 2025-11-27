@@ -13,18 +13,16 @@ class TaskSeeder extends Seeder
     public function run(): void
     {
         $tasks = [
-            // SEO & Website Tasks (Any business type)
+            // SEO & Website Tasks
             [
                 'title' => 'Set up Google Business Profile',
                 'description' => 'Create and verify your Google Business Profile with complete information',
                 'duration_hours' => 3,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Local SEO'
             ],
             [
@@ -33,11 +31,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'monthly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Local SEO'
             ],
             [
@@ -46,11 +42,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Local SEO'
             ],
             
@@ -61,11 +55,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Social Media'
             ],
             [
@@ -74,11 +66,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 4,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Social Media'
             ],
             [
@@ -87,11 +77,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Social Media'
             ],
             [
@@ -100,11 +88,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Social Media'
             ],
             [
@@ -113,7 +99,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 3,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
@@ -126,7 +111,7 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
+                'business_type' => 'any',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
@@ -141,7 +126,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 3,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
@@ -154,7 +138,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 4,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => true,
@@ -167,11 +150,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 4,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Content'
             ],
             
@@ -182,7 +163,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 8,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
@@ -195,11 +175,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 4,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => true,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Website'
             ],
             [
@@ -208,11 +186,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 6,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => true,
-                'difficulty_level' => 'beginner',
                 'category' => 'Website'
             ],
             [
@@ -221,7 +197,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 3,
                 'frequency' => 'monthly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => true,
@@ -236,11 +211,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 3,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Email Marketing'
             ],
             [
@@ -249,11 +222,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 3,
                 'frequency' => 'monthly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Email Marketing'
             ],
             [
@@ -262,11 +233,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 6,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Email Marketing'
             ],
             
@@ -277,7 +246,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 6,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
@@ -290,7 +258,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 6,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => true,
@@ -303,7 +270,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'weekly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
@@ -318,7 +284,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 4,
                 'frequency' => 'monthly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => false,
@@ -331,11 +296,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 4,
                 'frequency' => 'monthly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Networking'
             ],
             
@@ -346,7 +309,6 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 4,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
@@ -359,11 +321,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 3,
                 'frequency' => 'quarterly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Marketing'
             ],
             [
@@ -372,11 +332,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Marketing'
             ],
             
@@ -387,11 +345,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'once',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => true,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Analytics'
             ],
             [
@@ -400,11 +356,9 @@ class TaskSeeder extends Seeder
                 'duration_hours' => 2,
                 'frequency' => 'monthly',
                 'dependencies' => null,
-                'business_type' => 'service',
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Analytics'
             ],
         ];

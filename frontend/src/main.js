@@ -5,7 +5,9 @@ import App from './App.vue'
 import axios from 'axios'
 import './style.css'
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || window.location.origin
+const apiBaseUrl = import.meta.env.VITE_API_URL || window.location.origin
+
+axios.defaults.baseURL = apiBaseUrl
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 axios.defaults.headers.common['Accept'] = 'application/json'
 axios.defaults.withCredentials = true
