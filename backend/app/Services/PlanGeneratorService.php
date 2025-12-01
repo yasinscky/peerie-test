@@ -289,6 +289,10 @@ class PlanGeneratorService
 
     private function matchesPlanBasics(Task $task, Plan $plan): bool
     {
+        if (!$plan->is_local_business && $task->category === 'Local SEO') {
+            return false;
+        }
+
         $planCountry = $this->normalizeCountryCode($plan->country);
 
         $taskCountries = $this->normalizeArrayValues($task->target_countries ?? null);

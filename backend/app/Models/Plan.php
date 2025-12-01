@@ -9,11 +9,6 @@ class Plan extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
         'title',
@@ -39,11 +34,6 @@ class Plan extends Model
         'secondary_social_channel',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'is_local_business' => 'boolean',
         'has_website' => 'boolean',
@@ -62,17 +52,11 @@ class Plan extends Model
         'has_secondary_social_channel' => 'boolean',
     ];
 
-    /**
-     * Get user that owns the plan
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get plan tasks
-     */
     public function tasks()
     {
         return $this->belongsToMany(Task::class, 'plan_tasks')
@@ -90,17 +74,11 @@ class Plan extends Model
         return $this->tasks()->wherePivot('completed', true)->count();
     }
 
-    /**
-     * Get tasks for a specific week
-     */
     public function tasksForWeek(int $week)
     {
         return $this->tasks()->wherePivot('week', $week)->get();
     }
 
-    /**
-     * Get plan grouped by weeks
-     */
     public function getPlanByWeeks()
     {
         $weeks = [];
@@ -220,5 +198,74 @@ class Plan extends Model
         });
 
         return $result;
+    }
+
+    public function getQuestionnaireSummaryAttribute(): ?string
+    {
+        $data = $this->questionnaire_data;
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        $parts = [];
+
+        $countryLabels = [
+            'de' => 'Germany',
+            'uk' => 'United Kingdom',
+            'ie' => 'Ireland',
+        ];
+
+        $industryLabels = [
+            'beauty' => 'Beauty',
+            'physio' => 'Physio',
+            'coaching' => 'Coaching',
+        ];
+
+        if (isset($data['country'])) {
+            $parts[] = 'Country: ' . ($countryLabels[$data['country']] ?? strtoupper((string) $data['country']));
+        }
+
+        if (isset($data['industry'])) {
+            $parts[] = 'Industry: ' . ($industryLabels[$data['industry']] ?? (string) $data['industry']);
+        }
+
+        if (isset($data['is_local_business'])) {
+            $parts[] = 'Local business: ' . ($data['is_local_business'] ? 'Yes' : 'No');
+        }
+
+        if (isset($data['marketing_time_per_week'])) {
+            $parts[] = 'Time per week: ' . $data['marketing_time_per_week'] . 'h';
+        }
+
+        if (isset($data['has_website'])) {
+            $parts[] = 'Website: ' . ($data['has_website'] ? 'Yes' : 'No');
+        }
+
+        if (isset($data['business_goals_defined'])) {
+            $parts[] = 'Business goals: ' . ($data['business_goals_defined'] ? 'Defined' : 'Not defined');
+        }
+
+        if (isset($data['marketing_goals_defined'])) {
+            $parts[] = 'Marketing goals: ' . ($data['marketing_goals_defined'] ? 'Defined' : 'Not defined');
+        }
+
+        if (isset($data['running_ads']) && is_array($data['running_ads']) && count($data['running_ads']) > 0) {
+            $parts[] = 'Ads: ' . implode(', ', $data['running_ads']);
+        }
+
+        if (isset($data['primary_social_channel'])) {
+            $parts[] = 'Primary social: ' . $data['primary_social_channel'];
+        }
+
+        if (isset($data['secondary_social_channel'])) {
+            $parts[] = 'Secondary social: ' . $data['secondary_social_channel'];
+        }
+
+        if (count($parts) === 0) {
+            return null;
+        }
+
+        return implode(' • ', $parts);
     }
 }

@@ -39,6 +39,11 @@ class PlansRelationManager extends RelationManager
                     ->searchable()
                     ->sortable()
                     ->default('Untitled'),
+                Tables\Columns\TextColumn::make('questionnaire_summary')
+                    ->label('Questionnaire')
+                    ->wrap()
+                    ->limit(120)
+                    ->formatStateUsing(fn (?string $state): string => $state ?? '—'),
                 Tables\Columns\TextColumn::make('language')
                     ->label('Language')
                     ->badge(),
@@ -61,6 +66,22 @@ class PlansRelationManager extends RelationManager
             ])
             ->headerActions([])
             ->actions([
+                Tables\Actions\Action::make('viewQuestionnaire')
+                    ->label('View questionnaire')
+                    ->icon('heroicon-o-rectangle-stack')
+                    ->modalHeading('Questionnaire data')
+                    ->modalWidth('2xl')
+                    ->form([
+                        Forms\Components\KeyValue::make('questionnaire_data')
+                            ->label('Questionnaire data')
+                            ->disabled(),
+                    ])
+                    ->fillForm(function ($record): array {
+                        return [
+                            'questionnaire_data' => $record->questionnaire_data ?? [],
+                        ];
+                    })
+                    ->modalSubmitAction(false),
                 Tables\Actions\DeleteAction::make()
                     ->requiresConfirmation(),
             ])
