@@ -29,12 +29,12 @@ class EditTask extends EditRecord
 
         if (isset($data['local_presence_options'])) {
             if (is_array($data['local_presence_options'])) {
-                $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'no';
+                $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
             } elseif (empty($data['local_presence_options'])) {
-                $data['local_presence_options'] = 'no';
+                $data['local_presence_options'] = 'any';
             }
         } else {
-            $data['local_presence_options'] = 'no';
+            $data['local_presence_options'] = 'any';
         }
 
         if (isset($data['template'])) {
@@ -76,12 +76,12 @@ class EditTask extends EditRecord
 
         if (isset($data['local_presence_options'])) {
             if (is_array($data['local_presence_options'])) {
-                $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'no';
+                $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
             } elseif (empty($data['local_presence_options'])) {
-                $data['local_presence_options'] = 'no';
+                $data['local_presence_options'] = 'any';
             }
         } else {
-            $data['local_presence_options'] = 'no';
+            $data['local_presence_options'] = 'any';
         }
 
         if (isset($data['template'])) {

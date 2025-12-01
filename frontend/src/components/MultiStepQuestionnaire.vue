@@ -763,8 +763,7 @@ export default {
 
       try {
         const submitData = {
-          ...form.value,
-          business_niche: form.value.industry
+          ...form.value
         }
 
         const response = await axios.post('/api/questionnaire', submitData)

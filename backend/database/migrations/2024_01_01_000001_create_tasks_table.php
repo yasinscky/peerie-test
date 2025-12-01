@@ -22,14 +22,12 @@ return new class extends Migration
             $table->string('language')->default('ru'); // Язык
             $table->boolean('is_local')->default(false); // Локальный бизнес
             $table->boolean('requires_website')->default(false); // Требует наличие сайта
-            $table->enum('difficulty_level', ['beginner', 'intermediate', 'advanced']); // Уровень сложности
             $table->string('category'); // Категория задачи
             $table->timestamps();
 
             // Индексы для быстрого поиска
             $table->index(['business_type', 'language', 'is_local', 'requires_website']);
             $table->index('category');
-            $table->index('difficulty_level');
         });
     }
 

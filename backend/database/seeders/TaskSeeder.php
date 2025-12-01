@@ -102,7 +102,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Social Media'
             ],
             [
@@ -129,7 +128,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'beginner',
                 'category' => 'Content'
             ],
             [
@@ -141,7 +139,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => true,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Content'
             ],
             [
@@ -166,7 +163,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Website'
             ],
             [
@@ -200,7 +196,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => true,
-                'difficulty_level' => 'beginner',
                 'category' => 'Website'
             ],
             
@@ -249,7 +244,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'advanced',
                 'category' => 'Paid Ads'
             ],
             [
@@ -261,7 +255,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => true,
-                'difficulty_level' => 'advanced',
                 'category' => 'Paid Ads'
             ],
             [
@@ -273,7 +266,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Paid Ads'
             ],
             
@@ -287,7 +279,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => true,
                 'requires_website' => false,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Networking'
             ],
             [
@@ -312,7 +303,6 @@ class TaskSeeder extends Seeder
                 'language' => 'en',
                 'is_local' => false,
                 'requires_website' => false,
-                'difficulty_level' => 'intermediate',
                 'category' => 'Marketing'
             ],
             [

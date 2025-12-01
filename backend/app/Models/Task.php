@@ -58,9 +58,9 @@ class Task extends Model
     protected function getLocalPresenceOptionsAttribute($value)
     {
         if (is_array($value)) {
-            return !empty($value) ? $value[0] : 'no';
+            return !empty($value) ? $value[0] : 'any';
         }
-        return $value ?? 'no';
+        return $value ?? 'any';
     }
 
     protected function getTemplateAttribute($value)

@@ -35,7 +35,7 @@ class CreateTask extends CreateRecord
         }
 
         if (isset($data['local_presence_options']) && is_array($data['local_presence_options'])) {
-            $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'no';
+            $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
         }
 
         if (isset($data['template']) && is_array($data['template'])) {

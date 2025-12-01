@@ -46,10 +46,6 @@ class PlanGeneratorService
 
         return $filtered
             ->groupBy(function (Task $task) {
-                if (!empty($task->external_id)) {
-                    return $task->external_id;
-                }
-
                 if (!empty($task->category)) {
                     return $task->category . '|' . ($task->action_id ?? $task->id);
                 }

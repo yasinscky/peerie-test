@@ -194,9 +194,11 @@ class TaskResource extends Resource
                 Forms\Components\Select::make('local_presence_options')
                     ->label('12. LocalPresence')
                     ->options([
-                        'yes' => 'Yes',
-                        'no' => 'No',
+                        'any' => 'Any (show for all businesses)',
+                        'yes' => 'Only for local businesses',
+                        'no' => 'Only for non-local businesses',
                     ])
+                    ->default('any')
                     ->native(false)
                     ->required(),
 

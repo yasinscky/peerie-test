@@ -158,16 +158,6 @@ npm run build
 1. Обновите `backend/database/seeders/TaskSeeder.php`
 2. Выполните `php artisan db:seed --class=TaskSeeder`
 
-#### Импорт Strategy Blocks
-
-```
-php artisan import:strategy-blocks /absolute/path/strategy-blocks.csv
-```
-
-- Команда поддерживает HTML и CSV экспорт Strategy Blocks.
-- `ActionID` используется как `external_id` задачи; повторный запуск обновляет данные.
-- Для корректных зависимостей указывайте один и тот же файл при переимпорте.
-
 #### Импорт Hashtag-чеклистов
 
 ```

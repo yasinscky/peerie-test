@@ -127,7 +127,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 
 export default {
@@ -162,6 +162,24 @@ export default {
       })
     }
 
+    const getBusinessNiche = (plan) => {
+      if (Array.isArray(plan.industries) && plan.industries.length > 0) {
+        return plan.industries[0]
+      }
+
+      if (plan.questionnaire_data && plan.questionnaire_data.industry) {
+        const labels = {
+          beauty: 'Beauty',
+          physio: 'Physio',
+          coaching: 'Coaching'
+        }
+
+        return labels[plan.questionnaire_data.industry] || plan.questionnaire_data.industry
+      }
+
+      return ''
+    }
+
     onMounted(() => {
       fetchPlans()
     })
@@ -170,7 +188,8 @@ export default {
       plans,
       isLoading,
       error,
-      formatDate
+      formatDate,
+      getBusinessNiche
     }
   }
 }
