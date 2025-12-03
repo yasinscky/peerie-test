@@ -20,7 +20,7 @@ class EditUser extends EditRecord
                     if (auth()->id() === $this->record->id) {
                         \Filament\Notifications\Notification::make()
                             ->danger()
-                            ->title('Нельзя удалить свою учетную запись')
+                            ->title('You cannot delete your own account')
                             ->send();
                         $action->cancel();
                     }
@@ -35,7 +35,7 @@ class EditUser extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return 'Изменения сохранены';
+        return 'Changes saved';
     }
 }
 

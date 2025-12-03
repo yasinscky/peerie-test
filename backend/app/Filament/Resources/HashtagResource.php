@@ -59,7 +59,7 @@ class HashtagResource extends Resource
                             ->label('Title')
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('Например: Beauty Salon - IRL'),
+                            ->placeholder('Example: Beauty Salon - IRL'),
                     ]),
                 
                 Forms\Components\Section::make('Intro')
@@ -83,7 +83,7 @@ class HashtagResource extends Resource
                                     ->label('Block title')
                                     ->required()
                                     ->maxLength(255)
-                                    ->placeholder('Например: 1 – Local'),
+                                    ->placeholder('Example: 1 – Local'),
                                 Forms\Components\Textarea::make('description')
                                     ->label('Block description')
                                     ->rows(2)
@@ -117,8 +117,8 @@ class HashtagResource extends Resource
                             ->columns(2)
                             ->defaultItems(5)
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'Новый блок')
-                            ->addActionLabel('Добавить блок')
+                            ->itemLabel(fn (array $state): ?string => $state['title'] ?? 'New block')
+                            ->addActionLabel('Add block')
                             ->reorderable(true)
                             ->required(),
                     ]),

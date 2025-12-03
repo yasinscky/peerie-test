@@ -26,6 +26,7 @@ class PlanTask extends Model
         'task_id',
         'week',
         'completed',
+        'last_completed_at',
         'notes',
     ];
 
@@ -36,10 +37,11 @@ class PlanTask extends Model
      */
     protected $casts = [
         'completed' => 'boolean',
+        'last_completed_at' => 'datetime',
     ];
 
     /**
-     * Получить план
+     * Get related plan
      */
     public function plan()
     {
@@ -47,7 +49,7 @@ class PlanTask extends Model
     }
 
     /**
-     * Получить задачу
+     * Get related task
      */
     public function task()
     {

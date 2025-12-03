@@ -17,7 +17,7 @@ class CreateUser extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return 'Пользователь создан';
+        return 'User created';
     }
 }
 

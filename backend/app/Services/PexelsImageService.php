@@ -16,7 +16,7 @@ class PexelsImageService
     }
 
     /**
-     * Поиск изображений по ключевому слову
+     * Search images by keyword
      */
     public function searchImages(string $query, int $page = 1, int $perPage = 20): array
     {
@@ -65,7 +65,7 @@ class PexelsImageService
     }
 
     /**
-     * Поиск изображений по категории
+     * Search images by category
      */
     public function searchByCategory(string $category, int $page = 1, int $perPage = 16): array
     {
@@ -86,7 +86,7 @@ class PexelsImageService
     }
 
     /**
-     * Получить популярные изображения
+     * Get popular images
      */
     public function getPopularImages(int $page = 1, int $perPage = 20): array
     {
@@ -115,7 +115,7 @@ class PexelsImageService
     }
 
     /**
-     * Трансформировать ответ от Pexels API в наш формат
+     * Transform Pexels API response to internal format
      */
     private function transformResponse(array $data): array
     {
@@ -159,7 +159,7 @@ class PexelsImageService
     }
 
     /**
-     * Получить пустой ответ при ошибке
+     * Get empty response on error
      */
     private function getEmptyResponse(): array
     {
@@ -175,7 +175,7 @@ class PexelsImageService
     }
 
     /**
-     * Получить информацию об изображении по ID
+     * Get image information by ID
      */
     public function getImageById(int $id): ?array
     {

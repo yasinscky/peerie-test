@@ -142,10 +142,16 @@ class PlanController extends Controller
             ], 404);
         }
 
-        $planTask->update([
+        $updateData = [
             'completed' => $request->completed,
             'notes' => $request->notes,
-        ]);
+        ];
+
+        if ($request->completed && !$planTask->completed) {
+            $updateData['last_completed_at'] = now();
+        }
+
+        $planTask->update($updateData);
 
         return response()->json([
                 'success' => true,

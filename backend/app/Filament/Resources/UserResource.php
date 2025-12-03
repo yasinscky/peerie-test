@@ -177,7 +177,7 @@ class UserResource extends Resource
                         if (auth()->id() === $record->id) {
                             \Filament\Notifications\Notification::make()
                                 ->danger()
-                                ->title('Нельзя удалить свою учетную запись')
+                                ->title('You cannot delete your own account')
                                 ->send();
                             $action->cancel();
                         }

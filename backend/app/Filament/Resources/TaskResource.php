@@ -188,6 +188,7 @@ class TaskResource extends Resource
                         45 => '45 minutes',
                         60 => '60 minutes',
                         90 => '90 minutes',
+                        120 => '120 minutes',
                     ])
                     ->required(),
 

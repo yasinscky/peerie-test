@@ -20,11 +20,11 @@ return new class extends Migration
             $table->string('language');
             $table->boolean('is_local_business');
             $table->boolean('has_website');
-            $table->integer('marketing_time_per_week'); // Часов в неделю на маркетинг
-            $table->json('questionnaire_data')->nullable(); // Полные данные анкеты
+            $table->integer('marketing_time_per_week'); // Available marketing time per week (hours)
+            $table->json('questionnaire_data')->nullable(); // Full questionnaire payload
             $table->timestamps();
 
-            // Индексы
+            // Indexes
             $table->index(['user_id', 'created_at']);
         });
     }

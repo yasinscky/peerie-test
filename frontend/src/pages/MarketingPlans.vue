@@ -164,7 +164,7 @@
                       <!-- Task Meta -->
                       <div class="flex flex-wrap gap-2 mt-2">
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#FFEBD0] text-[#3F4369]">
-                          ⏱️ {{ getTaskHours(task) }}h
+                          ⏱️ {{ getTaskMinutes(task) }} min
                         </span>
                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#1C8E9E]/10 text-[#1C8E9E]">
                           📅 {{ formatFrequency(task.frequency) }}
@@ -255,7 +255,7 @@
         <div class="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
           <div class="flex flex-wrap gap-3 items-start mb-6">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#DCDCDC] text-[#3F4369]">
-              ⏱️ {{ getTaskHours(selectedTask) }}h
+              ⏱️ {{ getTaskMinutes(selectedTask) }} min
             </span>
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#1C8E9E]/10 text-[#1C8E9E]">
               📅 {{ formatFrequency(selectedTask.frequency) }}

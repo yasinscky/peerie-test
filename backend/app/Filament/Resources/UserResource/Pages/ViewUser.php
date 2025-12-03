@@ -20,7 +20,7 @@ class ViewUser extends ViewRecord
                     if (auth()->id() === $this->record->id) {
                         \Filament\Notifications\Notification::make()
                             ->danger()
-                            ->title('Нельзя удалить свою учетную запись')
+                            ->title('You cannot delete your own account')
                             ->send();
                         $action->cancel();
                     }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('plans', function (Blueprint $table) {
-            // Новые поля для расширенного опросника
+            // Extended questionnaire fields
             $table->json('industries')->nullable()->after('questionnaire_data');
             $table->boolean('business_goals_defined')->default(false)->after('industries');
             $table->boolean('marketing_goals_defined')->default(false)->after('business_goals_defined');

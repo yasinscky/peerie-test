@@ -15,18 +15,17 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->integer('duration_hours'); // Длительность в часах
-            $table->enum('frequency', ['once', 'weekly', 'monthly', 'quarterly']); // Частота выполнения
-            $table->json('dependencies')->nullable(); // JSON массив ID зависимых задач
-            $table->enum('business_type', ['any', 'ecommerce', 'service', 'saas', 'content']); // Тип бизнеса
-            $table->string('language')->default('ru'); // Язык
-            $table->boolean('is_local')->default(false); // Локальный бизнес
-            $table->boolean('requires_website')->default(false); // Требует наличие сайта
-            $table->string('category'); // Категория задачи
+            $table->integer('duration_minutes'); // Duration in minutes
+            $table->enum('frequency', ['once', 'weekly', 'monthly', 'quarterly']); // Execution frequency
+            $table->json('dependencies')->nullable(); // JSON array of dependent task IDs
+            $table->string('language')->default('en'); // Task language
+            $table->boolean('is_local')->default(false); // Local business only
+            $table->boolean('requires_website')->default(false); // Requires website to be present
+            $table->string('category'); // Task category
             $table->timestamps();
 
-            // Индексы для быстрого поиска
-            $table->index(['business_type', 'language', 'is_local', 'requires_website']);
+            // Indexes for faster querying
+            $table->index(['language', 'is_local', 'requires_website']);
             $table->index('category');
         });
     }

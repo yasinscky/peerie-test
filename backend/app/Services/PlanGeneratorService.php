@@ -178,23 +178,39 @@ class PlanGeneratorService
         }
     }
 
-    private function assignTaskToWeek(Task $task, array &$weeks, array &$completedTaskIds, int $minutesPerWeek): void
+    private function assignTaskToWeek(Task $task, array &$weeks, array &$completedTaskIds, int $minutesPerWeek, ?int $preferredWeek = null): void
     {
         $taskMinutes = $this->getTaskDurationMinutes($task);
         $selectedWeek = null;
-
-        foreach ($weeks as $weekNumber => $weekData) {
-            $weekMinutes = $weekData['hours'] * 60;
+        
+        if ($preferredWeek !== null && isset($weeks[$preferredWeek])) {
+            $weekMinutes = $weeks[$preferredWeek]['hours'] * 60;
 
             if ($weekMinutes + $taskMinutes <= $minutesPerWeek) {
-                if ($selectedWeek === null || $weekMinutes < $weeks[$selectedWeek]['hours'] * 60) {
-                    $selectedWeek = $weekNumber;
+                $selectedWeek = $preferredWeek;
+            }
+        }
+
+        if ($selectedWeek === null) {
+            foreach ($weeks as $weekNumber => $weekData) {
+                $weekMinutes = $weekData['hours'] * 60;
+
+                if ($weekMinutes + $taskMinutes <= $minutesPerWeek) {
+                    if ($selectedWeek === null || $weekMinutes < $weeks[$selectedWeek]['hours'] * 60) {
+                        $selectedWeek = $weekNumber;
+                    }
                 }
             }
         }
 
         if ($selectedWeek === null) {
             return;
+        }
+
+        foreach ($weeks[$selectedWeek]['tasks'] as $existingTask) {
+            if ($existingTask->id === $task->id) {
+                return;
+            }
         }
 
         $weeks[$selectedWeek]['tasks'][] = $task;
@@ -233,13 +249,22 @@ class PlanGeneratorService
         $usedMinutes = 0;
         foreach ($tasks as $task) {
             $taskMinutes = $this->getTaskDurationMinutes($task);
+            $multiplier = 1;
 
-            if (($usedMinutes + $taskMinutes) > $availableMinutes) {
+            if ($task->frequency === 'weekly') {
+                $multiplier = 4;
+            } elseif ($task->frequency === 'bi_weekly') {
+                $multiplier = 2;
+            }
+
+            $effectiveMinutes = $taskMinutes * $multiplier;
+
+            if (($usedMinutes + $effectiveMinutes) > $availableMinutes) {
                 continue;
             }
 
             $selected->push($task);
-            $usedMinutes += $taskMinutes;
+            $usedMinutes += $effectiveMinutes;
         }
 
         return $selected->isNotEmpty() ? $selected : $tasks;
@@ -451,6 +476,7 @@ class PlanGeneratorService
         $now = Carbon::now();
         $monthsSinceStart = $planCreatedAt->startOfMonth()->diffInMonths($now->copy()->startOfMonth());
 
+        if ($monthsSinceStart < 12) {
         if ($frequency === 'monthly') {
             return true;
         }
@@ -465,6 +491,45 @@ class PlanGeneratorService
 
         if ($frequency === 'yearly') {
             return $monthsSinceStart % 12 === 0;
+            }
+
+            return true;
+        }
+
+        if ($frequency === 'yearly') {
+            $planTask = PlanTask::where('plan_id', $plan->id)
+                ->where('task_id', $task->id)
+                ->orderByDesc('last_completed_at')
+                ->first();
+
+            if ($planTask && $planTask->last_completed_at) {
+                $monthsSinceCompletion = $planTask->last_completed_at
+                    ->copy()
+                    ->startOfMonth()
+                    ->diffInMonths($now->copy()->startOfMonth());
+
+                return $monthsSinceCompletion >= 12 && $monthsSinceCompletion % 12 === 0;
+            }
+
+            return $monthsSinceStart % 12 === 0;
+        }
+
+        if ($frequency === 'half_yearly') {
+            $planTask = PlanTask::where('plan_id', $plan->id)
+                ->where('task_id', $task->id)
+                ->orderByDesc('last_completed_at')
+                ->first();
+
+            if ($planTask && $planTask->last_completed_at) {
+                $monthsSinceCompletion = $planTask->last_completed_at
+                    ->copy()
+                    ->startOfMonth()
+                    ->diffInMonths($now->copy()->startOfMonth());
+
+                return $monthsSinceCompletion >= 6 && $monthsSinceCompletion % 6 === 0;
+            }
+
+            return $monthsSinceStart % 6 === 0;
         }
 
         return true;

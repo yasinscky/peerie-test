@@ -84,10 +84,19 @@ class Plan extends Model
         $weeks = [];
         
         for ($week = 1; $week <= 4; $week++) {
+            $tasks = $this->tasksForWeek($week);
+            $totalMinutes = $tasks->sum(function ($task) {
+                if (!is_null($task->duration_minutes)) {
+                    return (int) $task->duration_minutes;
+                }
+
+                return 0;
+            });
+
             $weeks[] = [
                 'week' => $week,
-                'tasks' => $this->tasksForWeek($week),
-                'total_hours' => $this->tasksForWeek($week)->sum('duration_hours'),
+                'tasks' => $tasks,
+                'total_hours' => $totalMinutes / 60,
             ];
         }
 
@@ -143,13 +152,13 @@ class Plan extends Model
                 $categories[$mappedCategory] = [
                     'name' => $mappedCategory,
                     'tasks' => [],
-                    'totalHours' => 0,
+                    'totalMinutes' => 0,
                     'completed' => 0,
                 ];
             }
 
             $categories[$mappedCategory]['tasks'][] = $task;
-            $categories[$mappedCategory]['totalHours'] += $task->duration_hours ?? 0;
+            $categories[$mappedCategory]['totalMinutes'] += (int) ($task->duration_minutes ?? 0);
 
             if ($task->pivot && $task->pivot->completed) {
                 $categories[$mappedCategory]['completed']++;
@@ -171,6 +180,7 @@ class Plan extends Model
 
         $result = array_map(function (array $category) {
             $taskCount = count($category['tasks']);
+            $category['totalHours'] = $category['totalMinutes'] / 60;
             $category['progress'] = $taskCount > 0
                 ? (int) round(($category['completed'] / $taskCount) * 100)
                 : 0;
