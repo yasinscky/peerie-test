@@ -27,6 +27,7 @@ class ProfileController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'language' => $user->language,
         ]);
     }
 
@@ -37,12 +38,14 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'language' => 'nullable|string|in:en,de',
         ]);
 
         try {
             $user->update([
                 'name' => $request->name,
                 'email' => $request->email,
+                'language' => $request->language ?? $user->language,
             ]);
 
             return response()->json([

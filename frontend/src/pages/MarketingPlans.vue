@@ -2,8 +2,8 @@
   <div class="max-w-7xl mx-auto">
     <div class="mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-[#3F4369]">Your Marketing Plan</h1>
-        <p class="text-[#3F4369] opacity-70 mt-2">Track your personalized marketing tasks by category</p>
+        <h1 class="text-3xl font-bold text-[#3F4369]">{{ texts.title }}</h1>
+        <p class="text-[#3F4369] opacity-70 mt-2">{{ texts.subtitle }}</p>
       </div>
     </div>
 
@@ -217,8 +217,8 @@
       <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
       </svg>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">You don't have any plans yet</h3>
-      <p class="text-gray-600 dark:text-gray-400 mb-6">Your marketing plan will be created after completing the questionnaire</p>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ texts.emptyTitle }}</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">{{ texts.emptyText }}</p>
       <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
         <p class="text-blue-800 text-sm">
           <strong>Information:</strong> Marketing plan is created automatically after completing the questionnaire during registration.
@@ -322,8 +322,10 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useLanguageStore } from '@/stores/language'
 
 const router = useRouter()
+const languageStore = useLanguageStore()
 
 const plans = ref([])
 const isLoading = ref(true)
@@ -336,6 +338,24 @@ const instructionModalOpen = ref(false)
 const selectedTask = ref(null)
 
 const plan = computed(() => plans.value[0] || null)
+
+const texts = computed(() => {
+  if (languageStore.language === 'de') {
+    return {
+      title: 'Dein Marketingplan',
+      subtitle: 'Verfolge deine personalisierten Marketingaufgaben nach Kategorie',
+      emptyTitle: 'Du hast noch keine Pläne',
+      emptyText: 'Dein Marketingplan wird nach dem Ausfüllen des Fragebogens automatisch erstellt'
+    }
+  }
+
+  return {
+    title: 'Your Marketing Plan',
+    subtitle: 'Track your personalized marketing tasks by category',
+    emptyTitle: "You don't have any plans yet",
+    emptyText: 'Your marketing plan will be created after completing the questionnaire'
+  }
+})
 
 const fetchPlans = async () => {
   try {

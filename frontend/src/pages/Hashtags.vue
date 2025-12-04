@@ -7,7 +7,9 @@
       </p>
     </div>
 
-      <div v-if="loading" class="py-10 text-center text-[#3F4369] opacity-70">Loading...</div>
+      <div v-if="loading" class="py-10 text-center text-[#3F4369] opacity-70">
+        {{ LOCALES[userLanguage]?.loading || LOCALES.en.loading }}
+      </div>
     <div v-else>
       <div v-if="!hashtagBlocks.length" class="py-6 text-[#3F4369] opacity-70">
         {{ LOCALES[userLanguage]?.noHashtagsMessage || LOCALES.en.noHashtagsMessage }}
@@ -147,6 +149,7 @@ const LOCALES = {
     nicheExamplePrefix: 'Examples (create your own or modify):',
     copyMessage: 'Hashtags copied to clipboard',
     noHashtagsMessage: 'No hashtags found for your plan yet.',
+    loading: 'Loading...',
     blockDescriptions: {
       local: 'These tags help you reach people searching for services in your area. Use at least one location-based hashtag per post—even if the volume is low, they\'re essential for connecting with local customers who are ready to book.',
       broad: 'These are high-volume hashtags (over 300,000 uses) that help the algorithm understand your general category. Use 1-2 per post to give context, but don\'t rely on them for reach—they\'re competitive and better suited as supporting tags.',
@@ -160,6 +163,7 @@ const LOCALES = {
     nicheExamplePrefix: 'Beispiele (erstelle deine eigenen oder passe an):',
     copyMessage: 'Hashtags in die Zwischenablage kopiert',
     noHashtagsMessage: 'Noch keine Hashtags für deinen Plan gefunden.',
+    loading: 'Wird geladen...',
     blockDescriptions: {
       local: 'Diese Tags helfen dir, Personen zu erreichen, die nach Services in deiner Region suchen. Nutze mindestens einen standortbasierten Hashtag pro Beitrag – selbst wenn das Volumen niedrig ist, sind sie essenziell, um lokale Kunden zu verbinden, die bereit sind zu buchen.',
       broad: 'Das sind hochvolumige Hashtags (über 300.000 Nutzungen), die dem Algorithmus helfen, deine allgemeine Kategorie zu verstehen. Nutze 1-2 pro Beitrag für Kontext, aber verlasse dich nicht auf sie für Reichweite – sie sind umkämpft und eignen sich besser als unterstützende Tags.',

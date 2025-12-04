@@ -174,7 +174,6 @@ class TaskResource extends Resource
                     ->options([
                         2 => '2 hours',
                         4 => '4 hours',
-                        6 => '6 hours',
                     ])
                     ->multiple()
                     ->native(false)

@@ -8,39 +8,42 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
               </svg>
             </div>
-            <h1 class="text-white text-4xl lg:text-6xl font-bold">Profile</h1>
+            <h1 class="text-white text-4xl lg:text-6xl font-bold">{{ texts.headerTitle }}</h1>
           </div>
           <div class="flex items-center space-x-2 text-white text-base lg:text-xl font-medium">
-            <span>Account</span>
+            <span>{{ texts.headerAccount }}</span>
             <span class="opacity-40">|</span>
-            <span class="opacity-40">Profile</span>
+            <span class="opacity-40">{{ texts.headerTitle }}</span>
           </div>
       </div>
 
         <div class="p-4 lg:p-8 space-y-8">
           <div class="bg-white border-2 border-[#3f4369] rounded-[36px] p-6 lg:p-8">
-            <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">Personal Information</h2>
-            <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">Please fill in all required fields marked with <span class="text-red-500">*</span></p>
+            <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">{{ texts.personalInfoTitle }}</h2>
+            <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">
+              {{ texts.personalInfoDescription }}
+              <span class="text-red-500">*</span>
+            </p>
             
             <form @submit.prevent="updateProfile" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">First name</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.firstNameLabel }}</label>
                   <input 
                     v-model="profileForm.firstName"
                     type="text" 
                     class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    placeholder="Enter first name"
+                    :placeholder="texts.firstNamePlaceholder"
                     required
                   >
                 </div>
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">Last name</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.lastNameLabel }}</label>
                 <input 
                     v-model="profileForm.lastName"
                   type="text" 
                     class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    placeholder="Enter last name"
+                    :placeholder="texts.lastNamePlaceholder"
                   required
                 >
                 </div>
@@ -48,23 +51,23 @@
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">E-mail</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.emailLabel }}</label>
                 <input 
                   v-model="profileForm.email"
                   type="email" 
                     class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    placeholder="Enter email"
+                    :placeholder="texts.emailPlaceholder"
                   required
                 >
                 </div>
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6 relative">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">Language</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.languageLabel }}</label>
                   <select 
                     v-model="profileForm.language"
                     class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base appearance-none pr-10"
                   >
-                    <option value="en">English</option>
-                    <option value="ru">Russian</option>
+                    <option value="en">{{ texts.languageEn }}</option>
+                    <option value="de">{{ texts.languageDe }}</option>
                   </select>
                   <div class="absolute right-6 top-1/2 transform -translate-y-1/2 pointer-events-none">
                     <svg class="w-6 h-6 text-[#3f4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,43 +83,43 @@
                   @click="resetForm"
                   class="px-6 py-3 text-[#f34767] text-xl font-bold uppercase hover:opacity-80 transition-opacity"
                 >
-                  Reset
+                  {{ texts.resetButton }}
                 </button>
                 <button 
                   type="submit" 
                   :disabled="isUpdating"
                   class="px-8 py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[30px] text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
                 >
-                  {{ isUpdating ? 'Saving...' : 'Save changes' }}
+                  {{ isUpdating ? texts.saving : texts.saveChanges }}
                 </button>
               </div>
             </form>
         </div>
 
           <div class="bg-white border-2 border-[#3f4369] rounded-[36px] p-6 lg:p-8">
-            <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">Security Settings</h2>
-            <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">Use a strong password with at least 8 characters, including a number and a special symbol</p>
+            <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">{{ texts.securityTitle }}</h2>
+            <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">{{ texts.securityDescription }}</p>
             
             <form @submit.prevent="updatePassword" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">Password</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.passwordLabel }}</label>
                 <input 
                     v-model="passwordForm.password"
                   type="password" 
                     class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    placeholder="Enter new password"
+                    :placeholder="texts.passwordPlaceholder"
                   required
                   minlength="8"
                 >
               </div>
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">Confirm password</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.confirmPasswordLabel }}</label>
                 <input 
                   v-model="passwordForm.confirmPassword"
                   type="password" 
                     class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    placeholder="Confirm new password"
+                    :placeholder="texts.confirmPasswordPlaceholder"
                   required
                   minlength="8"
                 >
@@ -129,7 +132,7 @@
                   @click="deleteAccount"
                   class="text-[#f34767] text-xl underline hover:opacity-80 transition-opacity"
                 >
-                  Delete my account
+                  {{ texts.deleteAccount }}
                 </button>
                 <div class="flex gap-4">
                   <button 
@@ -137,14 +140,14 @@
                     @click="resetPasswordForm"
                     class="px-6 py-3 text-[#f34767] text-xl font-bold uppercase hover:opacity-80 transition-opacity"
                   >
-                    Reset
+                    {{ texts.resetButton }}
                   </button>
                   <button 
                     type="submit" 
                     :disabled="isUpdating"
                     class="px-8 py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[30px] text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
                   >
-                    {{ isUpdating ? 'Updating...' : 'Save changes' }}
+                    {{ isUpdating ? texts.updating : texts.saveChanges }}
                   </button>
                 </div>
               </div>
@@ -152,91 +155,6 @@
           </div>
         </div>
     </main>
-
-    <footer class="bg-white border-t-2 border-[#DCDCDC] mt-16">
-      <div class="max-w-7xl mx-auto px-4 lg:px-8 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
-          <div class="lg:col-span-1">
-            <div class="h-12 w-48 mb-4">
-              <img src="/assets/images/logos/logo.png" alt="Peerie Logo" class="h-full w-auto">
-          </div>
-        </div>
-
-          <div>
-            <h3 class="text-[#1c1a1b] text-2xl lg:text-4xl font-bold mb-4">Resources</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Blog</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Resource library</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 class="text-[#1c1a1b] text-2xl lg:text-4xl font-bold mb-4">Services</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Web development</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Consulting</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Request an industry</a></li>
-            </ul>
-        </div>
-
-          <div>
-            <h3 class="text-[#1c1a1b] text-2xl lg:text-4xl font-bold mb-4">Support</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Help centre</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">FAQ</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Contact</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 class="text-[#1c1a1b] text-2xl lg:text-4xl font-bold mb-4">Company</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">About us</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Legal</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Privacy policy</a></li>
-              <li><a href="#" class="text-[#1c1a1b] text-base lg:text-xl font-medium hover:text-[#f34767] transition-colors">Terms of use</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="border-t-2 border-[#DCDCDC] pt-8">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
-              <h3 class="text-[#1c1a1b] text-2xl lg:text-4xl font-bold mb-4">Subscribe to our news and special offers!</h3>
-              <form @submit.prevent="subscribeNewsletter" class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1 bg-white border-2 border-[#DCDCDC] rounded-[30px] p-4">
-                  <input 
-                    v-model="newsletterEmail"
-                    type="email" 
-                    placeholder="Your e-mail"
-                    class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base lg:text-xl"
-                    required
-                  >
-                </div>
-                <button 
-                  type="submit"
-                  class="px-6 py-4 bg-[#f34767] border-2 border-[#f34767] text-white rounded-[15px] text-base lg:text-xl font-bold uppercase hover:bg-opacity-90 transition-opacity whitespace-nowrap"
-                >
-                  Join newsletter
-                </button>
-              </form>
-              <div class="mt-4 flex items-start space-x-2">
-                <input 
-                  v-model="newsletterConsent"
-                  type="checkbox" 
-                  id="newsletter-consent"
-                  class="mt-1 w-5 h-5 text-[#f34767] border-[#DCDCDC] rounded focus:ring-[#f34767]"
-                >
-                <label for="newsletter-consent" class="text-[#1c1a1b] text-sm lg:text-base">
-                  Yes, I would like to receive email marketing communications from Peerie. I understand that I can unsubscribe at any time.
-                </label>
-              </div>
-            </div>
-          </div>
-          <p class="text-[#DCDCDC] text-base lg:text-2xl font-medium mt-8">Copyright 2025 Peerie</p>
-        </div>
-      </div>
-    </footer>
 
     <div v-if="message" class="fixed top-4 right-4 z-50">
       <div class="p-4 rounded-lg shadow-lg" :class="message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
@@ -250,8 +168,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useLanguageStore } from '@/stores/language'
 
 const router = useRouter()
+const languageStore = useLanguageStore()
 
 const isUpdating = ref(false)
 const message = ref(null)
@@ -271,6 +191,84 @@ const passwordForm = ref({
 })
 
 const user = ref(null)
+
+const texts = computed(() => {
+  if (languageStore.language === 'de') {
+    return {
+      headerTitle: 'Profil',
+      headerAccount: 'Konto',
+      personalInfoTitle: 'Persönliche Daten',
+      personalInfoDescription: 'Bitte fülle alle Pflichtfelder aus, die mit',
+      firstNameLabel: 'Vorname',
+      firstNamePlaceholder: 'Vornamen eingeben',
+      lastNameLabel: 'Nachname',
+      lastNamePlaceholder: 'Nachnamen eingeben',
+      emailLabel: 'E-Mail',
+      emailPlaceholder: 'E-Mail eingeben',
+      languageLabel: 'Sprache',
+      languageEn: 'Englisch',
+      languageDe: 'Deutsch',
+      resetButton: 'Zurücksetzen',
+      saveChanges: 'Änderungen speichern',
+      saving: 'Speichern...',
+      securityTitle: 'Sicherheitseinstellungen',
+      securityDescription: 'Verwende ein starkes Passwort mit mindestens 8 Zeichen, einer Zahl und einem Sonderzeichen',
+      passwordLabel: 'Passwort',
+      passwordPlaceholder: 'Neues Passwort eingeben',
+      confirmPasswordLabel: 'Passwort bestätigen',
+      confirmPasswordPlaceholder: 'Neues Passwort bestätigen',
+      deleteAccount: 'Mein Konto löschen',
+      updating: 'Aktualisiere...',
+      profileUpdated: 'Profil wurde erfolgreich aktualisiert!',
+      profileUpdateError: 'Fehler beim Aktualisieren des Profils',
+      passwordsDontMatch: 'Passwörter stimmen nicht überein',
+      passwordUpdated: 'Passwort wurde erfolgreich aktualisiert!',
+      passwordUpdateError: 'Fehler beim Aktualisieren des Passworts',
+      newsletterConsentError: 'Bitte stimme dem Erhalt von Marketing-E-Mails zu',
+      newsletterSubscribed: 'Erfolgreich zum Newsletter angemeldet!',
+      newsletterError: 'Fehler bei der Newsletter-Anmeldung',
+      deleteAccountConfirm: 'Bist du sicher, dass du dein Konto löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.',
+      deleteAccountError: 'Fehler beim Löschen des Kontos',
+    }
+  }
+
+  return {
+    headerTitle: 'Profile',
+    headerAccount: 'Account',
+    personalInfoTitle: 'Personal Information',
+    personalInfoDescription: 'Please fill in all required fields marked with',
+    firstNameLabel: 'First name',
+    firstNamePlaceholder: 'Enter first name',
+    lastNameLabel: 'Last name',
+    lastNamePlaceholder: 'Enter last name',
+    emailLabel: 'E-mail',
+    emailPlaceholder: 'Enter email',
+    languageLabel: 'Language',
+    languageEn: 'English',
+    languageDe: 'German',
+    resetButton: 'Reset',
+    saveChanges: 'Save changes',
+    saving: 'Saving...',
+    securityTitle: 'Security Settings',
+    securityDescription: 'Use a strong password with at least 8 characters, including a number and a special symbol',
+    passwordLabel: 'Password',
+    passwordPlaceholder: 'Enter new password',
+    confirmPasswordLabel: 'Confirm password',
+    confirmPasswordPlaceholder: 'Confirm new password',
+    deleteAccount: 'Delete my account',
+    updating: 'Updating...',
+    profileUpdated: 'Profile updated successfully!',
+    profileUpdateError: 'Profile update error',
+    passwordsDontMatch: 'Passwords do not match',
+    passwordUpdated: 'Password updated successfully!',
+    passwordUpdateError: 'Password update error',
+    newsletterConsentError: 'Please consent to receive marketing communications',
+    newsletterSubscribed: 'Successfully subscribed to newsletter!',
+    newsletterError: 'Subscription error',
+    deleteAccountConfirm: 'Are you sure you want to delete your account? This action cannot be undone.',
+    deleteAccountError: 'Account deletion error',
+  }
+})
 
 const userInitials = computed(() => {
   if (!user.value?.name) return 'U'
@@ -292,14 +290,14 @@ const updateProfile = async () => {
   isUpdating.value = true
   try {
     await axios.put('/api/profile', {
-      first_name: profileForm.value.firstName,
-      last_name: profileForm.value.lastName,
+      name: `${profileForm.value.firstName} ${profileForm.value.lastName}`.trim(),
       email: profileForm.value.email,
       language: profileForm.value.language
     })
-    showMessage('Profile updated successfully!')
+    languageStore.setLanguage(profileForm.value.language)
+    showMessage(texts.value.profileUpdated)
   } catch (error) {
-    showMessage(error.response?.data?.message || 'Profile update error', 'error')
+    showMessage(error.response?.data?.message || texts.value.profileUpdateError, 'error')
   } finally {
     isUpdating.value = false
   }
@@ -307,7 +305,7 @@ const updateProfile = async () => {
 
 const updatePassword = async () => {
   if (passwordForm.value.password !== passwordForm.value.confirmPassword) {
-    showMessage('Passwords do not match', 'error')
+    showMessage(texts.value.passwordsDontMatch, 'error')
     return
   }
 
@@ -317,10 +315,10 @@ const updatePassword = async () => {
       password: passwordForm.value.password,
       password_confirmation: passwordForm.value.confirmPassword
     })
-    showMessage('Password updated successfully!')
+    showMessage(texts.value.passwordUpdated)
     resetPasswordForm()
   } catch (error) {
-    showMessage(error.response?.data?.message || 'Password update error', 'error')
+    showMessage(error.response?.data?.message || texts.value.passwordUpdateError, 'error')
   } finally {
     isUpdating.value = false
   }
@@ -338,7 +336,7 @@ const resetPasswordForm = () => {
 }
 
 const deleteAccount = async () => {
-  if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+  if (!confirm(texts.value.deleteAccountConfirm)) {
     return
   }
   
@@ -347,13 +345,13 @@ const deleteAccount = async () => {
     localStorage.removeItem('user')
     router.push('/login')
   } catch (error) {
-    showMessage(error.response?.data?.message || 'Account deletion error', 'error')
+    showMessage(error.response?.data?.message || texts.value.deleteAccountError, 'error')
   }
 }
 
 const subscribeNewsletter = async () => {
   if (!newsletterConsent.value) {
-    showMessage('Please consent to receive marketing communications', 'error')
+    showMessage(texts.value.newsletterConsentError, 'error')
     return
   }
   
@@ -361,11 +359,11 @@ const subscribeNewsletter = async () => {
     await axios.post('/api/newsletter/subscribe', {
       email: newsletterEmail.value
     })
-    showMessage('Successfully subscribed to newsletter!')
+    showMessage(texts.value.newsletterSubscribed)
     newsletterEmail.value = ''
     newsletterConsent.value = false
   } catch (error) {
-    showMessage(error.response?.data?.message || 'Subscription error', 'error')
+    showMessage(error.response?.data?.message || texts.value.newsletterError, 'error')
   }
 }
 

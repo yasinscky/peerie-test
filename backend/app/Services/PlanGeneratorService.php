@@ -476,7 +476,6 @@ class PlanGeneratorService
         $now = Carbon::now();
         $monthsSinceStart = $planCreatedAt->startOfMonth()->diffInMonths($now->copy()->startOfMonth());
 
-        if ($monthsSinceStart < 12) {
         if ($frequency === 'monthly') {
             return true;
         }
@@ -490,13 +489,10 @@ class PlanGeneratorService
         }
 
         if ($frequency === 'yearly') {
-            return $monthsSinceStart % 12 === 0;
+            if ($monthsSinceStart < 12) {
+                return $monthsSinceStart % 12 === 0;
             }
 
-            return true;
-        }
-
-        if ($frequency === 'yearly') {
             $planTask = PlanTask::where('plan_id', $plan->id)
                 ->where('task_id', $task->id)
                 ->orderByDesc('last_completed_at')
@@ -512,24 +508,6 @@ class PlanGeneratorService
             }
 
             return $monthsSinceStart % 12 === 0;
-        }
-
-        if ($frequency === 'half_yearly') {
-            $planTask = PlanTask::where('plan_id', $plan->id)
-                ->where('task_id', $task->id)
-                ->orderByDesc('last_completed_at')
-                ->first();
-
-            if ($planTask && $planTask->last_completed_at) {
-                $monthsSinceCompletion = $planTask->last_completed_at
-                    ->copy()
-                    ->startOfMonth()
-                    ->diffInMonths($now->copy()->startOfMonth());
-
-                return $monthsSinceCompletion >= 6 && $monthsSinceCompletion % 6 === 0;
-            }
-
-            return $monthsSinceStart % 6 === 0;
         }
 
         return true;

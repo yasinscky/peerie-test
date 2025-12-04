@@ -441,14 +441,14 @@
               <label class="form-label">Secondary social media channel</label>
               <div class="grid grid-cols-2 gap-4 mb-4">
                 <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_secondary_social_channel === true }">
-                  <input v-model="form.has_secondary_social_channel" type="radio" :value="true" class="sr-only" @change="updateProgress">
+                  <input v-model="form.has_secondary_social_channel" type="radio" :value="true" class="sr-only" @change="updateProgress" :disabled="form.has_primary_social_channel === false">
                   <div class="flex items-center">
                     <span class="text-2xl mr-3">✅</span>
                     <div class="font-medium">Yes</div>
                   </div>
                 </label>
                 <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_secondary_social_channel === false }">
-                  <input v-model="form.has_secondary_social_channel" type="radio" :value="false" class="sr-only" @change="updateProgress">
+                  <input v-model="form.has_secondary_social_channel" type="radio" :value="false" class="sr-only" @change="updateProgress" :disabled="form.has_primary_social_channel === false">
                   <div class="flex items-center">
                     <span class="text-2xl mr-3">❌</span>
                     <div class="font-medium">No</div>
@@ -585,8 +585,7 @@ export default {
 
     const timeOptions = [
       { value: 2, label: '2h', description: 'Minimal', icon: '⏰' },
-      { value: 4, label: '4h', description: 'Standard', icon: '⏱️' },
-      { value: 6, label: '6h+', description: 'Active', icon: '🚀' }
+      { value: 4, label: '4h', description: 'Standard', icon: '⏱️' }
     ]
 
     const adsOptions = [
@@ -789,6 +788,8 @@ export default {
     watch(() => form.value.has_primary_social_channel, (newValue) => {
       if (newValue === false) {
         form.value.primary_social_channel = ''
+        form.value.has_secondary_social_channel = false
+        form.value.secondary_social_channel = ''
       }
     })
     

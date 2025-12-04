@@ -1,8 +1,8 @@
 <template>
   <div class="max-w-7xl mx-auto">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Image Generator</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">Find and download images for your marketing materials</p>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ texts.title }}</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-2">{{ texts.subtitle }}</p>
     </div>
 
     <!-- Search Controls -->
@@ -11,14 +11,14 @@
         <!-- Search Input -->
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Search Images
+            {{ texts.searchLabel }}
           </label>
           <div class="relative">
             <input 
               v-model="searchQuery"
               @keyup.enter="searchImages"
               type="text" 
-              placeholder="Enter keywords..."
+              :placeholder="texts.searchPlaceholder"
               class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             >
             <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,7 +32,7 @@
       <!-- Quick Categories -->
       <div class="mt-4">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Quick search by categories
+          {{ texts.categoriesLabel }}
         </label>
         <div class="flex flex-wrap gap-2">
           <button 
@@ -53,7 +53,7 @@
           :disabled="isLoading || !searchQuery.trim()"
           class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {{ isLoading ? 'Searching...' : 'Find Images' }}
+          {{ isLoading ? texts.searching : texts.searchButton }}
         </button>
       </div>
     </div>
@@ -90,7 +90,7 @@
                 <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                 </svg>
-                <p class="text-sm">Loading error</p>
+                <p class="text-sm">{{ texts.loadingError }}</p>
               </div>
             </div>
 
@@ -109,7 +109,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  {{ downloadingImages.has(image.id || `${image.title}_${Date.now()}`) ? 'Downloading...' : 'Download' }}
+                  {{ downloadingImages.has(image.id || `${image.title}_${Date.now()}`) ? texts.downloading : texts.download }}
                 </button>
                 <button 
                   @click="viewImage(image)"
@@ -151,8 +151,8 @@
       <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
       </svg>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No images found</h3>
-      <p class="text-gray-600 dark:text-gray-400">Try changing your search query or selecting a different category</p>
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ texts.noImagesTitle }}</h3>
+      <p class="text-gray-600 dark:text-gray-400">{{ texts.noImagesText }}</p>
     </div>
 
     <!-- Loading State -->
@@ -161,7 +161,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
-      <p class="text-gray-600 dark:text-gray-400">Searching images...</p>
+      <p class="text-gray-600 dark:text-gray-400">{{ texts.searchingFull }}</p>
     </div>
 
     <!-- Image Modal -->
@@ -204,8 +204,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
+import { useLanguageStore } from '@/stores/language'
+
+const languageStore = useLanguageStore()
 
 const searchQuery = ref('')
 const isLoading = ref(false)
@@ -221,6 +224,42 @@ const currentSearchQuery = ref('')
 const categories = [
   'Business', 'Coach', 'Therapy', 'Beauty', 'Style', 'Nails', 'Sports', 'Massage', 'Doctor'
 ]
+
+const texts = computed(() => {
+  if (languageStore.language === 'de') {
+    return {
+      title: 'Bildbibliothek',
+      subtitle: 'Finde und lade Bilder für dein Marketing herunter',
+      searchLabel: 'Bilder suchen',
+      searchPlaceholder: 'Suchbegriffe eingeben...',
+      categoriesLabel: 'Schnellsuche nach Kategorien',
+      searchButton: 'Bilder finden',
+      searching: 'Suche...',
+      loadingError: 'Ladefehler',
+      download: 'Herunterladen',
+      downloading: 'Wird heruntergeladen...',
+      noImagesTitle: 'Keine Bilder gefunden',
+      noImagesText: 'Ändere deine Suchanfrage oder wähle eine andere Kategorie',
+      searchingFull: 'Suche nach Bildern...'
+    }
+  }
+
+  return {
+    title: 'Image Library',
+    subtitle: 'Find and download images for your marketing materials',
+    searchLabel: 'Search Images',
+    searchPlaceholder: 'Enter keywords...',
+    categoriesLabel: 'Quick search by categories',
+    searchButton: 'Find Images',
+    searching: 'Searching...',
+    loadingError: 'Loading error',
+    download: 'Download',
+    downloading: 'Downloading...',
+    noImagesTitle: 'No images found',
+    noImagesText: 'Try changing your search query or selecting a different category',
+    searchingFull: 'Searching images...'
+  }
+})
 
 const industryToCategoryMap = {
   'beauty': 'Beauty',

@@ -27,7 +27,7 @@ class QuestionnaireController extends Controller
             'industry' => 'required|string|in:beauty,physio,coaching',
             'language' => 'required|string|in:de,en',
             'is_local_business' => 'required|boolean',
-            'marketing_time_per_week' => 'required|integer|in:2,4,6',
+            'marketing_time_per_week' => 'required|integer|in:2,4',
             
             'business_goals_defined' => 'required|boolean',
             'marketing_goals_defined' => 'required|boolean',
@@ -58,6 +58,13 @@ class QuestionnaireController extends Controller
         }
 
         try {
+            $user = Auth::user();
+
+            if ($user) {
+                $user->language = $request->language;
+                $user->save();
+            }
+
             $industryLabels = [
                 'beauty' => 'Beauty',
                 'physio' => 'Physio',
