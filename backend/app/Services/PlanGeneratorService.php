@@ -142,9 +142,14 @@ class PlanGeneratorService
 
         $completedTaskIds = [];
         
-        $oneTimeTasks = $tasks->where('frequency', 'once');
+        $oneTimeTasks = $tasks->filter(function (Task $task) {
+            return $this->normalizeFrequency($task->frequency) === 'once';
+        });
+
         $recurringTasks = $tasks->filter(function (Task $task) {
-            return in_array($task->frequency, [
+            $frequency = $this->normalizeFrequency($task->frequency);
+
+            return in_array($frequency, [
                 'weekly',
                 'bi_weekly',
                 'monthly',
@@ -250,10 +255,11 @@ class PlanGeneratorService
         foreach ($tasks as $task) {
             $taskMinutes = $this->getTaskDurationMinutes($task);
             $multiplier = 1;
+            $frequency = $this->normalizeFrequency($task->frequency);
 
-            if ($task->frequency === 'weekly') {
+            if ($frequency === 'weekly') {
                 $multiplier = 4;
-            } elseif ($task->frequency === 'bi_weekly') {
+            } elseif ($frequency === 'bi_weekly') {
                 $multiplier = 2;
             }
 
@@ -463,7 +469,7 @@ class PlanGeneratorService
 
     private function shouldIncludeTaskThisMonth(Task $task, Plan $plan): bool
     {
-        $frequency = $task->frequency;
+        $frequency = $this->normalizeFrequency($task->frequency);
 
         if (in_array($frequency, ['once', 'weekly', 'bi_weekly'], true)) {
             return true;
@@ -511,6 +517,28 @@ class PlanGeneratorService
         }
 
         return true;
+    }
+
+    private function normalizeFrequency(?string $frequency): string
+    {
+        if ($frequency === null) {
+            return 'once';
+        }
+
+        $normalized = strtolower(trim($frequency));
+        $normalized = str_replace([' ', '-'], '_', $normalized);
+
+        return match ($normalized) {
+            'biweekly' => 'bi_weekly',
+            'bi_weekly' => 'bi_weekly',
+            'every_2_weeks' => 'bi_weekly',
+            'halfyearly' => 'half_yearly',
+            'half_yearly' => 'half_yearly',
+            'every_6_months' => 'half_yearly',
+            'yearly', 'annual', 'annually' => 'yearly',
+            'one_time', 'one-off', 'one_off' => 'once',
+            default => $normalized,
+        };
     }
 
     private function normalizeCountryCode(?string $country): string

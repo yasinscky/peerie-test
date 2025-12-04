@@ -28,7 +28,10 @@
             <form @submit.prevent="updateProfile" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.firstNameLabel }}</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
+                    {{ texts.firstNameLabel }}
+                    <span class="text-red-500">*</span>
+                  </label>
                   <input 
                     v-model="profileForm.firstName"
                     type="text" 
@@ -38,7 +41,10 @@
                   >
                 </div>
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.lastNameLabel }}</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
+                    {{ texts.lastNameLabel }}
+                    <span class="text-red-500">*</span>
+                  </label>
                 <input 
                     v-model="profileForm.lastName"
                   type="text" 
@@ -51,7 +57,10 @@
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.emailLabel }}</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
+                    {{ texts.emailLabel }}
+                    <span class="text-red-500">*</span>
+                  </label>
                 <input 
                   v-model="profileForm.email"
                   type="email" 
@@ -61,7 +70,10 @@
                 >
                 </div>
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6 relative">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.languageLabel }}</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
+                    {{ texts.languageLabel }}
+                    <span class="text-red-500">*</span>
+                  </label>
                   <select 
                     v-model="profileForm.language"
                     class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base appearance-none pr-10"
@@ -103,7 +115,10 @@
             <form @submit.prevent="updatePassword" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.passwordLabel }}</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
+                    {{ texts.passwordLabel }}
+                    <span class="text-red-500">*</span>
+                  </label>
                 <input 
                     v-model="passwordForm.password"
                   type="password" 
@@ -114,7 +129,10 @@
                 >
               </div>
                 <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">{{ texts.confirmPasswordLabel }}</label>
+                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
+                    {{ texts.confirmPasswordLabel }}
+                    <span class="text-red-500">*</span>
+                  </label>
                 <input 
                   v-model="passwordForm.confirmPassword"
                   type="password" 

@@ -7,7 +7,7 @@
           <img :src="logoImage" alt="Peerie Logo" class="w-40 h-40 mx-auto">
           <h1 class="text-3xl font-bold text-gray-900 mb-4">Create Marketing Plan</h1>
           <p class="text-gray-600 text-lg">
-            Answer questions in several steps to create a personalized plan
+            Answer questions in several steps to create a personalised plan
           </p>
         </div>
 
@@ -196,7 +196,7 @@
             
             <!-- Google Business Profile -->
             <div>
-              <label class="form-label">Google Business Profile claimed & filled out</label>
+              <label class="form-label">Google Business Profile claimed</label>
               <div class="grid grid-cols-2 gap-4">
                 <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.google_business_claimed === true }">
                   <input v-model="form.google_business_claimed" type="radio" :value="true" class="sr-only" @change="updateProgress">
@@ -217,7 +217,7 @@
 
             <!-- Core Directories -->
             <div>
-              <label class="form-label">Apple Business and Bing Places</label>
+              <label class="form-label">Apple Business and Bing Places claimed</label>
               <div class="grid grid-cols-2 gap-4">
                 <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.core_directories_claimed === true }">
                   <input v-model="form.core_directories_claimed" type="radio" :value="true" class="sr-only" @change="updateProgress">
@@ -499,7 +499,7 @@
             <div class="text-6xl mb-4">🎉</div>
             <h3 class="text-2xl font-bold text-green-800 mb-2">Plan successfully created!</h3>
             <p class="text-green-700 mb-6">
-              Your personalized marketing plan is ready. Welcome to your dashboard!
+              Your personalised marketing plan is ready. Welcome to your dashboard!
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
               <router-link to="/dashboard" class="btn btn-success px-8 py-3">

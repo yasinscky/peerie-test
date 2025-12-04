@@ -17,7 +17,7 @@
               <span v-else class="text-[#3f4369] text-lg font-bold">{{ userInitials }}</span>
             </div>
             <div class="flex-1">
-              <p class="text-[#1c1a1b] text-sm font-medium">My account</p>
+              <p class="text-[#1c1a1b] text-sm font-medium">{{ texts.myAccount }}</p>
               <p class="text-[#3f4369] text-xl font-bold">{{ user?.name || 'User' }}</p>
             </div>
           </div>
