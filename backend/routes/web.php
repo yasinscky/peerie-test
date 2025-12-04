@@ -6,9 +6,9 @@ use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Services\VerificationCodeService;
+use App\Services\ResendEmailService;
 use App\Http\Controllers\API\QuestionnaireController;
 use App\Http\Controllers\API\PlanController;
 use App\Http\Controllers\API\TaskController;
@@ -60,11 +60,10 @@ Route::prefix('api')->group(function () {
         $service = app(VerificationCodeService::class);
         $codeData = $service->createCode($user, 'registration');
 
-        Mail::raw(
-            'Your verification code is: ' . $codeData['plain'],
-            function ($message) use ($user) {
-                $message->to($user->email)->subject('Verify your email');
-            }
+        app(ResendEmailService::class)->send(
+            $user->email,
+            'Verify your email',
+            '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
         return response()->json([
@@ -93,11 +92,10 @@ Route::prefix('api')->group(function () {
             $service = app(VerificationCodeService::class);
             $codeData = $service->createCode($user, 'registration');
 
-            Mail::raw(
-                'Your verification code is: ' . $codeData['plain'],
-                function ($message) use ($user) {
-                    $message->to($user->email)->subject('Verify your email');
-                }
+            app(ResendEmailService::class)->send(
+                $user->email,
+                'Verify your email',
+                '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
             );
 
             Auth::logout();
@@ -187,11 +185,10 @@ Route::prefix('api')->group(function () {
         $service = app(VerificationCodeService::class);
         $codeData = $service->createCode($user, 'registration');
 
-        Mail::raw(
-            'Your verification code is: ' . $codeData['plain'],
-            function ($message) use ($user) {
-                $message->to($user->email)->subject('Verify your email');
-            }
+        app(ResendEmailService::class)->send(
+            $user->email,
+            'Verify your email',
+            '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
         return response()->json([

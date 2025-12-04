@@ -5,11 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\VerificationCodeService;
+use App\Services\ResendEmailService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
@@ -132,11 +132,10 @@ class ProfileController extends Controller
 
         $newEmail = $request->input('new_email');
 
-        Mail::raw(
-            'Your email change code is: ' . $codeData['plain'],
-            function ($message) use ($newEmail) {
-                $message->to($newEmail)->subject('Confirm your new email address');
-            }
+        app(ResendEmailService::class)->send(
+            $newEmail,
+            'Confirm your new email address',
+            '<p>Your email change code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
         return response()->json([
@@ -226,11 +225,10 @@ class ProfileController extends Controller
         $service = app(VerificationCodeService::class);
         $codeData = $service->createCode($user, 'change_password');
 
-        Mail::raw(
-            'Your password change code is: ' . $codeData['plain'],
-            function ($message) use ($user) {
-                $message->to($user->email)->subject('Confirm your password change');
-            }
+        app(ResendEmailService::class)->send(
+            $user->email,
+            'Confirm your password change',
+            '<p>Your password change code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
         return response()->json([
