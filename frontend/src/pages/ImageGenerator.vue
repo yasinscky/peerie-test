@@ -263,8 +263,8 @@ const texts = computed(() => {
 
 const industryToCategoryMap = {
   'beauty': 'Beauty',
-  'physio': 'Therapy',
-  'coaching': 'Coach'
+  'physio': 'Massage',
+  'coaching': 'Therapy'
 }
 
 const searchImages = async () => {
