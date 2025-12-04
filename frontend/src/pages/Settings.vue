@@ -186,11 +186,18 @@ const profileForm = ref({
 })
 
 const passwordForm = ref({
+  currentPassword: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  code: ''
 })
 
 const user = ref(null)
+const originalEmail = ref('')
+const emailVerification = ref({
+  isVerifying: false,
+  code: ''
+})
 
 const texts = computed(() => {
   if (languageStore.language === 'de') {
@@ -267,6 +274,16 @@ const texts = computed(() => {
     newsletterError: 'Subscription error',
     deleteAccountConfirm: 'Are you sure you want to delete your account? This action cannot be undone.',
     deleteAccountError: 'Account deletion error',
+      emailChangeCodeSent: 'We have sent a verification code to your new email address.',
+      emailChangeConfirmed: 'Email updated successfully!',
+      emailChangeError: 'Email change error',
+      passwordCodeSent: 'Password change code sent to your email.',
+      passwordCodeError: 'Password change code error',
+      currentPasswordRequired: 'Please enter your current password.',
+      currentPasswordLabel: 'Current password',
+      currentPasswordPlaceholder: 'Enter current password',
+      passwordCodeLabel: 'Verification code',
+      passwordCodePlaceholder: 'Enter code from email',
   }
 })
 
@@ -291,11 +308,22 @@ const updateProfile = async () => {
   try {
     await axios.put('/api/profile', {
       name: `${profileForm.value.firstName} ${profileForm.value.lastName}`.trim(),
-      email: profileForm.value.email,
       language: profileForm.value.language
     })
     languageStore.setLanguage(profileForm.value.language)
+
+    const emailChanged = profileForm.value.email !== originalEmail.value
+
+    if (emailChanged) {
+      await axios.post('/api/profile/email/request-change', {
+        new_email: profileForm.value.email
+      })
+      emailVerification.value.isVerifying = true
+      emailVerification.value.code = ''
+      showMessage(texts.value.emailChangeCodeSent)
+    } else {
     showMessage(texts.value.profileUpdated)
+    }
   } catch (error) {
     showMessage(error.response?.data?.message || texts.value.profileUpdateError, 'error')
   } finally {
@@ -312,8 +340,10 @@ const updatePassword = async () => {
   isUpdating.value = true
   try {
     await axios.put('/api/profile/password', {
-      password: passwordForm.value.password,
-      password_confirmation: passwordForm.value.confirmPassword
+      current_password: passwordForm.value.currentPassword,
+      new_password: passwordForm.value.password,
+      new_password_confirmation: passwordForm.value.confirmPassword,
+      code: passwordForm.value.code
     })
     showMessage(texts.value.passwordUpdated)
     resetPasswordForm()
@@ -330,8 +360,10 @@ const resetForm = () => {
 
 const resetPasswordForm = () => {
   passwordForm.value = {
+    currentPassword: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    code: ''
   }
 }
 
@@ -387,6 +419,7 @@ const fetchUser = async () => {
         email: response.data.email || '',
         language: response.data.language || 'en'
       }
+      originalEmail.value = response.data.email || ''
     } else {
       throw new Error('Failed to fetch user')
     }
@@ -396,6 +429,60 @@ const fetchUser = async () => {
     if (error.response?.status === 401) {
       router.push('/login')
     }
+  }
+}
+
+const confirmEmailChange = async () => {
+  if (!emailVerification.value.isVerifying) {
+    return
+  }
+
+  if (!emailVerification.value.code) {
+    showMessage(texts.value.passwordCodePlaceholder, 'error')
+    return
+  }
+
+  isUpdating.value = true
+
+  try {
+    const response = await axios.post('/api/profile/email/confirm-change', {
+      code: emailVerification.value.code
+    })
+
+    if (response.data.success) {
+      const updated = response.data.user
+      profileForm.value.email = updated.email || profileForm.value.email
+      originalEmail.value = updated.email || originalEmail.value
+      emailVerification.value.isVerifying = false
+      emailVerification.value.code = ''
+      showMessage(texts.value.emailChangeConfirmed)
+    } else {
+      showMessage(response.data.message || texts.value.emailChangeError, 'error')
+    }
+  } catch (error) {
+    showMessage(error.response?.data?.message || texts.value.emailChangeError, 'error')
+  } finally {
+    isUpdating.value = false
+  }
+}
+
+const requestPasswordCode = async () => {
+  if (!passwordForm.value.currentPassword) {
+    showMessage(texts.value.currentPasswordRequired, 'error')
+    return
+  }
+
+  isUpdating.value = true
+
+  try {
+    await axios.post('/api/profile/password/request-change', {
+      current_password: passwordForm.value.currentPassword
+    })
+    showMessage(texts.value.passwordCodeSent)
+  } catch (error) {
+    showMessage(error.response?.data?.message || texts.value.passwordCodeError, 'error')
+  } finally {
+    isUpdating.value = false
   }
 }
 

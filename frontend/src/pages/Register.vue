@@ -114,7 +114,6 @@
                 </div>
               </div>
 
-              <!-- Sign Up Button -->
               <div class="relative">
                 <button
                   type="submit"
@@ -133,9 +132,47 @@
                   Sign in
                 </router-link>
               </p>
+
+              <div v-if="verificationStep === 'code'" class="mt-8 space-y-4">
+                <p class="text-lg text-[#1C1A1B]">
+                  We have sent a verification code to your email. Enter it below to activate your account.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+                  <div class="flex-1">
+                    <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-20 flex items-center px-6">
+                      <input
+                        v-model="verification.code"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
+                        placeholder="Verification code"
+                        required
+                      >
+                    </div>
+                  </div>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      class="px-6 py-3 bg-[#F34767] text-white rounded-[20px] text-lg font-bold uppercase hover:bg-[#d93d5a] transition-all disabled:opacity-50"
+                      :disabled="isVerifying"
+                      @click="handleVerifyEmail"
+                    >
+                      {{ isVerifying ? 'Verifying...' : 'Verify email' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="px-6 py-3 border-2 border-[#F34767] text-[#F34767] rounded-[20px] text-lg font-bold uppercase hover:bg-[#F34767] hover:text-white transition-all disabled:opacity-50"
+                      :disabled="isVerifying"
+                      @click="handleResendCode"
+                    >
+                      Resend code
+                    </button>
+                  </div>
+                </div>
+              </div>
             </form>
 
-            <!-- Error Message -->
             <div v-if="error" class="mt-6 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800">
               <div class="flex items-center gap-2">
                 <span class="text-xl">⚠️</span>
@@ -246,6 +283,7 @@ export default {
   setup() {
     const router = useRouter()
     const isLoading = ref(false)
+    const isVerifying = ref(false)
     const error = ref('')
 
     const form = ref({
@@ -253,6 +291,12 @@ export default {
       email: '',
       password: '',
       password_confirmation: ''
+    })
+
+    const verificationStep = ref('form')
+    const verification = ref({
+      userId: null,
+      code: ''
     })
 
     const handleRegister = async () => {
@@ -269,8 +313,15 @@ export default {
         const response = await axios.post('/api/register', form.value)
 
         if (response.data.success) {
+          if (response.data.requires_verification) {
+            verificationStep.value = 'code'
+            verification.value.userId = response.data.user_id
+            verification.value.code = ''
+            error.value = ''
+          } else if (response.data.user) {
           localStorage.setItem('user', JSON.stringify(response.data.user))
           router.push('/questionnaire')
+          }
         } else {
           error.value = response.data.message || 'Registration error'
         }
@@ -286,11 +337,66 @@ export default {
       }
     }
 
+    const handleVerifyEmail = async () => {
+      if (!verification.value.userId) {
+        error.value = 'Verification is not available'
+        return
+      }
+
+      if (!verification.value.code) {
+        error.value = 'Please enter the verification code'
+        return
+      }
+
+      isVerifying.value = true
+      error.value = ''
+
+      try {
+        const response = await axios.post('/api/email/verify-registration', {
+          user_id: verification.value.userId,
+          code: verification.value.code
+        })
+
+        if (response.data.success) {
+          localStorage.setItem('user', JSON.stringify(response.data.user))
+          router.push('/questionnaire')
+        } else {
+          error.value = response.data.message || 'Verification error'
+        }
+      } catch (err) {
+        error.value = err.response?.data?.message || 'Verification error'
+      } finally {
+        isVerifying.value = false
+      }
+    }
+
+    const handleResendCode = async () => {
+      if (!verification.value.userId) {
+        return
+      }
+
+      isVerifying.value = true
+
+      try {
+        await axios.post('/api/email/resend-registration-code', {
+          user_id: verification.value.userId
+        })
+      } catch {
+      } finally {
+        isVerifying.value = false
+      }
+    }
+
     return {
       form,
       isLoading,
       error,
       handleRegister,
+      verificationStep,
+      verification,
+      isVerifying,
+      handleVerifyEmail,
+      handleResendCode,
       logoImage
     }
   }

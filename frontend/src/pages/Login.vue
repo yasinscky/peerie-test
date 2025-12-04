@@ -56,7 +56,6 @@
             </p>
 
             <form @submit.prevent="handleLogin" class="space-y-6">
-              <!-- Email Field -->
               <div class="relative">
                 <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-24 flex items-center px-6">
                   <input
@@ -70,7 +69,6 @@
                 </div>
               </div>
 
-              <!-- Password Field -->
               <div class="relative">
                 <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-24 flex items-center px-6">
                   <input
@@ -84,7 +82,6 @@
                 </div>
               </div>
 
-              <!-- Forgot Password Link -->
               <div class="text-right">
                 <button 
                   type="button" 
@@ -94,7 +91,6 @@
                 </button>
               </div>
 
-              <!-- Sign In Button -->
               <div class="relative">
                 <button
                   type="submit"
@@ -113,9 +109,47 @@
                   Sign up
                 </router-link>
               </p>
+
+              <div v-if="verification.show" class="mt-8 space-y-4">
+                <p class="text-lg text-[#1C1A1B]">
+                  Your email is not verified. Enter the verification code we sent to your email.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+                  <div class="flex-1">
+                    <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-20 flex items-center px-6">
+                      <input
+                        v-model="verification.code"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
+                        placeholder="Verification code"
+                        required
+                      >
+                    </div>
+                  </div>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      class="px-6 py-3 bg-[#F34767] text-white rounded-[20px] text-lg font-bold uppercase hover:bg-[#d93d5a] transition-all disabled:opacity-50"
+                      :disabled="isVerifying"
+                      @click="verifyEmail"
+                    >
+                      {{ isVerifying ? 'Verifying...' : 'Verify email' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="px-6 py-3 border-2 border-[#F34767] text-[#F34767] rounded-[20px] text-lg font-bold uppercase hover:bg-[#F34767] hover:text-white transition-all disabled:opacity-50"
+                      :disabled="isVerifying"
+                      @click="resendCode"
+                    >
+                      Resend code
+                    </button>
+                  </div>
+                </div>
+              </div>
             </form>
 
-            <!-- Error Message -->
             <div v-if="error" class="mt-6 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800">
               <div class="flex items-center gap-2">
                 <span class="text-xl">⚠️</span>
@@ -226,12 +260,19 @@ export default {
   setup() {
     const router = useRouter()
     const isLoading = ref(false)
+    const isVerifying = ref(false)
     const error = ref('')
 
     const form = ref({
       email: '',
       password: '',
       remember: false
+    })
+
+    const verification = ref({
+      show: false,
+      userId: null,
+      code: ''
     })
 
     const handleLogin = async () => {
@@ -242,13 +283,19 @@ export default {
         const response = await axios.post('/api/login', form.value)
 
         if (response.data.success) {
+          verification.value.show = false
           localStorage.setItem('user', JSON.stringify(response.data.user))
           router.push('/dashboard')
         } else {
           error.value = response.data.message || 'Login error'
         }
       } catch (err) {
-        if (err.response?.status === 422) {
+        if (err.response?.status === 403 && err.response.data?.requires_verification) {
+          verification.value.show = true
+          verification.value.userId = err.response.data.user_id
+          verification.value.code = ''
+          error.value = err.response.data.message || 'Email not verified. Enter the code we sent to your email.'
+        } else if (err.response?.status === 422) {
           const errors = Object.values(err.response.data.errors || {}).flat()
           error.value = errors.join(', ')
         } else {
@@ -259,11 +306,66 @@ export default {
       }
     }
 
+    const verifyEmail = async () => {
+      if (!verification.value.userId) {
+        error.value = 'Verification is not available'
+        return
+      }
+
+      if (!verification.value.code) {
+        error.value = 'Please enter the verification code'
+        return
+      }
+
+      isVerifying.value = true
+      error.value = ''
+
+      try {
+        const response = await axios.post('/api/email/verify-registration', {
+          user_id: verification.value.userId,
+          code: verification.value.code
+        })
+
+        if (response.data.success) {
+          verification.value.show = false
+          localStorage.setItem('user', JSON.stringify(response.data.user))
+          router.push('/dashboard')
+        } else {
+          error.value = response.data.message || 'Verification error'
+        }
+      } catch (err) {
+        error.value = err.response?.data?.message || 'Verification error'
+      } finally {
+        isVerifying.value = false
+      }
+    }
+
+    const resendCode = async () => {
+      if (!verification.value.userId) {
+        return
+      }
+
+      isVerifying.value = true
+
+      try {
+        await axios.post('/api/email/resend-registration-code', {
+          user_id: verification.value.userId
+        })
+      } catch {
+      } finally {
+        isVerifying.value = false
+      }
+    }
+
     return {
       form,
       isLoading,
       error,
       handleLogin,
+      verification,
+      isVerifying,
+      verifyEmail,
+      resendCode,
       logoImage
     }
   }

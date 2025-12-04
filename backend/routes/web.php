@@ -6,7 +6,9 @@ use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
 use App\Models\User;
+use App\Services\VerificationCodeService;
 use App\Http\Controllers\API\QuestionnaireController;
 use App\Http\Controllers\API\PlanController;
 use App\Http\Controllers\API\TaskController;
@@ -55,13 +57,21 @@ Route::prefix('api')->group(function () {
             'password' => Hash::make($request->password),
         ]);
 
-        Auth::login($user);
-        $request->session()->regenerate();
+        $service = app(VerificationCodeService::class);
+        $codeData = $service->createCode($user, 'registration');
+
+        Mail::raw(
+            'Your verification code is: ' . $codeData['plain'],
+            function ($message) use ($user) {
+                $message->to($user->email)->subject('Verify your email');
+            }
+        );
 
         return response()->json([
             'success' => true,
-            'user' => $user,
-            'message' => 'Registration successful!',
+            'user_id' => $user->id,
+            'requires_verification' => true,
+            'message' => 'Registration successful. Please verify your email.',
         ], 201);
     });
 
@@ -77,9 +87,30 @@ Route::prefix('api')->group(function () {
             ]);
         }
 
-        $request->session()->regenerate();
-
         $user = Auth::user();
+
+        if (!$user->email_verified_at) {
+            $service = app(VerificationCodeService::class);
+            $codeData = $service->createCode($user, 'registration');
+
+            Mail::raw(
+                'Your verification code is: ' . $codeData['plain'],
+                function ($message) use ($user) {
+                    $message->to($user->email)->subject('Verify your email');
+                }
+            );
+
+            Auth::logout();
+
+            return response()->json([
+                'success' => false,
+                'requires_verification' => true,
+                'user_id' => $user->id,
+                'message' => 'Email not verified. Verification code sent.',
+            ], 403);
+        }
+
+        $request->session()->regenerate();
 
         return response()->json([
             'success' => true,
@@ -96,6 +127,76 @@ Route::prefix('api')->group(function () {
         return response()->json([
             'success' => true,
             'message' => 'Logout successful!',
+        ]);
+    });
+
+    Route::post('/email/verify-registration', function (Request $request) {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'code' => 'required|string',
+        ]);
+
+        $user = User::findOrFail($request->input('user_id'));
+
+        if ($user->email_verified_at) {
+            return response()->json([
+                'success' => true,
+                'user' => $user,
+                'message' => 'Email already verified.',
+            ]);
+        }
+
+        $service = app(VerificationCodeService::class);
+        $verified = $service->verifyCode($user, 'registration', $request->input('code'));
+
+        if (!$verified) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification code.',
+            ], 422);
+        }
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'success' => true,
+            'user' => $user,
+            'message' => 'Email verified successfully.',
+        ]);
+    });
+
+    Route::post('/email/resend-registration-code', function (Request $request) {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+        ]);
+
+        $user = User::findOrFail($request->input('user_id'));
+
+        if ($user->email_verified_at) {
+            return response()->json([
+                'success' => true,
+                'user' => $user,
+                'message' => 'Email already verified.',
+            ]);
+        }
+
+        $service = app(VerificationCodeService::class);
+        $codeData = $service->createCode($user, 'registration');
+
+        Mail::raw(
+            'Your verification code is: ' . $codeData['plain'],
+            function ($message) use ($user) {
+                $message->to($user->email)->subject('Verify your email');
+            }
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification code resent.',
         ]);
     });
 
@@ -123,6 +224,9 @@ Route::prefix('api')->group(function () {
         Route::prefix('profile')->group(function () {
             Route::put('/', [App\Http\Controllers\API\ProfileController::class, 'update']);
             Route::put('/password', [App\Http\Controllers\API\ProfileController::class, 'updatePassword']);
+            Route::post('/email/request-change', [App\Http\Controllers\API\ProfileController::class, 'requestEmailChange']);
+            Route::post('/email/confirm-change', [App\Http\Controllers\API\ProfileController::class, 'confirmEmailChange']);
+            Route::post('/password/request-change', [App\Http\Controllers\API\ProfileController::class, 'requestPasswordChange']);
         });
 
         Route::get('/hashtags', [HashtagController::class, 'index']);
