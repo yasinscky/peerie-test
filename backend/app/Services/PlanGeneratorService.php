@@ -19,13 +19,12 @@ class PlanGeneratorService
         $prioritizedTasks = $this->prioritizeTasks($filteredTasks, $plan);
         $sortedTasks = $this->sortTasksByDependencies($prioritizedTasks);
         $limitedTasks = $this->limitTasksByCapacity($sortedTasks, $minutesPerWeek);
-        $weeklyPlan = $this->distributeTasksByWeeks($limitedTasks, $minutesPerWeek, $plan);
-        $this->savePlanTasks($plan, $weeklyPlan);
+        $this->savePlanTasks($plan, $limitedTasks);
         
         return [
             'plan_id' => $plan->id,
             'title' => $plan->title,
-            'weeks' => $weeklyPlan,
+            'tasks' => $limitedTasks->values(),
             'total_tasks' => $limitedTasks->count(),
             'total_minutes' => $limitedTasks->sum(function (Task $task) {
                 return $this->getTaskDurationMinutes($task);
@@ -131,114 +130,17 @@ class PlanGeneratorService
         $sorted->push($task);
     }
 
-    private function distributeTasksByWeeks(Collection $tasks, int $minutesPerWeek, Plan $plan): array
-    {
-        $weeks = [
-            1 => ['tasks' => [], 'hours' => 0],
-            2 => ['tasks' => [], 'hours' => 0],
-            3 => ['tasks' => [], 'hours' => 0],
-            4 => ['tasks' => [], 'hours' => 0],
-        ];
-
-        $completedTaskIds = [];
-        
-        $oneTimeTasks = $tasks->filter(function (Task $task) {
-            return $this->normalizeFrequency($task->frequency) === 'once';
-        });
-
-        $recurringTasks = $tasks->filter(function (Task $task) {
-            $frequency = $this->normalizeFrequency($task->frequency);
-
-            return in_array($frequency, [
-                'weekly',
-                'bi_weekly',
-                'monthly',
-                'quarterly',
-                'half_yearly',
-                'yearly',
-            ], true);
-        });
-
-        $this->distributeOneTimeTasks($oneTimeTasks, $weeks, $completedTaskIds, $minutesPerWeek);
-
-        foreach ($recurringTasks as $task) {
-            if (!$this->shouldIncludeTaskThisMonth($task, $plan)) {
-                continue;
-            }
-
-            $this->assignTaskToWeek($task, $weeks, $completedTaskIds, $minutesPerWeek);
-        }
-
-        return $weeks;
-    }
-
-    private function distributeOneTimeTasks(Collection $tasks, array &$weeks, array &$completedTaskIds, int $minutesPerWeek): void
-    {
-        $sortedTasks = $tasks->sortBy(function ($task) {
-            return $task->duration_hours;
-        });
-
-        foreach ($sortedTasks as $task) {
-            $this->assignTaskToWeek($task, $weeks, $completedTaskIds, $minutesPerWeek);
-        }
-    }
-
-    private function assignTaskToWeek(Task $task, array &$weeks, array &$completedTaskIds, int $minutesPerWeek, ?int $preferredWeek = null): void
-    {
-        $taskMinutes = $this->getTaskDurationMinutes($task);
-        $selectedWeek = null;
-        
-        if ($preferredWeek !== null && isset($weeks[$preferredWeek])) {
-            $weekMinutes = $weeks[$preferredWeek]['hours'] * 60;
-
-            if ($weekMinutes + $taskMinutes <= $minutesPerWeek) {
-                $selectedWeek = $preferredWeek;
-            }
-        }
-
-        if ($selectedWeek === null) {
-            foreach ($weeks as $weekNumber => $weekData) {
-                $weekMinutes = $weekData['hours'] * 60;
-
-                if ($weekMinutes + $taskMinutes <= $minutesPerWeek) {
-                    if ($selectedWeek === null || $weekMinutes < $weeks[$selectedWeek]['hours'] * 60) {
-                        $selectedWeek = $weekNumber;
-                    }
-                }
-            }
-        }
-
-        if ($selectedWeek === null) {
-            return;
-        }
-
-        foreach ($weeks[$selectedWeek]['tasks'] as $existingTask) {
-            if ($existingTask->id === $task->id) {
-                return;
-            }
-        }
-
-        $weeks[$selectedWeek]['tasks'][] = $task;
-        $weeks[$selectedWeek]['hours'] += $taskMinutes / 60;
-
-        if (!in_array($task->id, $completedTaskIds, true)) {
-            $completedTaskIds[] = $task->id;
-        }
-    }
-
-    private function savePlanTasks(Plan $plan, array $weeklyPlan): void
+    private function savePlanTasks(Plan $plan, Collection $tasks): void
     {
         $plan->tasks()->detach();
 
-        foreach ($weeklyPlan as $week => $weekData) {
-            foreach ($weekData['tasks'] as $task) {
+        foreach ($tasks as $task) {
                 PlanTask::create([
                     'plan_id' => $plan->id,
                     'task_id' => $task->id,
-                    'week' => $week,
+                'week' => 1,
                     'completed' => false,
                 ]);
-            }
         }
     }
 

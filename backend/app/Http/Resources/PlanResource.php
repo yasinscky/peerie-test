@@ -21,8 +21,8 @@ class PlanResource extends JsonResource
             'questionnaire_data' => $this->questionnaire_data,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'weeks' => $this->when($this->relationLoaded('tasks'), function () {
-                return $this->getPlanByWeeks();
+            'tasks' => $this->when($this->relationLoaded('tasks'), function () {
+                return $this->tasks;
             }),
             'categories' => $this->when($this->relationLoaded('tasks'), function () {
                 return $this->getPlanByCategories();

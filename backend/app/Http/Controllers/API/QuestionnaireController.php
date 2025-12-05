@@ -113,8 +113,9 @@ class QuestionnaireController extends Controller
                 'plan' => [
                     'id' => $plan->id,
                     'title' => $plan->title,
-                    'weeks' => $generatedPlan['weeks'] ?? [],
+                    'tasks' => $generatedPlan['tasks'] ?? [],
                     'total_tasks' => $generatedPlan['total_tasks'] ?? 0,
+                    'total_minutes' => $generatedPlan['total_minutes'] ?? 0,
                 ]
             ], 201);
 
