@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto flex items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center">
-          <img src="@/assets/images/logos/logo.png" alt="Peerie" class="h-12 w-auto">
+          <img src="@/assets/images/logos/logo.svg" alt="Peerie" class="h-12 w-auto">
         </div>
 
         <!-- Navigation Links -->
@@ -765,7 +765,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import logoImage from '@/assets/images/logos/logo.png'
+import logoImage from '@/assets/images/logos/logo.svg'
 
 const faqItems = ref([
   {

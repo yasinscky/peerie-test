@@ -528,7 +528,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import logoImage from '@/assets/images/logos/logo.png'
+import logoImage from '@/assets/images/logos/logo.svg'
 
 export default {
   name: 'MultiStepQuestionnaire',

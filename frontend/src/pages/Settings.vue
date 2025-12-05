@@ -1,14 +1,12 @@
 <template>
   <div class="min-h-screen bg-white">
     <main class="min-h-screen">
-        <div class="bg-[#f34767] h-32 lg:h-36 px-4 lg:px-8 flex items-center justify-between">
+        <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40">
           <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 rounded-lg bg-white bg-opacity-20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-              </svg>
+            <div class="w-10 h-10 rounded-lg bg-opacity-20 flex items-center justify-center">
+              <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
             </div>
-            <h1 class="text-white text-4xl lg:text-6xl font-bold">{{ texts.headerTitle }}</h1>
+            <h1 class="text-white text-4xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
           </div>
           <div class="flex items-center space-x-2 text-white text-base lg:text-xl font-medium">
             <span>{{ texts.headerAccount }}</span>
@@ -17,8 +15,8 @@
           </div>
       </div>
 
-        <div class="p-4 lg:p-8 space-y-8">
-          <div class="bg-white border-2 border-[#3f4369] rounded-[36px] p-6 lg:p-8">
+        <div class="2xl:mt-[65px] xl:mt-[30px]">
+          <div class="2xl:pl-[45px] xl:pl-[30px]">
             <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">{{ texts.personalInfoTitle }}</h2>
             <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">
               {{ texts.personalInfoDescription }}
@@ -27,7 +25,7 @@
             
             <form @submit.prevent="updateProfile" class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
+                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4">
                   <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
                     {{ texts.firstNameLabel }}
                     <span class="text-red-500">*</span>
@@ -40,7 +38,7 @@
                     required
                   >
                 </div>
-                <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
+                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4">
                   <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
                     {{ texts.lastNameLabel }}
                     <span class="text-red-500">*</span>
@@ -56,7 +54,7 @@
               </div>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
+                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4">
                   <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
                     {{ texts.emailLabel }}
                     <span class="text-red-500">*</span>
@@ -69,7 +67,7 @@
                   required
                 >
                 </div>
-                <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6 relative">
+                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4 relative">
                   <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
                     {{ texts.languageLabel }}
                     <span class="text-red-500">*</span>
@@ -81,10 +79,8 @@
                     <option value="en">{{ texts.languageEn }}</option>
                     <option value="de">{{ texts.languageDe }}</option>
                   </select>
-                  <div class="absolute right-6 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg class="w-6 h-6 text-[#3f4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                  <div class="absolute right-6 top-1/2 transform -translate-y-1/2 pointer-events-none w-[60px] h-[60px] rounded-[16px] bg-[#3F4369] flex items-center justify-center">
+                    <img :src="arrowDown" alt="" class="w-7 h-7">
                   </div>
                 </div>
               </div>
@@ -108,7 +104,7 @@
             </form>
         </div>
 
-          <div class="bg-white border-2 border-[#3f4369] rounded-[36px] p-6 lg:p-8">
+          <div class="bg-white rounded-[36px] p-6 lg:p-8">
             <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">{{ texts.securityTitle }}</h2>
             <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">{{ texts.securityDescription }}</p>
             
@@ -173,11 +169,11 @@
           </div>
         </div>
     </main>
+    </div>
 
     <div v-if="message" class="fixed top-4 right-4 z-50">
       <div class="p-4 rounded-lg shadow-lg" :class="message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
         {{ message.text }}
-      </div>
     </div>
   </div>
 </template>
@@ -187,6 +183,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
+import logoWhite from '@/assets/images/logos/logo-white.svg'
+import arrowDown from '@/assets/images/icons/account/arrow-down.svg'
 
 const router = useRouter()
 const languageStore = useLanguageStore()
@@ -330,6 +328,15 @@ const updateProfile = async () => {
     })
     languageStore.setLanguage(profileForm.value.language)
 
+    const updatedName = `${profileForm.value.firstName} ${profileForm.value.lastName}`.trim()
+    window.dispatchEvent(new CustomEvent('profile-updated', {
+      detail: {
+        name: updatedName,
+        email: profileForm.value.email,
+        language: profileForm.value.language
+      }
+    }))
+
     const emailChanged = profileForm.value.email !== originalEmail.value
 
     if (emailChanged) {
@@ -340,7 +347,7 @@ const updateProfile = async () => {
       emailVerification.value.code = ''
       showMessage(texts.value.emailChangeCodeSent)
     } else {
-    showMessage(texts.value.profileUpdated)
+      showMessage(texts.value.profileUpdated)
     }
   } catch (error) {
     showMessage(error.response?.data?.message || texts.value.profileUpdateError, 'error')

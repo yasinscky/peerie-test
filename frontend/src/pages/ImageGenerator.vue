@@ -1,16 +1,29 @@
 <template>
   <div class="max-w-7xl mx-auto">
+    <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40 mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-opacity-20 flex items-center justify-center">
+          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
+        </div>
+        <h1 class="text-white text-4xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
+      </div>
+      <div class="flex items-center space-x-2 text-white text-base lg:text-xl font-medium">
+        <span>{{ texts.headerSection }}</span>
+        <span class="opacity-40">|</span>
+        <span class="opacity-40">{{ texts.headerCurrent }}</span>
+      </div>
+    </div>
+
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ texts.title }}</h1>
       <p class="text-gray-600 dark:text-gray-400 mt-2">{{ texts.subtitle }}</p>
     </div>
 
     <!-- Search Controls -->
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
+    <div class="bg-[#3F4369] rounded-[30px] p-6 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Search Input -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div>
+            <label class="block text-sm font-medium text-white mb-2">
             {{ texts.searchLabel }}
           </label>
           <div class="relative">
@@ -19,7 +32,7 @@
               @keyup.enter="searchImages"
               type="text" 
               :placeholder="texts.searchPlaceholder"
-              class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              class="w-full px-4 py-2 pl-10 border border-white rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white text-black"
             >
             <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -31,7 +44,7 @@
 
       <!-- Quick Categories -->
       <div class="mt-4">
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label class="block text-sm font-medium text-white mb-2">
           {{ texts.categoriesLabel }}
         </label>
         <div class="flex flex-wrap gap-2">
@@ -39,7 +52,7 @@
             v-for="category in categories"
             :key="category"
             @click="searchByCategory(category)"
-            class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            class="px-3 py-1 text-sm bg-white text-black rounded-full hover:bg-gray-200 transition-colors"
           >
             {{ category }}
           </button>
@@ -51,7 +64,7 @@
         <button 
           @click="searchImages"
           :disabled="isLoading || !searchQuery.trim()"
-          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-6 py-2 bg-[#F34767] text-white rounded-lg hover:bg-[#F34767] focus:ring-2 focus:ring-[#F34767] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {{ isLoading ? texts.searching : texts.searchButton }}
         </button>
@@ -207,6 +220,7 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
+import logoWhite from '@/assets/images/logos/logo-white.svg'
 
 const languageStore = useLanguageStore()
 
@@ -228,6 +242,9 @@ const categories = [
 const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
+      headerTitle: 'Bildbibliothek',
+      headerSection: 'Erstellen',
+      headerCurrent: 'Bildbibliothek',
       title: 'Bildbibliothek',
       subtitle: 'Finde und lade Bilder für dein Marketing herunter',
       searchLabel: 'Bilder suchen',
@@ -245,6 +262,9 @@ const texts = computed(() => {
   }
 
   return {
+    headerTitle: 'Image Library',
+    headerSection: 'Create',
+    headerCurrent: 'Image Library',
     title: 'Image Library',
     subtitle: 'Find and download images for your marketing materials',
     searchLabel: 'Search Images',

@@ -116,4 +116,32 @@
   .progress-fill {
     @apply bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300;
   }
+  .rounded-40 {
+    border-radius: 40px;
+  }
+  .page-container {
+    max-width: 1755px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .dashboard-logo-bg {
+    position: absolute;
+    top: -230px;
+    left: -220px;
+    z-index: 0;
+    width: 704.145px;
+    height: 579.245px;
+    border-radius: 135px;
+    background: #DCDCDC;
+    opacity: 0.2;
+    transform: rotate(27.756deg);
+  }
+
+  @media (max-width: 1440px) {
+    .page-container {
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
 }

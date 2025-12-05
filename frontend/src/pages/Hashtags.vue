@@ -1,4 +1,19 @@
 <template>
+  <div class="max-w-7xl mx-auto">
+    <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40 mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-opacity-20 flex items-center justify-center">
+          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
+        </div>
+        <h1 class="text-white text-4xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
+      </div>
+      <div class="flex items-center space-x-2 text-white text-base lg:text-xl font-medium">
+        <span>{{ texts.headerSection }}</span>
+        <span class="opacity-40">|</span>
+        <span class="opacity-40">{{ texts.headerCurrent }}</span>
+      </div>
+    </div>
+
   <div class="bg-white rounded-xl shadow-sm border border-[#DCDCDC] p-6">
     <div class="mb-6 space-y-3">
       <h2 class="text-xl font-semibold text-[#3F4369]">{{ headerTitle }}</h2>
@@ -115,6 +130,7 @@
                   {{ item.text }}
                 </p>
               </div>
+              </div>
             </div>
           </div>
         </div>
@@ -142,9 +158,15 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
+import logoWhite from '@/assets/images/logos/logo-white.svg'
+import { useLanguageStore } from '@/stores/language'
+
+const languageStore = useLanguageStore()
 
 const LOCALES = {
   en: {
+    headerSection: 'Create',
+    headerCurrent: 'Hashtags',
     introDescription: 'Hashtags are no longer about chasing viral reach. From 2025 onward, they are more about being found by the right audience than trying to reach everyone. Hashtags now function more like keywords. Platforms prioritise content that\'s easy to categorise and surface in search. Use hashtags the same way someone would search for your service: clear, specific, and relevant.',
     nicheExamplePrefix: 'Examples (create your own or modify):',
     copyMessage: 'Hashtags copied to clipboard',
@@ -159,6 +181,8 @@ const LOCALES = {
     },
   },
   de: {
+    headerSection: 'Erstellen',
+    headerCurrent: 'Hashtags',
     introDescription: 'Hashtags dienen nicht mehr dazu, virale Reichweite zu jagen. Ab 2025 geht es darum, von der richtigen Zielgruppe gefunden zu werden, statt alle zu erreichen. Hashtags funktionieren jetzt eher wie Suchbegriffe. Plattformen priorisieren Inhalte, die leicht zu kategorisieren und in der Suche anzuzeigen sind. Nutze Hashtags so, wie jemand nach deinem Service suchen würde: klar, spezifisch und relevant.',
     nicheExamplePrefix: 'Beispiele (erstelle deine eigenen oder passe an):',
     copyMessage: 'Hashtags in die Zwischenablage kopiert',
@@ -386,6 +410,22 @@ const topGuidelines = computed(() =>
     (section) => section?.title !== 'Platform-Specific Best Practices' && section?.title !== 'Plattform-spezifische Best Practices'
   )
 )
+
+const texts = computed(() => {
+  if (languageStore.language === 'de') {
+    return {
+      headerTitle: 'Hashtags',
+      headerSection: LOCALES.de.headerSection,
+      headerCurrent: LOCALES.de.headerCurrent,
+    }
+  }
+
+  return {
+    headerTitle: 'Hashtags',
+    headerSection: LOCALES.en.headerSection,
+    headerCurrent: LOCALES.en.headerCurrent,
+  }
+})
 
 const platformGuidelines = computed(() =>
   (guidelines.value || []).filter(

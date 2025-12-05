@@ -1,53 +1,63 @@
 <template>
   <div class="max-w-7xl mx-auto">
+    <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40 mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-opacity-20 flex items-center justify-center">
+          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
+        </div>
+        <h1 class="text-white text-4xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
+      </div>
+      <div class="flex items-center space-x-2 text-white text-base lg:text-xl font-medium">
+        <span>{{ texts.headerSection }}</span>
+        <span class="opacity-40">|</span>
+        <span class="opacity-40">{{ texts.headerCurrent }}</span>
+      </div>
+    </div>
+
     <div class="mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-[#3F4369]">{{ texts.title }}</h1>
         <p class="text-[#3F4369] opacity-70 mt-2">{{ texts.subtitle }}</p>
       </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white rounded-2xl shadow-lg p-6 border border-[#DCDCDC]">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-[#1C8E9E]">
+      <!-- Completed Tasks -->
+      <div class="bg-white border-2 border-[#3F4369] rounded-[30px] px-6 py-5 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-[#3F4369] opacity-70">Completed tasks</p>
+          <p class="text-3xl font-extrabold text-[#3F4369] mt-1">{{ stats.completedTasks }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-[#1C8E9E] flex items-center justify-center">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <div class="ml-4">
-            <p class="text-sm text-[#3F4369] opacity-70">Completed Tasks</p>
-            <p class="text-2xl font-bold text-[#3F4369]">{{ stats.completedTasks }}</p>
           </div>
-        </div>
-      </div>
 
-      <div class="bg-white rounded-2xl shadow-lg p-6 border border-[#DCDCDC]">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-[#FFEBD0] border-2 border-[#F34767]">
-            <svg class="w-6 h-6 text-[#3F4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- In Progress -->
+      <div class="bg-white border-2 border-[#3F4369] rounded-[30px] px-6 py-5 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-[#3F4369] opacity-70">In progress</p>
+          <p class="text-3xl font-extrabold text-[#3F4369] mt-1">{{ stats.inProgressTasks }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-[#FFEB88] flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <div class="ml-4">
-            <p class="text-sm text-[#3F4369] opacity-70">In Progress</p>
-            <p class="text-2xl font-bold text-[#3F4369]">{{ stats.inProgressTasks }}</p>
           </div>
-        </div>
-      </div>
 
-      <div class="bg-white rounded-2xl shadow-lg p-6 border border-[#DCDCDC]">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-gradient-to-br from-[#F34767] to-[#1C8E9E]">
+      <!-- Total Tasks -->
+      <div class="bg-white border-2 border-[#3F4369] rounded-[30px] px-6 py-5 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-[#3F4369] opacity-70">Total tasks</p>
+          <p class="text-3xl font-extrabold text-[#3F4369] mt-1">{{ stats.totalTasks }}</p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-[#3F4369] flex items-center justify-center">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm text-[#3F4369] opacity-70">Total Tasks</p>
-            <p class="text-2xl font-bold text-[#3F4369]">{{ stats.totalTasks }}</p>
-          </div>
         </div>
       </div>
     </div>
@@ -323,6 +333,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
+import logoWhite from '@/assets/images/logos/logo-white.svg'
 
 const router = useRouter()
 const languageStore = useLanguageStore()
@@ -342,6 +353,9 @@ const plan = computed(() => plans.value[0] || null)
 const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
+      headerTitle: 'Dein Marketingplan',
+      headerSection: 'Erstellen',
+      headerCurrent: 'Dein Marketingplan',
       title: 'Dein Marketingplan',
       subtitle: 'Verfolge deine personalisierten Marketingaufgaben nach Kategorie',
       emptyTitle: 'Du hast noch keine Pläne',
@@ -350,6 +364,9 @@ const texts = computed(() => {
   }
 
   return {
+    headerTitle: 'Your Marketing Plan',
+    headerSection: 'Create',
+    headerCurrent: 'Your Marketing Plan',
     title: 'Your Marketing Plan',
     subtitle: 'Track your personalized marketing tasks by category',
     emptyTitle: "You don't have any plans yet",
