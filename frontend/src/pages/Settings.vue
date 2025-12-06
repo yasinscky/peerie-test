@@ -191,8 +191,6 @@ const languageStore = useLanguageStore()
 
 const isUpdating = ref(false)
 const message = ref(null)
-const newsletterEmail = ref('')
-const newsletterConsent = ref(false)
 
 const profileForm = ref({
   firstName: '',
@@ -210,10 +208,6 @@ const passwordForm = ref({
 
 const user = ref(null)
 const originalEmail = ref('')
-const emailVerification = ref({
-  isVerifying: false,
-  code: ''
-})
 
 const texts = computed(() => {
   if (languageStore.language === 'de') {
@@ -303,15 +297,6 @@ const texts = computed(() => {
   }
 })
 
-const userInitials = computed(() => {
-  if (!user.value?.name) return 'U'
-  const names = user.value.name.split(' ')
-  if (names.length >= 2) {
-    return (names[0][0] + names[1][0]).toUpperCase()
-  }
-  return names[0][0].toUpperCase()
-})
-
 const showMessage = (text, type = 'success') => {
   message.value = { text, type }
   setTimeout(() => {
@@ -343,8 +328,6 @@ const updateProfile = async () => {
       await axios.post('/api/profile/email/request-change', {
         new_email: profileForm.value.email
       })
-      emailVerification.value.isVerifying = true
-      emailVerification.value.code = ''
       showMessage(texts.value.emailChangeCodeSent)
     } else {
       showMessage(texts.value.profileUpdated)
@@ -406,25 +389,6 @@ const deleteAccount = async () => {
   }
 }
 
-const subscribeNewsletter = async () => {
-  if (!newsletterConsent.value) {
-    showMessage(texts.value.newsletterConsentError, 'error')
-    return
-  }
-  
-  try {
-    await axios.post('/api/newsletter/subscribe', {
-      email: newsletterEmail.value
-    })
-    showMessage(texts.value.newsletterSubscribed)
-    newsletterEmail.value = ''
-    newsletterConsent.value = false
-  } catch (error) {
-    showMessage(error.response?.data?.message || texts.value.newsletterError, 'error')
-  }
-}
-
-
 const fetchUser = async () => {
   try {
     const response = await axios.get('/api/user')
@@ -454,60 +418,6 @@ const fetchUser = async () => {
     if (error.response?.status === 401) {
       router.push('/login')
     }
-  }
-}
-
-const confirmEmailChange = async () => {
-  if (!emailVerification.value.isVerifying) {
-    return
-  }
-
-  if (!emailVerification.value.code) {
-    showMessage(texts.value.passwordCodePlaceholder, 'error')
-    return
-  }
-
-  isUpdating.value = true
-
-  try {
-    const response = await axios.post('/api/profile/email/confirm-change', {
-      code: emailVerification.value.code
-    })
-
-    if (response.data.success) {
-      const updated = response.data.user
-      profileForm.value.email = updated.email || profileForm.value.email
-      originalEmail.value = updated.email || originalEmail.value
-      emailVerification.value.isVerifying = false
-      emailVerification.value.code = ''
-      showMessage(texts.value.emailChangeConfirmed)
-    } else {
-      showMessage(response.data.message || texts.value.emailChangeError, 'error')
-    }
-  } catch (error) {
-    showMessage(error.response?.data?.message || texts.value.emailChangeError, 'error')
-  } finally {
-    isUpdating.value = false
-  }
-}
-
-const requestPasswordCode = async () => {
-  if (!passwordForm.value.currentPassword) {
-    showMessage(texts.value.currentPasswordRequired, 'error')
-    return
-  }
-
-  isUpdating.value = true
-
-  try {
-    await axios.post('/api/profile/password/request-change', {
-      current_password: passwordForm.value.currentPassword
-    })
-    showMessage(texts.value.passwordCodeSent)
-  } catch (error) {
-    showMessage(error.response?.data?.message || texts.value.passwordCodeError, 'error')
-  } finally {
-    isUpdating.value = false
   }
 }
 

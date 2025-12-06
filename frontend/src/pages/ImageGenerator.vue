@@ -472,9 +472,7 @@ const loadMoreImages = async () => {
 
   try {
     let response
-    if (currentSearchQuery.value === 'popular') {
-      response = await axios.get(`/api/images/popular?page=${currentPage.value}&per_page=16`)
-    } else if (categories.includes(currentSearchQuery.value)) {
+    if (categories.includes(currentSearchQuery.value)) {
       response = await axios.post('/api/images/search/category', {
         category: currentSearchQuery.value,
         page: currentPage.value,

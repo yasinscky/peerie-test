@@ -441,11 +441,6 @@ function getTaskMinutes(task) {
   return 60
 }
 
-function getTaskHours(task) {
-  const minutes = getTaskMinutes(task)
-  return Number((minutes / 60).toFixed(1))
-}
-
 const categorisedTasks = computed(() => {
   if (!plan.value) return []
 
@@ -470,123 +465,29 @@ const categorisedTasks = computed(() => {
     })
   }
 
-  if (!plan.value.weeks) return []
-
-  const categoryMapping = {
-    Goals: 'Goals',
-    'Digital Marketing Foundations': 'Digital Marketing Foundations',
-    'Local SEO': 'Local SEO',
-    Content: 'Content',
-    'Social Media': 'Social Media',
-    Website: 'Website',
-    'Email Marketing': 'Email Marketing',
-    'Paid Ads': 'Paid Advertising',
-    'Paid Advertising': 'Paid Advertising',
-    CRM: 'CRM',
-    Buffer: null
-  }
-
-  const desiredOrder = [
-    'Goals',
-    'Digital Marketing Foundations',
-    'Local SEO',
-    'Content',
-    'Social Media',
-    'Website',
-    'Email Marketing',
-    'Paid Advertising',
-    'CRM'
-  ]
-
-  const categories = new Map()
-
-  plan.value.weeks.forEach(week => {
-    week.tasks?.forEach(task => {
-      const rawCategory = task.category || 'General'
-      const mappedCategory = Object.prototype.hasOwnProperty.call(categoryMapping, rawCategory)
-        ? categoryMapping[rawCategory]
-        : rawCategory
-
-      if (!mappedCategory || mappedCategory === 'Buffer') {
-        return
-      }
-
-      if (!categories.has(mappedCategory)) {
-        categories.set(mappedCategory, {
-          name: mappedCategory,
-          tasks: [],
-          totalMinutes: 0,
-          completed: 0
-        })
-      }
-
-      const category = categories.get(mappedCategory)
-      category.tasks.push(task)
-      category.totalMinutes += getTaskMinutes(task)
-      if (task.pivot?.completed) {
-        category.completed += 1
-      }
-    })
-  })
-
-  const result = Array.from(categories.values()).map(category => {
-    const totalHours = Number((category.totalMinutes / 60).toFixed(1))
-
-    return {
-      ...category,
-      totalHours,
-      progress: category.tasks.length > 0
-        ? Math.round((category.completed / category.tasks.length) * 100)
-        : 0
-    }
-  })
-
-  result.sort((a, b) => {
-    const indexA = desiredOrder.indexOf(a.name)
-    const indexB = desiredOrder.indexOf(b.name)
-
-    if (indexA === -1 && indexB === -1) {
-      return a.name.localeCompare(b.name)
-    }
-    if (indexA === -1) return 1
-    if (indexB === -1) return -1
-    return indexA - indexB
-  })
-
-  return result
+  return []
 })
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'Not specified'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('ru-RU', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
 
 const toggleTask = async (planTaskId, completed) => {
   try {
-    const plan = plans.value.find(p => p.weeks?.some(w => w.tasks?.some(t => t.pivot?.id === planTaskId)))
+    const plan = plans.value.find(p => {
+      if (Array.isArray(p.categories)) {
+        return p.categories.some(category =>
+          (category.tasks || []).some(task => task.pivot?.id === planTaskId)
+        )
+      }
+
+      if (Array.isArray(p.tasks)) {
+        return p.tasks.some(task => task.pivot?.id === planTaskId)
+      }
+
+      return false
+    })
     if (!plan) return
 
     await axios.put(`/api/plan/${plan.id}/plan-task/${planTaskId}`, {
       completed: completed
     })
-
-    plan.weeks.forEach(week => {
-      const task = week.tasks.find(t => t.pivot?.id === planTaskId)
-      if (task) {
-        task.pivot.completed = completed
-      }
-    })
-
-    plan.completed_tasks = plan.weeks.reduce((sum, week) => {
-      return sum + week.tasks.filter(task => task.pivot?.completed).length
-    }, 0)
-
-    plan.total_tasks = plan.weeks.reduce((sum, week) => sum + week.tasks.length, 0)
 
     if (Array.isArray(plan.categories)) {
       plan.categories.forEach(category => {
@@ -605,6 +506,18 @@ const toggleTask = async (planTaskId, completed) => {
           ? Math.round((completedCount / category.tasks.length) * 100)
           : 0
       })
+    }
+
+    if (Array.isArray(plan.categories)) {
+      plan.completed_tasks = plan.categories.reduce((sum, category) => {
+        const tasks = category.tasks || []
+        return sum + tasks.filter(task => task.pivot?.completed).length
+      }, 0)
+
+      plan.total_tasks = plan.categories.reduce((sum, category) => {
+        const tasks = category.tasks || []
+        return sum + tasks.length
+      }, 0)
     }
 
     updateStats()
