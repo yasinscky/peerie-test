@@ -114,7 +114,7 @@
             <!-- Weekly Capacity -->
             <div>
               <label class="form-label">Weekly marketing tasks load</label>
-              <div class="grid grid-cols-3 gap-3">
+              <div class="grid grid-cols-2 gap-3">
                 <label v-for="option in timeOptions" :key="option.value" class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.marketing_time_per_week === option.value }">
                   <input v-model="form.marketing_time_per_week" type="radio" :value="option.value" class="sr-only" @change="updateProgress">
                   <div class="flex items-center">
@@ -584,8 +584,8 @@ export default {
     ]
 
     const timeOptions = [
-      { value: 2, label: '2h', description: 'Minimal', icon: '⏰' },
-      { value: 4, label: '4h', description: 'Standard', icon: '⏱️' }
+      { value: 2, label: '2h', description: 'Standard', icon: '⏰' },
+      { value: 4, label: '4h', description: 'Turbo', icon: '⏱️' }
     ]
 
     const adsOptions = [
