@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TaskResource\Pages;
 use App\Filament\Resources\TaskResource\RelationManagers;
 use App\Models\Task;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -231,6 +232,12 @@ class TaskResource extends Resource
                         'undo',
                     ])
                     ->columnSpanFull(),
+                ViewField::make('instruction_preview')
+                    ->label('Instruction preview')
+                    ->view('filament.forms.components.task-instruction-preview')
+                    ->statePath('description')
+                    ->columnSpanFull()
+                    ->reactive(),
             ]);
     }
 

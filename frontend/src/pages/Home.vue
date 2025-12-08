@@ -8,22 +8,6 @@
           <img src="@/assets/images/logos/logo.svg" alt="Peerie" class="h-12 w-auto">
         </div>
 
-        <!-- Navigation Links -->
-        <div class="hidden md:flex items-center space-x-8">
-          <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Home</a>
-          <div class="relative group">
-            <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors flex items-center">
-              Industries
-              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </a>
-          </div>
-          <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Services</a>
-          <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Blog</a>
-          <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Pricing</a>
-        </div>
-
         <!-- Action Buttons -->
         <div class="flex items-center space-x-4">
           <router-link 
@@ -95,73 +79,7 @@
       </div>
     </div>
 
-    <!-- Features Grid -->
-    <div class="px-6 py-20 bg-white">
-      <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
-          <!-- Feature 1 -->
-          <div class="text-center">
-            <div class="w-[130px] h-[130px] bg-[#F34767] rounded-[30px] mx-auto mb-6 flex items-center justify-center shadow-lg"></div>
-            <h3 class="text-[32px] font-medium text-[#1C1A1B] mb-2 leading-none">Tailored marketing strategy</h3>
-          </div>
-
-          <!-- Feature 2 -->
-          <div class="text-center">
-            <div class="w-[130px] h-[130px] bg-[#F34767] rounded-[30px] mx-auto mb-6 flex items-center justify-center shadow-lg"></div>
-            <h3 class="text-[32px] font-medium text-[#1C1A1B] mb-2 leading-none">Ready-to-use templates</h3>
-          </div>
-
-          <!-- Feature 3 -->
-          <div class="text-center">
-            <div class="w-[130px] h-[130px] bg-[#F34767] rounded-[30px] mx-auto mb-6 flex items-center justify-center shadow-lg"></div>
-            <h3 class="text-[32px] font-medium text-[#1C1A1B] mb-2 leading-none">Industry-specific content ideas</h3>
-          </div>
-
-          <!-- Feature 4 -->
-          <div class="text-center">
-            <div class="w-[130px] h-[130px] bg-[#F34767] rounded-[30px] mx-auto mb-6 flex items-center justify-center shadow-lg"></div>
-            <h3 class="text-[32px] font-medium text-[#1C1A1B] mb-2 leading-none">Collaborative peer community</h3>
-          </div>
-
-          <!-- Feature 5 -->
-          <div class="text-center">
-            <div class="w-[130px] h-[130px] bg-[#F34767] rounded-[30px] mx-auto mb-6 flex items-center justify-center shadow-lg"></div>
-            <h3 class="text-[32px] font-medium text-[#1C1A1B] mb-2 leading-none">Done for your services</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- No More Guesswork Section -->
-    <div class="px-6 py-32 bg-white">
-      <div class="max-w-7xl mx-auto text-center">
-        <h2 class="text-7xl md:text-8xl lg:text-[128px] font-bold text-[#1C1A1B] mb-8 leading-tight">
-          No more guesswork
-        </h2>
-        <h2 class="text-7xl md:text-8xl lg:text-[128px] font-bold text-[#1C1A1B] mb-8 leading-tight">
-          No more wasted time
-        </h2>
-        <h2 class="text-7xl md:text-8xl lg:text-[128px] font-bold text-[#1C1A1B] mb-8 leading-tight">
-          Just your <span class="text-[#F34767]">digital marketing</span>
-        </h2>
-        <div class="relative inline-block mb-16">
-          <div class="absolute top-[50%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] rotate-[345deg]">
-            <div class="w-[88px] h-[88px] bg-[#7FB5B5] rounded-[26px]"></div>
-          </div>
-          <div class="absolute top-[50%] left-[50%] transform translate-x-[-50%] translate-y-[-50%] rotate-[345deg]">
-            <svg class="w-[54px] h-[54px] text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-            </svg>
-          </div>
-          <h2 class="text-7xl md:text-8xl lg:text-[160px] font-bold text-[#F34767] relative transform rotate-[-15deg]">
-            Done
-          </h2>
-          <div class="absolute bottom-0 left-0 w-full h-[20px] bg-[#F34767] transform rotate-[-15deg]"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4 Colorful Blocks Section -->
+    <!-- 4 Colorful Blocks Section + Save Time Block -->
     <div class="px-6 py-32 bg-white relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -170,16 +88,16 @@
             <div class="absolute top-0 right-0 w-[497px] h-[598px] bg-white/10 rounded-[50px] transform rotate-[353.893deg]"></div>
             <h3 class="text-[64px] font-bold mb-6 leading-none relative z-10">Focus on What Works for Your Business</h3>
             <p class="text-[32px] leading-[1.2] relative z-10">
-              Receive a step‑by‑step plan tailored to your business—no cookie‑cutter playbooks. Know where to start and what to do each week to see real growth.
-              </p>
-            </div>
+              Receive a step‑by‑step marketing plan tailored to your business—no cookie‑cutter playbooks. Know where to start and what to do each week to see real growth.
+            </p>
+          </div>
 
           <!-- Block 2: Generate Revenue - Yellow -->
           <div class="bg-[#FFEB88] rounded-[70px] p-12 text-[#3F4369] relative overflow-hidden">
             <div class="absolute top-0 left-0 w-[467px] h-[378px] bg-white/50 rounded-[50px] transform rotate-[5.861deg]"></div>
             <h3 class="text-[96px] font-bold mb-6 leading-none relative z-10">Generate Revenue</h3>
             <p class="text-[32px] leading-[1.2] relative z-10">
-              Reach clients where they already are and guide them to purchase with proven conversion tactics and ready-to-use templates.
+              Reach clients where they already are and guide them to purchase.
             </p>
           </div>
 
@@ -198,11 +116,22 @@
             <h3 class="text-[64px] font-bold mb-6 leading-none relative z-10">Stop Losing Nights to Marketing</h3>
             <p class="text-[32px] leading-[1.2] relative z-10">
               Need more hands on deck? Our expert team can handle website development or provide individual consulting, so you stay focused on running your business.
-              </p>
-            </div>
+            </p>
           </div>
+        </div>
+
+        <!-- Save Time & Increase Productivity Block -->
+        <div class="mt-16 bg-[#3F4369] rounded-[70px] p-12 text-white relative overflow-hidden">
+          <div class="absolute -bottom-20 right-0 w-[480px] h-[360px] bg-white/10 rounded-[50px] transform rotate-[4.9deg]"></div>
+          <h3 class="text-[64px] md:text-[80px] lg:text-[96px] font-bold mb-6 leading-[0.95] relative z-10">
+            Save Time & Increase Productivity
+          </h3>
+          <p class="text-[32px] leading-[1.2] max-w-3xl relative z-10">
+            Create content in minutes using industry-specific ideas and templates and stay productive without a burnout.
+          </p>
+        </div>
       </div>
-            </div>
+    </div>
 
     <!-- No Generic Templates Section - Pink Background -->
     <div class="px-6 py-32 bg-[#F34767] relative overflow-hidden">
@@ -513,24 +442,6 @@
       </div>
     </div>
 
-    <!-- Final CTA Section -->
-    <div class="px-6 py-32 bg-[#F34767] relative overflow-hidden">
-      <div class="max-w-7xl mx-auto text-center relative z-10">
-        <h2 class="text-7xl md:text-8xl lg:text-[128px] font-bold text-white mb-8 leading-none">
-          Get Started
-        </h2>
-        <p class="text-[36px] text-white mb-12 leading-[1.2]">
-          Sign up for your tailored digital marketing strategy and resources now
-        </p>
-        <router-link 
-          to="/register"
-          class="inline-block px-12 py-6 bg-white text-[#F34767] rounded-[40px] hover:bg-[#FFEBD0] transition-all duration-200 font-bold text-[40px] uppercase shadow-xl"
-        >
-          Get started
-        </router-link>
-      </div>
-    </div>
-
     <!-- Trusted by Small Businesses Section -->
     <div class="px-6 py-32 bg-[#7FB5B5]">
       <div class="max-w-7xl mx-auto">
@@ -596,169 +507,24 @@
       </div>
     </div>
 
-    <!-- Blog Section -->
-    <div class="px-6 py-32 bg-white">
-      <div class="max-w-7xl mx-auto">
-        <div class="flex items-center justify-between mb-16">
-          <div>
-            <h2 class="text-7xl md:text-8xl lg:text-[128px] font-bold text-[#1C1A1B] mb-4">
-            Blogs
-          </h2>
-            <p class="text-[36px] text-[#1C1A1B] leading-[1.2] max-w-2xl">
-            Check out our blogs to learn more about digital marketing and how it can help you grow your business.
-          </p>
-          </div>
-          <router-link 
-            to="/blog"
-            class="px-12 py-6 bg-white border-2 border-[#F34767] text-[#F34767] rounded-[40px] hover:bg-[#F34767] hover:text-white transition-all duration-200 font-bold text-[40px] uppercase shadow-lg flex items-center gap-4"
-          >
-            Go to blog
-            <svg class="w-11 h-11" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-            </svg>
-          </router-link>
-        </div>
-
-        <!-- Tags -->
-        <div class="flex flex-wrap gap-4 mb-12">
-          <span class="px-5 py-3 bg-[#FFEB88] text-[#1C1A1B] text-[32px] font-medium rounded-[20px]">marketing</span>
-          <span class="px-5 py-3 bg-[#FFEB88] text-[#1C1A1B] text-[32px] font-medium rounded-[20px]">branding</span>
-          <span class="px-5 py-3 bg-[#FFEB88] text-[#1C1A1B] text-[32px] font-medium rounded-[20px]">advertising</span>
-          <span class="px-5 py-3 bg-[#FFEB88] text-[#1C1A1B] text-[32px] font-medium rounded-[20px]">creativity</span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- Blog Post 1 -->
-          <div class="border border-[#DCDCDC] rounded-[40px] p-6 hover:shadow-lg transition-shadow">
-            <div class="w-full h-[313px] bg-[#DCDCDC] opacity-50 rounded-[40px] mb-6"></div>
-            <h3 class="text-[36px] font-bold text-[#1C1A1B] mb-4 leading-[0.95] tracking-[-1.44px]">
-              Lorem ipsum dolor sit amet
-            </h3>
-            <p class="text-[24px] text-[#1C1A1B] leading-[1.2]">
-              Lorem ipsum dolor sit amet consectetur. Mattis fames aliquam.
-            </p>
-          </div>
-
-          <!-- Blog Post 2 -->
-          <div class="border border-[#DCDCDC] rounded-[40px] p-6 hover:shadow-lg transition-shadow">
-            <div class="w-full h-[313px] bg-[#DCDCDC] opacity-50 rounded-[40px] mb-6"></div>
-            <h3 class="text-[36px] font-bold text-[#1C1A1B] mb-4 leading-[0.95] tracking-[-1.44px]">
-              Lorem ipsum dolor sit amet
-            </h3>
-            <p class="text-[24px] text-[#1C1A1B] leading-[1.2]">
-              Lorem ipsum dolor sit amet consectetur. Mattis fames aliquam.
-            </p>
-          </div>
-
-          <!-- Blog Post 3 -->
-          <div class="border border-[#DCDCDC] rounded-[40px] p-6 hover:shadow-lg transition-shadow">
-            <div class="w-full h-[313px] bg-[#DCDCDC] opacity-50 rounded-[40px] mb-6"></div>
-            <h3 class="text-[36px] font-bold text-[#1C1A1B] mb-4 leading-[0.95] tracking-[-1.44px]">
-              Lorem ipsum dolor sit amet
-            </h3>
-            <p class="text-[24px] text-[#1C1A1B] leading-[1.2]">
-              Lorem ipsum dolor sit amet consectetur. Mattis fames aliquam.
-            </p>
-            </div>
-          
-          <!-- Blog Post 4 -->
-          <div class="border border-[#DCDCDC] rounded-[40px] p-6 hover:shadow-lg transition-shadow">
-            <div class="w-full h-[313px] bg-[#DCDCDC] opacity-50 rounded-[40px] mb-6"></div>
-            <h3 class="text-[36px] font-bold text-[#1C1A1B] mb-4 leading-[0.95] tracking-[-1.44px]">
-              Lorem ipsum dolor sit amet
-            </h3>
-            <p class="text-[24px] text-[#1C1A1B] leading-[1.2]">
-              Lorem ipsum dolor sit amet consectetur. Mattis fames aliquam.
-            </p>
-          </div>
-        </div>
+        <!-- Final CTA Section -->
+        <div class="px-6 py-32 bg-[#F34767] relative overflow-hidden">
+      <div class="max-w-7xl mx-auto text-center relative z-10">
+        <h2 class="text-7xl md:text-8xl lg:text-[128px] font-bold text-white mb-8 leading-none">
+          Get Started
+        </h2>
+        <p class="text-[36px] text-white mb-12 leading-[1.2]">
+          Sign up for your tailored digital marketing strategy and resources now
+        </p>
+        <router-link 
+          to="/register"
+          class="inline-block px-12 py-6 bg-white text-[#F34767] rounded-[40px] hover:bg-[#FFEBD0] transition-all duration-200 font-bold text-[40px] uppercase shadow-xl"
+        >
+          Get started
+        </router-link>
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-white px-6 py-16">
-      <div class="max-w-7xl mx-auto">
-        <!-- Logo -->
-        <div class="mb-12">
-          <img :src="logoImage" alt="Peerie" class="h-12 w-auto">
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          <!-- Services Column -->
-          <div>
-            <h3 class="text-[40px] font-bold text-[#1C1A1B] mb-6">Services</h3>
-            <ul class="space-y-3">
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Web development</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Consulting</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Request an industry</a></li>
-            </ul>
-          </div>
-
-          <!-- Resources Column -->
-          <div>
-            <h3 class="text-[40px] font-bold text-[#1C1A1B] mb-6">Resources</h3>
-            <ul class="space-y-3">
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Blog</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Resource library</a></li>
-            </ul>
-          </div>
-
-          <!-- Support Column -->
-          <div>
-            <h3 class="text-[40px] font-bold text-[#1C1A1B] mb-6">Support</h3>
-            <ul class="space-y-3">
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Help centre</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">FAQ</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Contact</a></li>
-            </ul>
-          </div>
-
-          <!-- Company Column -->
-          <div>
-            <h3 class="text-[40px] font-bold text-[#1C1A1B] mb-6">Company</h3>
-            <ul class="space-y-3">
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">About us</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Privacy policy</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Terms of use</a></li>
-              <li><a href="#" class="text-[#1C1A1B] hover:text-[#F34767] transition-colors text-[20px]">Legal</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Newsletter Section -->
-        <div class="border-t border-[#DCDCDC] pt-8">
-          <div class="max-w-2xl">
-            <h3 class="text-[40px] font-bold text-[#1C1A1B] mb-6">Subscribe to our news and special offers!</h3>
-            <form class="flex gap-4 mb-6">
-              <input 
-                type="email" 
-                placeholder="Your e-mail"
-                class="flex-1 px-6 py-4 border-2 border-[#DCDCDC] rounded-[30px] focus:outline-none focus:ring-2 focus:ring-[#FFEB88] bg-white text-[#1C1A1B] text-[20px]"
-              >
-              <button 
-                type="submit"
-                class="px-8 py-4 bg-[#F34767] text-white border-2 border-[#F34767] rounded-[15px] hover:bg-white hover:text-[#F34767] transition-all duration-200 font-bold text-[20px] uppercase"
-              >
-                Join newsletter
-              </button>
-            </form>
-            <label class="flex items-start space-x-3">
-              <input type="checkbox" class="mt-1 rounded border-[#1C1A1B] bg-white w-5 h-5">
-              <span class="text-[#1C1A1B] text-[14px] leading-[1.2]">
-                Yes, I would like to receive email marketing communications from Peerie. I understand that I can unsubscribe at any time.
-              </span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Copyright -->
-        <div class="mt-8 pt-8 border-t border-[#DCDCDC] text-center">
-          <p class="text-[#DCDCDC] text-[24px] font-medium">
-            Copyright 2025 Peerie
-          </p>
-        </div>
-      </div>
-    </footer>
 
   </div>
 </template>
