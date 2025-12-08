@@ -81,7 +81,15 @@
                 <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.engage }}</h3>
               </div>
               <div class="ml-10 space-y-2 flex flex-col">
-                <p class="block w-fit rounded-[17px] border border-[#DCDCDC] bg-white px-3 py-2 text-[#1c1a1b] text-lg font-medium hover:bg-[#f34767] hover:text-white transition-colors cursor-pointer">{{ texts.community }}</p>
+                <router-link
+                  to="/dashboard/community"
+                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                  :class="currentRoute === '/dashboard/community' 
+                    ? 'bg-[#f34767] text-white border-[#f34767]' 
+                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                >
+                  {{ texts.community }}
+                </router-link>
               </div>
             </div>
 

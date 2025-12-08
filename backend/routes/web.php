@@ -236,6 +236,12 @@ Route::prefix('api')->group(function () {
 
         Route::get('/user', [App\Http\Controllers\API\ProfileController::class, 'show']);
 
+        Route::get('/discord/invite', function () {
+            return response()->json([
+                'url' => env('DISCORD_INVITE_URL', 'https://discord.gg/waJUuHvq'),
+            ]);
+        });
+
         Route::prefix('profile')->group(function () {
             Route::put('/', [App\Http\Controllers\API\ProfileController::class, 'update']);
             Route::put('/password', [App\Http\Controllers\API\ProfileController::class, 'updatePassword']);

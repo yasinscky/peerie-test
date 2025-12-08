@@ -8,6 +8,7 @@ import MarketingPlans from '../pages/MarketingPlans.vue'
 import ImageGenerator from '../pages/ImageGenerator.vue'
 import Settings from '../pages/Settings.vue'
 import Hashtags from '../pages/Hashtags.vue'
+import Community from '../pages/Community.vue'
 import MultiStepQuestionnaire from '../components/MultiStepQuestionnaire.vue'
 import PlansList from '../components/PlansList.vue'
 
@@ -48,6 +49,11 @@ const routes = [
         path: 'hashtags',
         name: 'Hashtags',
         component: Hashtags
+      },
+      {
+        path: 'community',
+        name: 'Community',
+        component: Community
       },
       {
         path: 'settings',
