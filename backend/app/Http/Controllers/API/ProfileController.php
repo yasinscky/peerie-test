@@ -138,10 +138,16 @@ class ProfileController extends Controller
             '<p>Your email change code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
-        return response()->json([
+        $response = [
             'success' => true,
             'message' => 'Email change code sent',
-        ]);
+        ];
+
+        if (app()->environment('local')) {
+            $response['debug_verification_code'] = $codeData['plain'];
+        }
+
+        return response()->json($response);
     }
 
     public function confirmEmailChange(Request $request): JsonResponse
@@ -231,9 +237,15 @@ class ProfileController extends Controller
             '<p>Your password change code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
-        return response()->json([
+        $response = [
             'success' => true,
             'message' => 'Password change code sent',
-        ]);
+        ];
+
+        if (app()->environment('local')) {
+            $response['debug_verification_code'] = $codeData['plain'];
+        }
+
+        return response()->json($response);
     }
 }

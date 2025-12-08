@@ -275,52 +275,10 @@
           <h2 class="text-2xl font-semibold text-[#3F4369] mb-4">{{ selectedTask.title }}</h2>
 
           <div
-            v-if="selectedTaskIsHtml"
-            class="prose max-w-none text-[#3F4369] leading-relaxed"
+            v-if="selectedTask?.description"
+            class="prose max-w-none text-[#3F4369] leading-relaxed instruction-content"
           >
-            <div v-html="instructionHtml" />
-          </div>
-
-          <div
-            v-else
-            class="space-y-4 text-[#3F4369] leading-relaxed"
-          >
-            <p
-              v-for="(section, idx) in instructionContent.sections"
-              :key="idx"
-              class="whitespace-pre-line"
-            >
-              {{ section }}
-            </p>
-          </div>
-
-          <div v-if="!selectedTaskIsHtml && instructionContent.prerequisites.length" class="mt-6">
-            <h3 class="text-sm font-semibold text-[#3F4369] uppercase tracking-wide mb-2">Prerequisites</h3>
-            <ul class="space-y-2 text-sm text-[#3F4369]">
-              <li v-for="(pr, idx) in instructionContent.prerequisites" :key="idx" class="flex items-start gap-2">
-                <span class="text-[#F34767] mt-1">•</span>
-                <span>{{ pr }}</span>
-              </li>
-            </ul>
-          </div>
-
-          <div v-if="!selectedTaskIsHtml && instructionContent.resources.length" class="mt-6">
-            <h3 class="text-sm font-semibold text-[#3F4369] uppercase tracking-wide mb-2">Resources</h3>
-            <div class="flex flex-wrap gap-3">
-              <a
-                v-for="(resource, idx) in instructionContent.resources"
-                :key="idx"
-                :href="resource.href"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center px-3 py-2 rounded-lg border border-[#1C8E9E] text-sm text-[#1C8E9E] hover:bg-[#1C8E9E] hover:text-white transition-colors"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14.121 14.121a3 3 0 010 4.243l-1.757 1.757a3 3 0 01-4.243-4.243l1.757-1.757m4.242-4.242l1.758-1.757a3 3 0 10-4.243-4.243l-1.757 1.757a3 3 0 004.242 4.243z"></path>
-                </svg>
-                {{ resource.label }}
-              </a>
-            </div>
+            <div v-html="selectedTask.description" />
           </div>
         </div>
       </div>
@@ -545,44 +503,6 @@ const formatFrequency = (frequency) => {
   return map[key] || key.charAt(0).toUpperCase() + key.slice(1)
 }
 
-const parseInstruction = (description = '') => {
-  const blocks = description
-    .split(/\n{2,}/)
-    .map(block => block.trim())
-    .filter(Boolean)
-
-  const sections = []
-  const prerequisites = []
-  const resources = []
-
-  blocks.forEach(block => {
-    if (block.startsWith('Prerequisites:')) {
-      const raw = block.replace('Prerequisites:', '').trim()
-      raw.split(';').forEach(item => {
-        const cleaned = item.trim()
-        if (cleaned) {
-          prerequisites.push(cleaned)
-        }
-      })
-    } else if (block.startsWith('Resources:')) {
-      const raw = block.replace('Resources:', '').trim()
-      raw.split(',').forEach(item => {
-        const url = item.trim()
-        if (url) {
-          resources.push({
-            label: url.replace(/https?:\/\//, '').replace(/\/$/, ''),
-            href: url.startsWith('http') ? url : `https://${url}`
-          })
-        }
-      })
-    } else {
-      sections.push(block)
-    }
-  })
-
-  return { sections, prerequisites, resources }
-}
-
 const getInstructionPreview = (task) => {
   if (!task?.description) return ''
   const text = task.description
@@ -607,38 +527,6 @@ const closeTaskModal = () => {
   instructionModalOpen.value = false
   selectedTask.value = null
 }
-
-const selectedTaskIsHtml = computed(() => {
-  const description = selectedTask.value?.description
-  if (!description || typeof description !== 'string') {
-    return false
-  }
-  return /<\/?[a-z][\s\S]*>/i.test(description)
-})
-
-const instructionHtml = computed(() => {
-  if (!selectedTask.value?.description) {
-    return ''
-  }
-
-  if (selectedTaskIsHtml.value) {
-    return selectedTask.value.description
-  }
-
-  const { sections } = parseInstruction(selectedTask.value.description)
-
-  return sections
-    .map(section => `<p>${section.replace(/\n/g, '<br>')}</p>`)
-    .join('')
-})
-
-const instructionContent = computed(() => {
-  if (!selectedTask.value?.description) {
-    return { sections: [], prerequisites: [], resources: [] }
-  }
-
-  return parseInstruction(selectedTask.value.description)
-})
 
 const closeOnEscape = (event) => {
   if (event.key === 'Escape') {
@@ -665,5 +553,17 @@ onUnmounted(() => {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 150ms ease;
+}
+
+.instruction-content :deep(ul) {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-left: 0;
+}
+
+.instruction-content :deep(ol) {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-left: 0;
 }
 </style>

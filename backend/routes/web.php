@@ -66,12 +66,18 @@ Route::prefix('api')->group(function () {
             '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
-        return response()->json([
+        $response = [
             'success' => true,
             'user_id' => $user->id,
             'requires_verification' => true,
             'message' => 'Registration successful. Please verify your email.',
-        ], 201);
+        ];
+
+        if (app()->environment('local')) {
+            $response['debug_verification_code'] = $codeData['plain'];
+        }
+
+        return response()->json($response, 201);
     });
 
     Route::post('/login', function (Request $request) {
@@ -100,12 +106,18 @@ Route::prefix('api')->group(function () {
 
             Auth::logout();
 
-            return response()->json([
+            $response = [
                 'success' => false,
                 'requires_verification' => true,
                 'user_id' => $user->id,
                 'message' => 'Email not verified. Verification code sent.',
-            ], 403);
+            ];
+
+            if (app()->environment('local')) {
+                $response['debug_verification_code'] = $codeData['plain'];
+            }
+
+            return response()->json($response, 403);
         }
 
         $request->session()->regenerate();
@@ -191,10 +203,16 @@ Route::prefix('api')->group(function () {
             '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
-        return response()->json([
+        $response = [
             'success' => true,
             'message' => 'Verification code resent.',
-        ]);
+        ];
+
+        if (app()->environment('local')) {
+            $response['debug_verification_code'] = $codeData['plain'];
+        }
+
+        return response()->json($response);
     });
 
     Route::middleware('auth')->group(function () {
