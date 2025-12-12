@@ -4,6 +4,10 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
+ARG VITE_POSTHOG_API_KEY
+ARG VITE_POSTHOG_HOST
+ENV VITE_POSTHOG_API_KEY=$VITE_POSTHOG_API_KEY
+ENV VITE_POSTHOG_HOST=$VITE_POSTHOG_HOST
 RUN npm run build
 
 FROM php:8.3-fpm-alpine AS php-builder
