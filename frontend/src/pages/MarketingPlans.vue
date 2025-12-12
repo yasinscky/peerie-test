@@ -500,7 +500,6 @@ const handleMonthSelect = ({ year, month }) => {
       month
     }
   })
-  fetchPlans()
 }
 
 const generateMonthTasks = async () => {
@@ -524,7 +523,6 @@ const generateMonthTasks = async () => {
           month: generateMonthMonth.value
         }
       })
-      await fetchPlans()
     }
   } catch (error) {
     console.error('Failed to generate month tasks:', error)
@@ -709,7 +707,6 @@ const closeOnEscape = (event) => {
 }
 
 onMounted(async () => {
-  await fetchAvailableMonths()
   await fetchPlans()
   window.addEventListener('keydown', closeOnEscape)
 })

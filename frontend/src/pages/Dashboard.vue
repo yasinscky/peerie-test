@@ -259,9 +259,20 @@ const navigateToSettings = () => {
   router.push('/dashboard/settings')
 }
 
-const fetchUser = async () => {
+let lastUserFetchTime = 0
+const USER_FETCH_CACHE_TIME = 1000
+
+const fetchUser = async (force = false) => {
+  const now = Date.now()
+  const timeSinceLastFetch = now - lastUserFetchTime
+  
+  if (!force && timeSinceLastFetch < USER_FETCH_CACHE_TIME) {
+    return
+  }
+  
   try {
     const response = await axios.get('/api/user')
+    lastUserFetchTime = Date.now()
     
     if (response.data.success) {
       user.value = {
@@ -429,9 +440,6 @@ onMounted(async () => {
   }
   
   await fetchUser()
-  if (route.path === '/dashboard/marketing-plans') {
-    await fetchAvailableMonths()
-  }
   window.addEventListener('profile-updated', handleProfileUpdated)
 })
 
