@@ -92,6 +92,7 @@
                       class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
                       :placeholder="texts.emailPlaceholder"
                       required
+                      :disabled="emailVerificationPending"
                     >
                   </div>
                   <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4 relative">
@@ -132,6 +133,41 @@
                   </button>
                 </div>
               </form>
+
+              <div v-if="emailVerificationPending" class="mt-6 px-4 md:px-0">
+                <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
+                  <p class="text-[#1c1a1b] text-base md:text-lg mb-4">{{ texts.emailVerificationMessage }}</p>
+                  <div class="flex flex-col sm:flex-row gap-3 md:gap-4 items-stretch sm:items-center">
+                    <div class="flex-1">
+                      <input
+                        v-model="emailVerificationCode"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        class="w-full bg-transparent border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6 text-[#1c1a1b] text-base md:text-lg font-bold placeholder:text-gray-400 outline-none"
+                        :placeholder="texts.emailVerificationCodePlaceholder"
+                      >
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                      <button
+                        type="button"
+                        @click="confirmEmailChange"
+                        :disabled="isUpdating || !emailVerificationCode"
+                        class="px-6 py-3 bg-[#f34767] text-white rounded-[20px] md:rounded-[30px] text-base md:text-lg font-bold uppercase hover:bg-[#d93d5a] transition-colors disabled:opacity-50"
+                      >
+                        {{ texts.confirmEmailButton }}
+                      </button>
+                      <button
+                        type="button"
+                        @click="cancelEmailChange"
+                        class="px-6 py-3 border-2 border-[#f34767] text-[#f34767] rounded-[20px] md:rounded-[30px] text-base md:text-lg font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors"
+                      >
+                        {{ texts.cancelButton }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
         </div>
 
@@ -140,35 +176,69 @@
               <h2 class="text-[#1c1a1b] text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2 px-4 md:px-0 pt-4 md:pt-0">{{ texts.securityTitle }}</h2>
               <p class="text-[#1c1a1b] text-sm md:text-base lg:text-xl mb-6 px-4 md:px-0">{{ texts.securityDescription }}</p>
               
-              <form @submit.prevent="updatePassword" class="space-y-4 md:space-y-6 px-4 md:px-0 pb-6 md:pb-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <form @submit.prevent="passwordCodeRequested ? updatePassword() : requestPasswordCode()" class="space-y-4 md:space-y-6 px-4 md:px-0 pb-6 md:pb-0">
+                <div v-if="!passwordCodeRequested" class="grid grid-cols-1 gap-4 md:gap-6">
                   <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
                     <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.passwordLabel }}
+                      {{ texts.currentPasswordLabel }}
                       <span class="text-red-500">*</span>
                     </label>
                     <input 
-                      v-model="passwordForm.password"
+                      v-model="passwordForm.currentPassword"
                       type="password" 
                       class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                      :placeholder="texts.passwordPlaceholder"
+                      :placeholder="texts.currentPasswordPlaceholder"
                       required
-                      minlength="8"
                     >
                   </div>
+                </div>
+
+                <div v-if="passwordCodeRequested" class="space-y-4 md:space-y-6">
                   <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
                     <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.confirmPasswordLabel }}
+                      {{ texts.passwordCodeLabel }}
                       <span class="text-red-500">*</span>
                     </label>
                     <input 
-                      v-model="passwordForm.confirmPassword"
-                      type="password" 
+                      v-model="passwordForm.code"
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="6"
                       class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                      :placeholder="texts.confirmPasswordPlaceholder"
+                      :placeholder="texts.passwordCodePlaceholder"
                       required
-                      minlength="8"
                     >
+                    <p class="text-[#1c1a1b] text-sm mt-2">{{ texts.passwordCodeSent }}</p>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
+                      <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                        {{ texts.passwordLabel }}
+                        <span class="text-red-500">*</span>
+                      </label>
+                      <input 
+                        v-model="passwordForm.password"
+                        type="password" 
+                        class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
+                        :placeholder="texts.passwordPlaceholder"
+                        required
+                        minlength="8"
+                      >
+                    </div>
+                    <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
+                      <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                        {{ texts.confirmPasswordLabel }}
+                        <span class="text-red-500">*</span>
+                      </label>
+                      <input 
+                        v-model="passwordForm.confirmPassword"
+                        type="password" 
+                        class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
+                        :placeholder="texts.confirmPasswordPlaceholder"
+                        required
+                        minlength="8"
+                      >
+                    </div>
                   </div>
                 </div>
 
@@ -192,11 +262,19 @@
                       {{ texts.resetButton }}
                     </button>
                     <button 
+                      v-if="passwordCodeRequested"
+                      type="button"
+                      @click="cancelPasswordChange"
+                      class="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[#1c1a1b] text-sm md:text-xl font-bold uppercase hover:opacity-80 transition-opacity"
+                    >
+                      {{ texts.cancelButton }}
+                    </button>
+                    <button 
                       type="submit" 
                       :disabled="isUpdating"
                       class="px-6 md:px-8 py-2 md:py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[20px] md:rounded-[30px] text-sm md:text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
                     >
-                      {{ isUpdating ? texts.updating : texts.saveChanges }}
+                      {{ isUpdating ? texts.updating : (passwordCodeRequested ? texts.saveChanges : texts.requestCodeButton) }}
                     </button>
                   </div>
                 </div>
@@ -259,6 +337,9 @@ const passwordForm = ref({
 
 const user = ref(null)
 const originalEmail = ref('')
+const emailVerificationPending = ref(false)
+const emailVerificationCode = ref('')
+const passwordCodeRequested = ref(false)
 
 const texts = computed(() => {
   if (languageStore.language === 'de') {
@@ -298,6 +379,21 @@ const texts = computed(() => {
       newsletterError: 'Fehler bei der Newsletter-Anmeldung',
       deleteAccountConfirm: 'Bist du sicher, dass du dein Konto löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.',
       deleteAccountError: 'Fehler beim Löschen des Kontos',
+      emailChangeCodeSent: 'Wir haben einen Bestätigungscode an deine neue E-Mail-Adresse gesendet.',
+      emailChangeConfirmed: 'E-Mail wurde erfolgreich aktualisiert!',
+      emailChangeError: 'Fehler beim Ändern der E-Mail',
+      emailVerificationMessage: 'Bitte gib den Bestätigungscode ein, der an deine neue E-Mail-Adresse gesendet wurde.',
+      emailVerificationCodePlaceholder: 'Bestätigungscode eingeben',
+      confirmEmailButton: 'Bestätigen',
+      cancelButton: 'Abbrechen',
+      passwordCodeSent: 'Passwort-Änderungscode wurde an deine E-Mail gesendet.',
+      passwordCodeError: 'Fehler beim Senden des Passwort-Änderungscodes',
+      currentPasswordRequired: 'Bitte gib dein aktuelles Passwort ein.',
+      currentPasswordLabel: 'Aktuelles Passwort',
+      currentPasswordPlaceholder: 'Aktuelles Passwort eingeben',
+      passwordCodeLabel: 'Bestätigungscode',
+      passwordCodePlaceholder: 'Code aus E-Mail eingeben',
+      requestCodeButton: 'Code anfordern',
     }
   }
 
@@ -340,6 +436,10 @@ const texts = computed(() => {
       emailChangeCodeSent: 'We have sent a verification code to your new email address.',
       emailChangeConfirmed: 'Email updated successfully!',
       emailChangeError: 'Email change error',
+      emailVerificationMessage: 'Please enter the verification code sent to your new email address.',
+      emailVerificationCodePlaceholder: 'Enter verification code',
+      confirmEmailButton: 'Confirm',
+      cancelButton: 'Cancel',
       passwordCodeSent: 'Password change code sent to your email.',
       passwordCodeError: 'Password change code error',
       currentPasswordRequired: 'Please enter your current password.',
@@ -347,6 +447,7 @@ const texts = computed(() => {
       currentPasswordPlaceholder: 'Enter current password',
       passwordCodeLabel: 'Verification code',
       passwordCodePlaceholder: 'Enter code from email',
+      requestCodeButton: 'Request code',
   }
 })
 
@@ -381,6 +482,7 @@ const updateProfile = async () => {
       await axios.post('/api/profile/email/request-change', {
         new_email: profileForm.value.email
       })
+      emailVerificationPending.value = true
       showMessage(texts.value.emailChangeCodeSent)
     } else {
       showMessage(texts.value.profileUpdated)
@@ -392,9 +494,74 @@ const updateProfile = async () => {
   }
 }
 
+const confirmEmailChange = async () => {
+  if (!emailVerificationCode.value) {
+    showMessage(texts.value.emailChangeError, 'error')
+    return
+  }
+
+  isUpdating.value = true
+  try {
+    const response = await axios.post('/api/profile/email/confirm-change', {
+      code: emailVerificationCode.value
+    })
+
+    if (response.data.success) {
+      user.value.email = response.data.user.email
+      originalEmail.value = response.data.user.email
+      emailVerificationPending.value = false
+      emailVerificationCode.value = ''
+      showMessage(texts.value.emailChangeConfirmed)
+      
+      window.dispatchEvent(new CustomEvent('profile-updated', {
+        detail: {
+          name: user.value.name,
+          email: response.data.user.email,
+          language: profileForm.value.language
+        }
+      }))
+    }
+  } catch (error) {
+    showMessage(error.response?.data?.message || texts.value.emailChangeError, 'error')
+  } finally {
+    isUpdating.value = false
+  }
+}
+
+const cancelEmailChange = () => {
+  emailVerificationPending.value = false
+  emailVerificationCode.value = ''
+  profileForm.value.email = originalEmail.value
+}
+
+const requestPasswordCode = async () => {
+  if (!passwordForm.value.currentPassword) {
+    showMessage(texts.value.currentPasswordRequired, 'error')
+    return
+  }
+
+  isUpdating.value = true
+  try {
+    await axios.post('/api/profile/password/request-change', {
+      current_password: passwordForm.value.currentPassword
+    })
+    passwordCodeRequested.value = true
+    showMessage(texts.value.passwordCodeSent)
+  } catch (error) {
+    showMessage(error.response?.data?.message || texts.value.passwordCodeError, 'error')
+  } finally {
+    isUpdating.value = false
+  }
+}
+
 const updatePassword = async () => {
   if (passwordForm.value.password !== passwordForm.value.confirmPassword) {
     showMessage(texts.value.passwordsDontMatch, 'error')
+    return
+  }
+
+  if (!passwordForm.value.code) {
+    showMessage(texts.value.passwordCodeError, 'error')
     return
   }
 
@@ -415,6 +582,11 @@ const updatePassword = async () => {
   }
 }
 
+const cancelPasswordChange = () => {
+  passwordCodeRequested.value = false
+  resetPasswordForm()
+}
+
 const resetForm = () => {
   fetchUser()
 }
@@ -426,6 +598,7 @@ const resetPasswordForm = () => {
     confirmPassword: '',
     code: ''
   }
+  passwordCodeRequested.value = false
 }
 
 const deleteAccount = async () => {
