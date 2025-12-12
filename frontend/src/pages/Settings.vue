@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-white">
     <main class="min-h-screen">
-        <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40">
+        <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40 md:block hidden">
           <div class="flex items-center space-x-4">
             <div class="w-10 h-10 rounded-lg bg-opacity-20 flex items-center justify-center">
               <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
@@ -15,157 +15,193 @@
           </div>
       </div>
 
-        <div class="2xl:mt-[65px] xl:mt-[30px]">
-          <div class="2xl:pl-[45px] xl:pl-[30px]">
-            <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">{{ texts.personalInfoTitle }}</h2>
-            <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">
-              {{ texts.personalInfoDescription }}
-              <span class="text-red-500">*</span>
-            </p>
-            
-            <form @submit.prevent="updateProfile" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
-                    {{ texts.firstNameLabel }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                  <input 
-                    v-model="profileForm.firstName"
-                    type="text" 
-                    class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    :placeholder="texts.firstNamePlaceholder"
-                    required
-                  >
-                </div>
-                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
-                    {{ texts.lastNameLabel }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                <input 
-                    v-model="profileForm.lastName"
-                  type="text" 
-                    class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    :placeholder="texts.lastNamePlaceholder"
-                  required
-                >
-                </div>
-              </div>
+      <div class="md:hidden px-4 pt-4 pb-2">
+        <div class="flex gap-2">
+          <button
+            @click="activeTab = 'profile'"
+            class="flex-1 rounded-lg px-4 py-2 text-base font-medium transition-colors"
+            :class="activeTab === 'profile' 
+              ? 'bg-[#f34767] text-white' 
+              : 'bg-white text-[#1c1a1b] border border-[#DCDCDC]'"
+          >
+            {{ texts.profile }}
+          </button>
+          <button
+            @click="activeTab = 'account'"
+            class="flex-1 rounded-lg px-4 py-2 text-base font-medium transition-colors flex items-center justify-center gap-2"
+            :class="activeTab === 'account' 
+              ? 'bg-[#f34767] text-white' 
+              : 'bg-white text-[#1c1a1b] border border-[#DCDCDC]'"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            {{ texts.headerAccount }}
+          </button>
+        </div>
+      </div>
+
+        <div class="2xl:mt-[65px] xl:mt-[30px] md:mt-0">
+          <div class="2xl:pl-[45px] xl:pl-[30px] md:px-4">
+            <div v-show="activeTab === 'profile' || !isMobile">
+              <h2 class="text-[#1c1a1b] text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2 px-4 md:px-0 pt-4 md:pt-0">{{ texts.personalInfoTitle }}</h2>
+              <p class="text-[#1c1a1b] text-sm md:text-base lg:text-xl mb-6 px-4 md:px-0">
+                {{ texts.personalInfoDescription }}
+                <span class="text-red-500">*</span>
+              </p>
               
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
-                    {{ texts.emailLabel }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                <input 
-                  v-model="profileForm.email"
-                  type="email" 
-                    class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    :placeholder="texts.emailPlaceholder"
-                  required
-                >
-                </div>
-                <div class="border-2 border-[#3f4369] rounded-[30px] 2xl:p-6 xl:p-4 relative">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
-                    {{ texts.languageLabel }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                  <select 
-                    v-model="profileForm.language"
-                    class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base appearance-none pr-10"
-                  >
-                    <option value="en">{{ texts.languageEn }}</option>
-                    <option value="de">{{ texts.languageDe }}</option>
-                  </select>
-                  <div class="absolute right-6 top-1/2 transform -translate-y-1/2 pointer-events-none w-[60px] h-[60px] rounded-[16px] bg-[#3F4369] flex items-center justify-center">
-                    <img :src="arrowDown" alt="" class="w-7 h-7">
+              <form @submit.prevent="updateProfile" class="space-y-4 md:space-y-6 px-4 md:px-0 pb-6 md:pb-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4">
+                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                      {{ texts.firstNameLabel }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="profileForm.firstName"
+                      type="text" 
+                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
+                      :placeholder="texts.firstNamePlaceholder"
+                      required
+                    >
+                  </div>
+                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4">
+                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                      {{ texts.lastNameLabel }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="profileForm.lastName"
+                      type="text" 
+                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
+                      :placeholder="texts.lastNamePlaceholder"
+                      required
+                    >
                   </div>
                 </div>
-              </div>
-
-              <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                <button 
-                  type="button"
-                  @click="resetForm"
-                  class="px-6 py-3 text-[#f34767] text-xl font-bold uppercase hover:opacity-80 transition-opacity"
-                >
-                  {{ texts.resetButton }}
-                </button>
-                <button 
-                  type="submit" 
-                  :disabled="isUpdating"
-                  class="px-8 py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[30px] text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
-                >
-                  {{ isUpdating ? texts.saving : texts.saveChanges }}
-                </button>
-              </div>
-            </form>
-        </div>
-
-          <div class="bg-white rounded-[36px] p-6 lg:p-8">
-            <h2 class="text-[#1c1a1b] text-3xl lg:text-4xl font-extrabold mb-2">{{ texts.securityTitle }}</h2>
-            <p class="text-[#1c1a1b] text-base lg:text-xl mb-6">{{ texts.securityDescription }}</p>
-            
-            <form @submit.prevent="updatePassword" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
-                    {{ texts.passwordLabel }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                <input 
-                    v-model="passwordForm.password"
-                  type="password" 
-                    class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    :placeholder="texts.passwordPlaceholder"
-                  required
-                  minlength="8"
-                >
-              </div>
-                <div class="bg-white border-2 border-[#3f4369] rounded-[30px] p-6">
-                  <label class="block text-[#1c1a1b] text-lg font-bold mb-2">
-                    {{ texts.confirmPasswordLabel }}
-                    <span class="text-red-500">*</span>
-                  </label>
-                <input 
-                  v-model="passwordForm.confirmPassword"
-                  type="password" 
-                    class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-base"
-                    :placeholder="texts.confirmPasswordPlaceholder"
-                  required
-                  minlength="8"
-                >
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4">
+                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                      {{ texts.emailLabel }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="profileForm.email"
+                      type="email" 
+                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
+                      :placeholder="texts.emailPlaceholder"
+                      required
+                    >
+                  </div>
+                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4 relative">
+                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                      {{ texts.languageLabel }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <select 
+                      v-model="profileForm.language"
+                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base appearance-none pr-10"
+                    >
+                      <option value="en">{{ texts.languageEn }}</option>
+                      <option value="de">{{ texts.languageDe }}</option>
+                    </select>
+                    <div class="absolute right-4 md:right-6 top-1/2 transform -translate-y-1/2 pointer-events-none w-[40px] h-[40px] md:w-[60px] md:h-[60px] rounded-[12px] md:rounded-[16px] bg-[#3F4369] flex items-center justify-center">
+                      <img :src="arrowDown" alt="" class="w-5 h-5 md:w-7 md:h-7">
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="flex items-center justify-between">
-                <button 
-                  type="button"
-                  @click="deleteAccount"
-                  class="text-[#f34767] text-xl underline hover:opacity-80 transition-opacity"
-                >
-                  {{ texts.deleteAccount }}
-                </button>
-                <div class="flex gap-4">
+                <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-end pt-4">
                   <button 
                     type="button"
-                    @click="resetPasswordForm"
-                    class="px-6 py-3 text-[#f34767] text-xl font-bold uppercase hover:opacity-80 transition-opacity"
+                    @click="resetForm"
+                    class="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[#1c1a1b] text-sm md:text-xl font-bold uppercase hover:opacity-80 transition-opacity"
                   >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
                     {{ texts.resetButton }}
                   </button>
                   <button 
                     type="submit" 
                     :disabled="isUpdating"
-                    class="px-8 py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[30px] text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
+                    class="px-6 md:px-8 py-2 md:py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[20px] md:rounded-[30px] text-sm md:text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
                   >
-                    {{ isUpdating ? texts.updating : texts.saveChanges }}
+                    {{ isUpdating ? texts.saving : texts.saveChanges }}
                   </button>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
+        </div>
+
+          <div class="bg-white rounded-[20px] md:rounded-[36px] p-4 md:p-6 lg:p-8 mt-6 md:mt-0">
+            <div v-show="activeTab === 'account' || !isMobile">
+              <h2 class="text-[#1c1a1b] text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2 px-4 md:px-0 pt-4 md:pt-0">{{ texts.securityTitle }}</h2>
+              <p class="text-[#1c1a1b] text-sm md:text-base lg:text-xl mb-6 px-4 md:px-0">{{ texts.securityDescription }}</p>
+              
+              <form @submit.prevent="updatePassword" class="space-y-4 md:space-y-6 px-4 md:px-0 pb-6 md:pb-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
+                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                      {{ texts.passwordLabel }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="passwordForm.password"
+                      type="password" 
+                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
+                      :placeholder="texts.passwordPlaceholder"
+                      required
+                      minlength="8"
+                    >
+                  </div>
+                  <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
+                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
+                      {{ texts.confirmPasswordLabel }}
+                      <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      v-model="passwordForm.confirmPassword"
+                      type="password" 
+                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
+                      :placeholder="texts.confirmPasswordPlaceholder"
+                      required
+                      minlength="8"
+                    >
+                  </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4">
+                  <button 
+                    type="button"
+                    @click="deleteAccount"
+                    class="text-[#f34767] text-base md:text-xl underline hover:opacity-80 transition-opacity text-left md:text-left"
+                  >
+                    {{ texts.deleteAccount }}
+                  </button>
+                  <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
+                    <button 
+                      type="button"
+                      @click="resetPasswordForm"
+                      class="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[#1c1a1b] text-sm md:text-xl font-bold uppercase hover:opacity-80 transition-opacity"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                      {{ texts.resetButton }}
+                    </button>
+                    <button 
+                      type="submit" 
+                      :disabled="isUpdating"
+                      class="px-6 md:px-8 py-2 md:py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[20px] md:rounded-[30px] text-sm md:text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
+                    >
+                      {{ isUpdating ? texts.updating : texts.saveChanges }}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
     </main>
@@ -179,7 +215,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
@@ -191,6 +227,21 @@ const languageStore = useLanguageStore()
 
 const isUpdating = ref(false)
 const message = ref(null)
+const activeTab = ref('profile')
+const isMobile = ref(false)
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 
 const profileForm = ref({
   firstName: '',
@@ -214,6 +265,7 @@ const texts = computed(() => {
     return {
       headerTitle: 'Profil',
       headerAccount: 'Konto',
+      profile: 'Profil',
       personalInfoTitle: 'Persönliche Daten',
       personalInfoDescription: 'Bitte fülle alle Pflichtfelder aus, die mit',
       firstNameLabel: 'Vorname',
@@ -272,7 +324,8 @@ const texts = computed(() => {
     passwordPlaceholder: 'Enter new password',
     confirmPasswordLabel: 'Confirm password',
     confirmPasswordPlaceholder: 'Confirm new password',
-    deleteAccount: 'Delete my account',
+      deleteAccount: 'Delete my account',
+      profile: 'Profile',
     updating: 'Updating...',
     profileUpdated: 'Profile updated successfully!',
     profileUpdateError: 'Profile update error',

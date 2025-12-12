@@ -220,6 +220,8 @@ Route::prefix('api')->group(function () {
         
         Route::get('/plans', [PlanController::class, 'index']);
         Route::get('/plan/{id}', [PlanController::class, 'show']);
+        Route::get('/plans/available-months', [PlanController::class, 'getAvailableMonths']);
+        Route::post('/plans/generate-month', [PlanController::class, 'generateMonth']);
         Route::put('/plan/{planId}/plan-task/{planTaskId}', [PlanController::class, 'updateTaskStatus']);
         
         Route::get('/tasks', [TaskController::class, 'index']);

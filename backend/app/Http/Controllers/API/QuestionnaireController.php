@@ -105,6 +105,7 @@ class QuestionnaireController extends Controller
                 'secondary_social_channel' => $request->secondary_social_channel,
             ]);
 
+            $plan->refresh();
             $generatedPlan = $this->planGenerator->generatePlan($plan);
 
             return response()->json([

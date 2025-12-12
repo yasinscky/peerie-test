@@ -15,8 +15,73 @@
     </div>
 
     <div class="mb-8">
-      <div>
+      <div class="flex items-center justify-between">
         <p class="text-[#3F4369] opacity-70 mt-2">{{ texts.subtitle }}</p>
+        <button
+          v-if="isDevelopment"
+          @click="showGenerateMonthModal = true"
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+        >
+          Generate Month (Test)
+        </button>
+      </div>
+    </div>
+
+    <!-- Generate Month Modal (Test) -->
+    <div
+      v-if="isDevelopment && showGenerateMonthModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+      @click.self="showGenerateMonthModal = false"
+    >
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+        <h3 class="text-xl font-bold text-[#3F4369] mb-4">Generate Tasks for Month</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-[#3F4369] mb-2">Year</label>
+            <input
+              v-model.number="generateMonthYear"
+              type="number"
+              min="2020"
+              max="2100"
+              class="w-full px-3 py-2 border border-[#DCDCDC] rounded-lg focus:outline-none focus:border-[#f34767]"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-[#3F4369] mb-2">Month</label>
+            <select
+              v-model.number="generateMonthMonth"
+              class="w-full px-3 py-2 border border-[#DCDCDC] rounded-lg focus:outline-none focus:border-[#f34767]"
+            >
+              <option :value="1">January</option>
+              <option :value="2">February</option>
+              <option :value="3">March</option>
+              <option :value="4">April</option>
+              <option :value="5">May</option>
+              <option :value="6">June</option>
+              <option :value="7">July</option>
+              <option :value="8">August</option>
+              <option :value="9">September</option>
+              <option :value="10">October</option>
+              <option :value="11">November</option>
+              <option :value="12">December</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+          <button
+            @click="showGenerateMonthModal = false"
+            class="px-4 py-2 text-[#3F4369] border border-[#DCDCDC] rounded-lg hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            @click="generateMonthTasks"
+            :disabled="isGeneratingMonth"
+            class="px-4 py-2 bg-[#f34767] text-white rounded-lg hover:bg-[#d93b57] disabled:opacity-50"
+          >
+            {{ isGeneratingMonth ? 'Generating...' : 'Generate' }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -61,7 +126,6 @@
         </div>
       </div>
     </div>
-
 
     <!-- Plan Overview -->
     <div v-if="plan" class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] mb-8">
@@ -287,17 +351,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
 import logoWhite from '@/assets/images/logos/logo-white.svg'
 
 const router = useRouter()
+const route = useRoute()
 const languageStore = useLanguageStore()
 
 const plans = ref([])
 const isLoading = ref(true)
+const availableMonths = ref([])
+const selectedYear = ref(parseInt(route.query.year) || new Date().getFullYear())
+const selectedMonth = ref(parseInt(route.query.month) || new Date().getMonth() + 1)
 const stats = ref({
   completedTasks: 0,
   inProgressTasks: 0,
@@ -305,6 +373,22 @@ const stats = ref({
 })
 const instructionModalOpen = ref(false)
 const selectedTask = ref(null)
+const showGenerateMonthModal = ref(false)
+const generateMonthYear = ref(new Date().getFullYear())
+const generateMonthMonth = ref(new Date().getMonth() + 1)
+const isGeneratingMonth = ref(false)
+const isDevelopment = computed(() => {
+  if (import.meta.env.MODE === 'development') {
+    return true
+  }
+  
+  if (import.meta.env.DEV) {
+    return true
+  }
+  
+  const hostname = window.location.hostname
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.')
+})
 
 const plan = computed(() => plans.value[0] || null)
 
@@ -332,10 +416,47 @@ const texts = computed(() => {
   }
 })
 
+const fetchAvailableMonths = async () => {
+  try {
+    const response = await axios.get('/api/plans/available-months')
+    if (response.data.success && response.data.months) {
+      availableMonths.value = response.data.months
+      
+      if (availableMonths.value.length > 0 && !route.query.year && !route.query.month) {
+        const latest = availableMonths.value[0]
+        selectedYear.value = latest.year
+        selectedMonth.value = latest.month
+        router.replace({
+          query: {
+            ...route.query,
+            year: latest.year,
+            month: latest.month
+          }
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load available months:', error)
+    const now = new Date()
+    availableMonths.value = [{
+      year: now.getFullYear(),
+      month: now.getMonth() + 1
+    }]
+  }
+}
+
 const fetchPlans = async () => {
   try {
-    const response = await axios.get('/api/plans')
+    isLoading.value = true
+    console.log('Fetching plans for:', { year: selectedYear.value, month: selectedMonth.value })
+    const response = await axios.get('/api/plans', {
+      params: {
+        year: selectedYear.value,
+        month: selectedMonth.value
+      }
+    })
     console.log('API Response:', response.data)
+    console.log('Requested year/month:', response.data.year, response.data.month)
     
     let apiPlans = []
     if (response.data.plans) {
@@ -367,6 +488,59 @@ const fetchPlans = async () => {
     isLoading.value = false
   }
 }
+
+const handleMonthSelect = ({ year, month }) => {
+  console.log('Month selected:', { year, month })
+  selectedYear.value = year
+  selectedMonth.value = month
+  router.push({
+    query: {
+      ...route.query,
+      year,
+      month
+    }
+  })
+  fetchPlans()
+}
+
+const generateMonthTasks = async () => {
+  try {
+    isGeneratingMonth.value = true
+    const response = await axios.post('/api/plans/generate-month', {
+      year: generateMonthYear.value,
+      month: generateMonthMonth.value
+    })
+    
+    if (response.data.success) {
+      alert(`Tasks generated successfully for ${generateMonthYear.value}-${generateMonthMonth.value}`)
+      showGenerateMonthModal.value = false
+      await fetchAvailableMonths()
+      selectedYear.value = generateMonthYear.value
+      selectedMonth.value = generateMonthMonth.value
+      router.push({
+        query: {
+          ...route.query,
+          year: generateMonthYear.value,
+          month: generateMonthMonth.value
+        }
+      })
+      await fetchPlans()
+    }
+  } catch (error) {
+    console.error('Failed to generate month tasks:', error)
+    alert('Failed to generate tasks: ' + (error.response?.data?.message || error.message))
+  } finally {
+    isGeneratingMonth.value = false
+  }
+}
+
+watch(() => route.query, (newQuery) => {
+  if (newQuery.year && newQuery.month) {
+    selectedYear.value = parseInt(newQuery.year)
+    selectedMonth.value = parseInt(newQuery.month)
+    fetchPlans()
+  }
+}, { immediate: false })
 
 const updateStats = () => {
   console.log('Updating stats for plans:', plans.value)
@@ -534,8 +708,9 @@ const closeOnEscape = (event) => {
   }
 }
 
-onMounted(() => {
-  fetchPlans()
+onMounted(async () => {
+  await fetchAvailableMonths()
+  await fetchPlans()
   window.addEventListener('keydown', closeOnEscape)
 })
 

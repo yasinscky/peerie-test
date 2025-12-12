@@ -25,6 +25,8 @@ class PlanTask extends Model
         'plan_id',
         'task_id',
         'week',
+        'year',
+        'month',
         'completed',
         'last_completed_at',
         'notes',

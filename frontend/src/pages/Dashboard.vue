@@ -3,9 +3,9 @@
     <div class="dashboard-logo-bg"></div>
       <!-- Logo -->
       <div class="absolute top-[137px] left-[6.3rem] 2xl:block hidden">
-            <img :src="logoImage" alt="Peerie Logo" class="w-full max-w-[205px]">
+        <img :src="logoImage" alt="Peerie Logo" class="w-full max-w-[205px]">
       </div>
-    <div class="page-container">
+      <div class="page-container">
       <!-- Left Sidebar -->
       <div class="fixed z-40 w-80 xl:w-[387px] overflow-y-auto transition-transform duration-300 md:translate-x-0" 
           :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
@@ -52,6 +52,20 @@
                 >
                   {{ texts.yourMarketingPlan }}
                 </router-link>
+                <div v-if="currentRoute === '/dashboard/marketing-plans' && availableMonths.length > 0" class="ml-4 mt-1 space-y-1">
+                  <button
+                    v-for="monthOption in availableMonths"
+                    :key="`${monthOption.year}-${monthOption.month}`"
+                    type="button"
+                    class="block w-full text-left text-sm font-medium transition-colors"
+                    :class="isMonthSelected(monthOption.year, monthOption.month)
+                      ? 'text-[#f34767]'
+                      : 'text-[#3F4369] hover:text-[#f34767]'"
+                    @click="handleMonthSelect({ year: monthOption.year, month: monthOption.month })"
+                  >
+                    • {{ formatMonth(monthOption.year, monthOption.month) }}
+                  </button>
+                </div>
                 <router-link 
                   to="/dashboard/image-generator"
                   class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
@@ -130,27 +144,36 @@
 
       <!-- Main content area -->
       <div class="md:ml-80 xl:ml-96 bg-white min-h-screen">
-        <!-- Mobile menu button -->
-        <div class="md:hidden p-4">
-          <button @click="sidebarOpen = true" class="flex items-center px-4 py-2 text-sm text-[#3F4369] hover:bg-[#FFEB88] hover:bg-opacity-20 rounded-lg transition-colors shadow-md">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-            {{ texts.menu }}
-          </button>
+        <!-- Mobile header -->
+        <div class="md:hidden sticky top-0 z-20 bg-white border-b border-[#DCDCDC] px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <img :src="logoImage" alt="Peerie Logo" class="h-6">
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
+              <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
+              <span v-else class="text-[#3f4369] text-xs font-bold">{{ userInitials }}</span>
+            </div>
+            <button @click="sidebarOpen = true" class="p-2">
+              <svg class="w-6 h-6 text-[#1c1a1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- Page content -->
-        <div class="ml-[73px]">
+        <div class="md:ml-[73px]">
           <router-view />
         </div>
       </div>
     </div>
+    <TestEnvironmentBanner />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import logoImage from '@/assets/images/logos/logo.svg'
@@ -160,12 +183,16 @@ import iconUser from '@/assets/images/icons/dashboard/user.svg'
 import iconEdit from '@/assets/images/icons/dashboard/edit.svg'
 import iconLogout from '@/assets/images/icons/dashboard/log-out.svg'
 import { useLanguageStore } from '@/stores/language'
+import TestEnvironmentBanner from '@/components/TestEnvironmentBanner.vue'
 
 const router = useRouter()
 const route = useRoute()
 
 const sidebarOpen = ref(false)
 const user = ref(null)
+const availableMonths = ref([])
+const selectedYear = ref(parseInt(route.query.year) || new Date().getFullYear())
+const selectedMonth = ref(parseInt(route.query.month) || new Date().getMonth() + 1)
 
 const languageStore = useLanguageStore()
 
@@ -240,7 +267,8 @@ const fetchUser = async () => {
       user.value = {
         id: response.data.id,
         name: response.data.name,
-        email: response.data.email
+        email: response.data.email,
+        avatar: response.data.avatar
       }
       
       if (response.data.language) {
@@ -283,6 +311,112 @@ const handleProfileUpdated = (event) => {
   }
 }
 
+const fetchAvailableMonths = async () => {
+  try {
+    const response = await axios.get('/api/plans/available-months')
+    if (response.data.success && response.data.months) {
+      availableMonths.value = response.data.months
+      
+      const now = new Date()
+      const currentYear = now.getFullYear()
+      const currentMonth = now.getMonth() + 1
+      
+      if (availableMonths.value.length > 0 && !route.query.year && !route.query.month) {
+        const latest = availableMonths.value[0]
+        selectedYear.value = latest.year
+        selectedMonth.value = latest.month
+        router.replace({
+          query: {
+            ...route.query,
+            year: latest.year,
+            month: latest.month
+          }
+        })
+      } else if (!route.query.year && !route.query.month) {
+        selectedYear.value = currentYear
+        selectedMonth.value = currentMonth
+        router.replace({
+          query: {
+            ...route.query,
+            year: currentYear,
+            month: currentMonth
+          }
+        })
+      }
+    } else {
+      const now = new Date()
+      const currentYear = now.getFullYear()
+      const currentMonth = now.getMonth() + 1
+      availableMonths.value = [{
+        year: currentYear,
+        month: currentMonth
+      }]
+      if (!route.query.year && !route.query.month) {
+        selectedYear.value = currentYear
+        selectedMonth.value = currentMonth
+        router.replace({
+          query: {
+            ...route.query,
+            year: currentYear,
+            month: currentMonth
+          }
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load available months:', error)
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth() + 1
+    availableMonths.value = [{
+      year: currentYear,
+      month: currentMonth
+    }]
+  }
+}
+
+const isMonthSelected = (year, month) => {
+  return selectedYear.value === year && selectedMonth.value === month
+}
+
+const formatMonth = (year, month) => {
+  const date = new Date(year, month - 1, 1)
+  const monthNames = languageStore.language === 'de'
+    ? ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  
+  return `${monthNames[month - 1]} ${year}`
+}
+
+const handleMonthSelect = ({ year, month }) => {
+  selectedYear.value = year
+  selectedMonth.value = month
+  router.push({
+    path: '/dashboard/marketing-plans',
+    query: {
+      year,
+      month
+    }
+  })
+}
+
+watch(() => route.path, async (newPath) => {
+  if (newPath === '/dashboard/marketing-plans') {
+    await fetchAvailableMonths()
+    if (route.query.year && route.query.month) {
+      selectedYear.value = parseInt(route.query.year)
+      selectedMonth.value = parseInt(route.query.month)
+    }
+  }
+}, { immediate: true })
+
+watch(() => route.query, (newQuery) => {
+  if (newQuery.year && newQuery.month && route.path === '/dashboard/marketing-plans') {
+    selectedYear.value = parseInt(newQuery.year)
+    selectedMonth.value = parseInt(newQuery.month)
+  }
+}, { immediate: false })
+
 onMounted(async () => {
   const savedUser = localStorage.getItem('user')
   if (savedUser) {
@@ -295,6 +429,9 @@ onMounted(async () => {
   }
   
   await fetchUser()
+  if (route.path === '/dashboard/marketing-plans') {
+    await fetchAvailableMonths()
+  }
   window.addEventListener('profile-updated', handleProfileUpdated)
 })
 

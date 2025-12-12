@@ -60,7 +60,7 @@ class Plan extends Model
     public function tasks()
     {
         return $this->belongsToMany(Task::class, 'plan_tasks')
-                    ->withPivot(['id', 'week', 'completed', 'notes'])
+                    ->withPivot(['id', 'week', 'year', 'month', 'completed', 'notes', 'last_completed_at'])
                     ->withTimestamps();
     }
 

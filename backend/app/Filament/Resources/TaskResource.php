@@ -467,19 +467,165 @@ class TaskResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('category')
-                    ->label('Category'),
-                Tables\Filters\TernaryFilter::make('is_global')
-                    ->label('Global task')
-                    ->placeholder('All')
-                    ->trueLabel('Only global')
-                    ->falseLabel('Only non-global'),
+                    ->label('Category')
+                    ->options([
+                        'Goals' => 'Goals',
+                        'Digital Marketing Foundations' => 'Digital Marketing Foundations',
+                        'Local SEO' => 'Local SEO',
+                        'Content' => 'Content',
+                        'Social Media' => 'Social Media',
+                        'Website' => 'Website',
+                        'Email Marketing' => 'Email Marketing',
+                        'Paid Advertising' => 'Paid Advertising',
+                        'CRM' => 'CRM',
+                    ])
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('frequency')
+                    ->label('Cadence')
+                    ->options([
+                        'once' => 'Once',
+                        'weekly' => 'Weekly',
+                        'bi_weekly' => 'Bi-weekly',
+                        'monthly' => 'Monthly',
+                        'quarterly' => 'Quarterly',
+                        'half_yearly' => 'Half-yearly',
+                        'yearly' => 'Yearly',
+                    ])
+                    ->multiple(),
                 Tables\Filters\SelectFilter::make('language')
                     ->label('Language')
                     ->options([
                         'en' => 'English',
                         'de' => 'Deutsch',
-                    ]),
+                    ])
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('target_countries')
+                    ->label('Country')
+                    ->options([
+                        'UK' => 'United Kingdom (UK)',
+                        'IRE' => 'Ireland (IRE)',
+                        'DE' => 'Germany (DE)',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['values'])) {
+                            return $query->where(function (Builder $q) use ($data) {
+                                foreach ($data['values'] as $country) {
+                                    $q->orWhereJsonContains('target_countries', $country);
+                                }
+                            });
+                        }
+                        return $query;
+                    })
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('target_industries')
+                    ->label('Industry')
+                    ->options([
+                        'all' => 'All industries',
+                        'beauty' => 'Beauty',
+                        'physio' => 'Physio',
+                        'coaching' => 'Coaching',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['values'])) {
+                            return $query->where(function (Builder $q) use ($data) {
+                                foreach ($data['values'] as $industry) {
+                                    if ($industry === 'all') {
+                                        $q->orWhereJsonContains('target_industries', 'all')
+                                          ->orWhereNull('target_industries')
+                                          ->orWhere('target_industries', '[]');
+                                    } else {
+                                        $q->orWhereJsonContains('target_industries', $industry)
+                                          ->orWhereJsonContains('target_industries', 'all');
+                                    }
+                                }
+                            });
+                        }
+                        return $query;
+                    })
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('allowed_capacities')
+                    ->label('Capacity Allowed')
+                    ->options([
+                        2 => '2 hours',
+                        4 => '4 hours',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (!empty($data['values'])) {
+                            return $query->where(function (Builder $q) use ($data) {
+                                foreach ($data['values'] as $capacity) {
+                                    $q->orWhereJsonContains('allowed_capacities', (int) $capacity);
+                                }
+                            });
+                        }
+                        return $query;
+                    })
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('duration_minutes')
+                    ->label('Effort (minutes)')
+                    ->options([
+                        15 => '15 minutes',
+                        30 => '30 minutes',
+                        45 => '45 minutes',
+                        60 => '60 minutes',
+                        90 => '90 minutes',
+                        120 => '120 minutes',
+                    ])
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('local_presence_options')
+                    ->label('Local Presence')
+                    ->options([
+                        'any' => 'Any',
+                        'yes' => 'Only for local businesses',
+                        'no' => 'Only for non-local businesses',
+                    ])
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('template')
+                    ->label('Template')
+                    ->options([
+                        'yes' => 'Yes',
+                        'no' => 'No',
+                    ])
+                    ->multiple(),
+                Tables\Filters\TernaryFilter::make('is_global')
+                    ->label('Global task')
+                    ->placeholder('All')
+                    ->trueLabel('Only global')
+                    ->falseLabel('Only non-global'),
+                Tables\Filters\TernaryFilter::make('is_local')
+                    ->label('Local business only')
+                    ->placeholder('All')
+                    ->trueLabel('Only local')
+                    ->falseLabel('Only non-local'),
+                Tables\Filters\TernaryFilter::make('requires_website')
+                    ->label('Requires website')
+                    ->placeholder('All')
+                    ->trueLabel('Requires website')
+                    ->falseLabel('Does not require website'),
+                Tables\Filters\TernaryFilter::make('has_prerequisites')
+                    ->label('Has prerequisites')
+                    ->placeholder('All')
+                    ->trueLabel('Has prerequisites')
+                    ->falseLabel('No prerequisites')
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['value'] === true) {
+                            return $query->where(function (Builder $q) {
+                                $q->whereNotNull('prerequisites')
+                                  ->where('prerequisites', '!=', '[]')
+                                  ->where('prerequisites', '!=', 'null')
+                                  ->whereRaw("JSON_LENGTH(prerequisites) > 0");
+                            });
+                        } elseif ($data['value'] === false) {
+                            return $query->where(function (Builder $q) {
+                                $q->whereNull('prerequisites')
+                                  ->orWhere('prerequisites', '[]')
+                                  ->orWhere('prerequisites', 'null')
+                                  ->orWhereRaw("JSON_LENGTH(prerequisites) = 0");
+                            });
+                        }
+                        return $query;
+                    }),
             ])
+            ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -490,11 +636,7 @@ class TaskResource extends Resource
                 ]),
             ])
             ->defaultSort('global_order', 'asc')
-            ->groups([
-                Tables\Grouping\Group::make('category')
-                    ->label('Category')
-                    ->collapsible(),
-            ]);
+            ->modifyQueryUsing(fn (Builder $query) => $query->orderBy('id', 'asc'));
     }
 
     public static function getRelations(): array

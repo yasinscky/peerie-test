@@ -31,7 +31,9 @@ class PlanResource extends JsonResource
                 return $this->tasks->count();
             }),
             'completed_tasks' => $this->when($this->relationLoaded('tasks'), function () {
-                return $this->tasks()->wherePivot('completed', true)->count();
+                return $this->tasks->filter(function ($task) {
+                    return $task->pivot && $task->pivot->completed === true;
+                })->count();
             }),
         ];
     }

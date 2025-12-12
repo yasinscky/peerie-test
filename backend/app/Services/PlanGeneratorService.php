@@ -12,27 +12,19 @@ class PlanGeneratorService
 {
     public function generatePlan(Plan $plan): array
     {
-        $hoursPerWeek = max(1, (int) ($plan->marketing_time_per_week ?? 4));
-        $minutesPerWeek = $hoursPerWeek * 60;
-
-        $filteredTasks = $this->filterTasks($plan);
-        $prioritizedTasks = $this->prioritizeTasks($filteredTasks, $plan);
-        $sortedTasks = $this->sortTasksByDependencies($prioritizedTasks);
-        $limitedTasks = $this->limitTasksByCapacity($sortedTasks, $minutesPerWeek);
-        $this->savePlanTasks($plan, $limitedTasks);
+        $plan->refresh();
         
-        return [
-            'plan_id' => $plan->id,
-            'title' => $plan->title,
-            'tasks' => $limitedTasks->values(),
-            'total_tasks' => $limitedTasks->count(),
-            'total_minutes' => $limitedTasks->sum(function (Task $task) {
-                return $this->getTaskDurationMinutes($task);
-            }),
-        ];
+        $planCreatedAt = $plan->created_at instanceof Carbon
+            ? $plan->created_at
+            : Carbon::parse($plan->created_at ?? Carbon::now());
+        
+        $year = $planCreatedAt->year;
+        $month = $planCreatedAt->month;
+        
+        return $this->generatePlanForMonth($plan, $year, $month);
     }
 
-    private function filterTasks(Plan $plan): Collection
+    private function filterTasks(Plan $plan, int $year, int $month): Collection
     {
         $tasks = Task::query()
             ->whereIn('language', [$plan->language, 'en'])
@@ -43,7 +35,7 @@ class PlanGeneratorService
                 && $this->passesQuestionnaireRules($task, $plan);
         })->values();
 
-        return $filtered
+        $grouped = $filtered
             ->groupBy(function (Task $task) {
                 if (!empty($task->category)) {
                     return $task->category . '|' . ($task->action_id ?? $task->id);
@@ -67,13 +59,92 @@ class PlanGeneratorService
                 return $group->first();
             })
             ->values();
+
+        $previousMonthsTasks = $this->getPreviousMonthsTaskIds($plan, $year, $month);
+
+        return $grouped->filter(function (Task $task) use ($plan, $year, $month, $previousMonthsTasks) {
+            $frequency = $this->normalizeFrequency($task->frequency);
+
+            if (in_array($frequency, ['weekly', 'bi_weekly', 'monthly'], true)) {
+                return true;
+            }
+
+            if ($frequency === 'once') {
+                $wasInPreviousMonths = in_array($task->id, $previousMonthsTasks, true);
+                return !$wasInPreviousMonths;
+            }
+
+            return $this->shouldIncludeTaskThisMonth($task, $plan, $year, $month);
+        });
     }
 
-    private function prioritizeTasks(Collection $tasks, Plan $plan): Collection
+    private function getPreviousMonthsTaskIds(Plan $plan, int $year, int $month): array
     {
-        return $tasks->sortBy(function ($task) use ($plan) {
-            return $this->calculatePriority($task, $plan);
+        $planCreatedAt = $plan->created_at instanceof Carbon
+            ? $plan->created_at
+            : Carbon::parse($plan->created_at ?? Carbon::now());
+
+        $currentDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $planStartDate = Carbon::create($planCreatedAt->year, $planCreatedAt->month, 1)->startOfMonth();
+
+        if ($currentDate->lte($planStartDate)) {
+            return [];
+        }
+
+        $previousTasks = PlanTask::where('plan_id', $plan->id)
+            ->where(function ($query) use ($year, $month) {
+                $query->where('year', '<', $year)
+                      ->orWhere(function ($q) use ($year, $month) {
+                          $q->where('year', $year)
+                            ->where('month', '<', $month);
+                      });
+            })
+            ->distinct()
+            ->pluck('task_id')
+            ->toArray();
+
+        return array_values(array_unique($previousTasks));
+    }
+
+    private function prioritizeTasks(Collection $tasks, Plan $plan, int $year, int $month): Collection
+    {
+        $previousMonthsTaskIds = $this->getPreviousMonthsTaskIds($plan, $year, $month);
+
+        return $tasks->sortBy(function ($task) use ($plan, $previousMonthsTaskIds) {
+            $globalOrder = (int) ($task->global_order ?? 500);
+            
+            $frequency = $this->normalizeFrequency($task->frequency);
+            
+            if ($frequency === 'once' && in_array($task->id, $previousMonthsTaskIds, true)) {
+                return 999999;
+            }
+            
+            if (in_array($task->id, $previousMonthsTaskIds, true)) {
+                return 100000 + $globalOrder;
+            }
+
+            return $globalOrder;
         })->values();
+    }
+
+    private function getPreviousMonthsCompletedTaskIds(Plan $plan, int $year, int $month): array
+    {
+        $currentDate = Carbon::create($year, $month, 1)->startOfMonth();
+
+        $completedTasks = PlanTask::where('plan_id', $plan->id)
+            ->where('completed', true)
+            ->where(function ($query) use ($year, $month) {
+                $query->where('year', '<', $year)
+                      ->orWhere(function ($q) use ($year, $month) {
+                          $q->where('year', $year)
+                           ->where('month', '<', $month);
+                      });
+            })
+            ->pluck('task_id')
+            ->unique()
+            ->toArray();
+
+        return $completedTasks;
     }
 
     private function sortTasksByDependencies(Collection $tasks): Collection
@@ -130,18 +201,51 @@ class PlanGeneratorService
         $sorted->push($task);
     }
 
-    private function savePlanTasks(Plan $plan, Collection $tasks): void
+    private function savePlanTasks(Plan $plan, Collection $tasks, ?int $year = null, ?int $month = null): void
     {
-        $plan->tasks()->detach();
+        $now = Carbon::now();
+        $year = $year ?? $now->year;
+        $month = $month ?? $now->month;
+
+        PlanTask::where('plan_id', $plan->id)
+            ->where('year', $year)
+            ->where('month', $month)
+            ->delete();
 
         foreach ($tasks as $task) {
-                PlanTask::create([
-                    'plan_id' => $plan->id,
-                    'task_id' => $task->id,
+            PlanTask::create([
+                'plan_id' => $plan->id,
+                'task_id' => $task->id,
                 'week' => 1,
-                    'completed' => false,
-                ]);
+                'year' => $year,
+                'month' => $month,
+                'completed' => false,
+            ]);
         }
+    }
+
+    public function generatePlanForMonth(Plan $plan, int $year, int $month): array
+    {
+        $hoursPerWeek = max(1, (int) ($plan->marketing_time_per_week ?? 4));
+        $minutesPerWeek = $hoursPerWeek * 60;
+
+        $filteredTasks = $this->filterTasks($plan, $year, $month);
+        $prioritizedTasks = $this->prioritizeTasks($filteredTasks, $plan, $year, $month);
+        $sortedTasks = $this->sortTasksByDependencies($prioritizedTasks);
+        $limitedTasks = $this->limitTasksByCapacity($sortedTasks, $minutesPerWeek);
+        $this->savePlanTasks($plan, $limitedTasks, $year, $month);
+        
+        return [
+            'plan_id' => $plan->id,
+            'title' => $plan->title,
+            'year' => $year,
+            'month' => $month,
+            'tasks' => $limitedTasks->values(),
+            'total_tasks' => $limitedTasks->count(),
+            'total_minutes' => $limitedTasks->sum(function (Task $task) {
+                return $this->getTaskDurationMinutes($task);
+            }),
+        ];
     }
 
     private function calculatePriority(Task $task, Plan $plan): int
@@ -369,7 +473,7 @@ class PlanGeneratorService
         return false;
     }
 
-    private function shouldIncludeTaskThisMonth(Task $task, Plan $plan): bool
+    private function shouldIncludeTaskThisMonth(Task $task, Plan $plan, int $year, int $month): bool
     {
         $frequency = $this->normalizeFrequency($task->frequency);
 
@@ -381,8 +485,9 @@ class PlanGeneratorService
             ? $plan->created_at
             : Carbon::parse($plan->created_at ?? Carbon::now());
 
-        $now = Carbon::now();
-        $monthsSinceStart = $planCreatedAt->startOfMonth()->diffInMonths($now->copy()->startOfMonth());
+        $currentDate = Carbon::create($year, $month, 1)->startOfMonth();
+        $planStartDate = $planCreatedAt->copy()->startOfMonth();
+        $monthsSinceStart = $planStartDate->diffInMonths($currentDate);
 
         if ($frequency === 'monthly') {
             return true;
@@ -403,14 +508,13 @@ class PlanGeneratorService
 
             $planTask = PlanTask::where('plan_id', $plan->id)
                 ->where('task_id', $task->id)
+                ->where('completed', true)
                 ->orderByDesc('last_completed_at')
                 ->first();
 
             if ($planTask && $planTask->last_completed_at) {
-                $monthsSinceCompletion = $planTask->last_completed_at
-                    ->copy()
-                    ->startOfMonth()
-                    ->diffInMonths($now->copy()->startOfMonth());
+                $lastCompletedDate = Carbon::parse($planTask->last_completed_at)->startOfMonth();
+                $monthsSinceCompletion = $lastCompletedDate->diffInMonths($currentDate);
 
                 return $monthsSinceCompletion >= 12 && $monthsSinceCompletion % 12 === 0;
             }

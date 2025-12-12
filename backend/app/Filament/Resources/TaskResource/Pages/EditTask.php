@@ -104,4 +104,9 @@ class EditTask extends EditRecord
 
         return $data;
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index', ['highlight' => $this->record->id]);
+    }
 }
