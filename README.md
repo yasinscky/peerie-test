@@ -1,196 +1,256 @@
-# Маркетинг-Планер
+# Marketing Planner
 
-Веб-приложение для генерации персонализированного маркетингового плана на основе анкеты пользователя.
+Web application for generating personalized marketing plans based on user questionnaires. Features include monthly task generation, image search, hashtag suggestions, and community integration.
 
-## Архитектура
+## Architecture
 
-Проект разделен на независимые **backend** и **frontend** приложения:
+The project is split into independent **backend** and **frontend** applications:
 
 ```
 marketing-planner/
 ├── backend/                 # Laravel 10 API
 │   ├── app/
-│   │   ├── Models/          # Eloquent модели
-│   │   ├── Http/Controllers/API/  # API контроллеры
-│   │   ├── Services/        # Бизнес-логика
-│   │   └── Filament/        # Админка
+│   │   ├── Models/          # Eloquent models
+│   │   ├── Http/Controllers/API/  # API controllers
+│   │   ├── Services/        # Business logic
+│   │   └── Filament/        # Admin panel
 │   ├── database/
-│   │   ├── migrations/      # Миграции БД
-│   │   └── seeders/         # Сидеры
-│   └── routes/api.php       # API маршруты
+│   │   ├── migrations/      # Database migrations
+│   │   └── seeders/         # Database seeders
+│   └── routes/api.php       # API routes
 │
 ├── frontend/                # Vue 3 SPA
 │   ├── src/
-│   │   ├── components/      # Переиспользуемые компоненты
-│   │   ├── pages/          # Страницы приложения
+│   │   ├── components/      # Reusable components
+│   │   ├── pages/          # Application pages
 │   │   ├── router/         # Vue Router
-│   │   └── stores/         # Pinia хранилища
+│   │   └── stores/         # Pinia stores
 │   └── package.json
 │
-└── docker/                  # Docker конфигурация
+└── docker/                  # Docker configuration
     ├── php/
     ├── nginx/
     └── postgres/
 ```
 
-## Стек технологий
+## Tech Stack
 
 ### Backend
-- **Laravel 10** - PHP фреймворк
-- **PostgreSQL** - База данных
-- **Redis** - Кэш и очереди
-- **Laravel Sanctum** - API аутентификация
-- **Filament 3** - Админ панель
+- **Laravel 10** - PHP framework
+- **PostgreSQL** - Database
+- **Redis** - Cache and queues
+- **Laravel Sanctum** - API authentication
+- **Filament 3** - Admin panel
 
 ### Frontend
-- **Vue 3** - JavaScript фреймворк
-- **Vue Router** - Маршрутизация
-- **Pinia** - Управление состоянием
-- **Tailwind CSS** - Стилизация
-- **Axios** - HTTP клиент
+- **Vue 3** - JavaScript framework
+- **Vue Router** - Routing
+- **Pinia** - State management
+- **Tailwind CSS** - Styling
+- **Axios** - HTTP client
 
 ### DevOps
-- **Docker** - Контейнеризация
-- **Nginx** - Веб-сервер
-- **Vite** - Сборщик фронтенда
+- **Docker** - Containerization
+- **Nginx** - Web server
+- **Vite** - Frontend build tool
 
-## Быстрый старт
+## Quick Start
 
-### 1. Клонирование и настройка
+### 1. Clone and Setup
 
 ```bash
 git clone <repository-url>
 cd marketing-planner
 
-# Настройка backend
+# Backend setup
 cp backend/.env.example backend/.env
-# Отредактируйте backend/.env файл
+# Edit backend/.env file with your configuration
 
-# Настройка frontend (при необходимости)
+# Frontend setup (if needed)
 cp frontend/.env.example frontend/.env
 ```
 
-### 2. Запуск с Docker
+### 2. Run with Docker
 
 ```bash
-# Сборка и запуск всех сервисов
+# Build and start all services
 docker-compose up -d --build
 
-# Настройка backend
+# Backend setup
 docker-compose exec app php artisan key:generate
 docker-compose exec app php artisan migrate
 docker-compose exec app php artisan db:seed --class=TaskSeeder
 
-# Создание админа для Filament
+# Create admin user for Filament
 docker-compose exec app php artisan make:filament-user
 ```
 
-### 3. Доступ к приложениям
+### 3. Access Applications
 
 - **Frontend (Vue SPA):** http://localhost:3000
 - **Backend API:** http://localhost:8000/api
-- **Админка Filament:** http://localhost:8000/admin
+- **Filament Admin Panel:** http://localhost:8000/admin
 
 ## API Endpoints
 
-### Аутентификация
+### Authentication
 ```
-POST /api/register          # Регистрация
-POST /api/login             # Вход
-POST /api/logout            # Выход
-GET  /api/user              # Текущий пользователь
-```
-
-### Планы
-```
-POST /api/questionnaire     # Создание плана из анкеты
-GET  /api/plans             # Список планов пользователя
-GET  /api/plan/{id}         # Детали плана
-PUT  /api/plan/{planId}/plan-task/{planTaskId}  # Обновление статуса задачи
+POST /api/register                    # User registration
+POST /api/login                       # User login
+POST /api/logout                      # User logout
+GET  /api/user                        # Get current authenticated user
+POST /api/email/verify-registration   # Verify email with code
+POST /api/email/resend-registration-code  # Resend verification code
 ```
 
-### Задачи
+### Plans
 ```
-GET  /api/tasks             # Список всех задач (с фильтрами)
-GET  /api/tasks/{id}        # Детали задачи
+POST /api/questionnaire               # Create marketing plan from questionnaire
+GET  /api/plans                       # Get list of user's plans
+GET  /api/plan/{id}                   # Get plan details
+GET  /api/plans/available-months      # Get available months for plan
+POST /api/plans/generate-month        # Generate tasks for specific month
+PUT  /api/plan/{planId}/plan-task/{planTaskId}  # Update task status
 ```
 
-## Разработка
+### Tasks
+```
+GET  /api/tasks                       # Get list of all tasks (with filters)
+GET  /api/tasks/{id}                  # Get task details
+```
 
-### Backend разработка
+### Images
+```
+POST /api/images/search               # Search images by query
+POST /api/images/search/category      # Search images by category
+GET  /api/images/popular              # Get popular images
+GET  /api/images/{id}                 # Get image details
+GET  /api/images/{id}/download        # Download image
+POST /api/images/download-proxy      # Download image via proxy
+```
+
+### Hashtags
+```
+GET  /api/hashtags                    # Get hashtags for user's plan (by industry/country)
+```
+
+### Profile
+```
+GET  /api/user                        # Get current user profile
+PUT  /api/profile                     # Update user profile
+PUT  /api/profile/password            # Update password
+POST /api/profile/email/request-change    # Request email change
+POST /api/profile/email/confirm-change     # Confirm email change with code
+POST /api/profile/password/request-change  # Request password reset
+```
+
+### Community
+```
+GET  /api/discord/invite              # Get Discord community invite URL
+```
+
+## Features
+
+- **Questionnaire-based Plan Generation**: Create personalized marketing plans from user questionnaires
+- **Monthly Task Generation**: Automatically generate tasks for each month based on plan configuration
+- **Image Search**: Search and download images from multiple sources (Unsplash, Pexels, Pixabay)
+- **Hashtag Suggestions**: Get industry and country-specific hashtag recommendations
+- **Task Management**: Track and complete marketing tasks with notes and completion status
+- **Email Verification**: Secure email verification system for user registration
+- **Profile Management**: Update profile, change email/password with verification
+- **Community Integration**: Discord community access
+
+## Development
+
+### Backend Development
 
 ```bash
 cd backend
 
-# Установка зависимостей
+# Install dependencies
 composer install
 
-# Запуск сервера разработки
+# Run development server
 php artisan serve
 
-# Миграции
+# Run migrations
 php artisan migrate
 
-# Сидеры
+# Run seeders
 php artisan db:seed
 
-# Очереди
+# Process queues
 php artisan queue:work
 ```
 
-### Frontend разработка
+### Frontend Development
 
 ```bash
 cd frontend
 
-# Установка зависимостей
+# Install dependencies
 npm install
 
-# Запуск dev сервера
+# Run development server
 npm run dev
 
-# Сборка для продакшена
+# Build for production
 npm run build
 ```
 
-### Добавление новых задач
+### Adding New Tasks
 
-1. Обновите `backend/database/seeders/TaskSeeder.php`
-2. Выполните `php artisan db:seed --class=TaskSeeder`
+1. Update `backend/database/seeders/TaskSeeder.php`
+2. Run `php artisan db:seed --class=TaskSeeder`
 
-#### Импорт Hashtag-чеклистов
+### Monthly Task Generation
 
+Tasks are generated monthly for active plans. To generate tasks for a new month:
+
+```bash
+# Generate tasks for all active plans
+php artisan tasks:generate-monthly
+
+# Test monthly task generation for a specific plan
+php artisan test:monthly-tasks {plan_id} --month={month} --year={year}
 ```
-php artisan import:hashtags /absolute/path/to/Hashtags
-```
 
-- Принимает путь к директории или конкретному `.txt` файлу из экспортируемых шпаргалок.
-- Имя файла должно содержать индустрию и страну, например `Hashtag List - Beauty Salon - UK.txt`.
-- Для каждой пары индустрия/страна создаются блоки Local/Broad/Industry/Niche/Branded, хранящиеся в таблице `hashtags`.
+### Modifying Planning Algorithm
 
-### Изменение алгоритма планирования
+Main logic is located in `backend/app/Services/PlanGeneratorService.php`
 
-Основная логика в `backend/app/Services/PlanGeneratorService.php`
+### Image Services
 
-## Модели данных
+The application supports multiple image services (Unsplash, Pexels, Pixabay) managed by `ImageServiceManager`. Configuration is in `backend/app/Services/ImageServiceManager.php`
+
+## Data Models
 
 ### User
-- Стандартная модель Laravel
-- Связь: `hasMany(Plan)`
+- Standard Laravel model
+- Relationship: `hasMany(Plan)`
 
 ### Plan
-- Маркетинговый план пользователя
-- Связи: `belongsTo(User)`, `belongsToMany(Task)`
+- User's marketing plan
+- Relationships: `belongsTo(User)`, `belongsToMany(Task)`
 
 ### Task  
-- Задача маркетингового плана
-- Связь: `belongsToMany(Plan)`
+- Marketing plan task
+- Relationship: `belongsToMany(Plan)`
 
 ### PlanTask (pivot)
-- Связь плана и задачи
-- Поля: `plan_id`, `task_id`, `week`, `completed`, `notes`
+- Plan and task relationship
+- Fields: `plan_id`, `task_id`, `week`, `year`, `month`, `completed`, `last_completed_at`, `notes`
 
-## Конфигурация
+### Hashtag
+- Hashtag collections for industries and countries
+- Fields: `industry`, `country`, `language`, `title`, `intro_title`, `intro_description`, `guidelines`, `tags`, `hashtag_blocks`
+- Relationships: Used by Plan model to provide hashtag suggestions
+
+### VerificationCode
+- Email verification codes for user registration and email changes
+- Fields: `user_id`, `code`, `type`, `expires_at`
+
+## Configuration
 
 ### Backend (.env)
 ```env
@@ -209,34 +269,34 @@ server: {
 }
 ```
 
-## Демонстрация проекта (деплой на Railway)
+## Demo Deployment (Railway)
 
-Для демонстрации проекта глобально используйте Railway - бесплатный облачный хостинг.
+For global project demonstration, use Railway - a free cloud hosting platform.
 
-**Быстрый старт:**
-1. Зарегистрируйтесь на https://railway.app (через GitHub)
-2. Создайте новый проект и подключите ваш репозиторий
-3. Добавьте PostgreSQL и Redis плагины
-4. Настройте переменные окружения (см. `DEPLOY.md`)
-5. Railway автоматически задеплоит проект и выдаст домен
+**Quick Start:**
+1. Sign up at https://railway.app (via GitHub)
+2. Create a new project and connect your repository
+3. Add PostgreSQL and Redis plugins
+4. Configure environment variables (see `DEPLOY.md`)
+5. Railway will automatically deploy the project and provide a domain
 
-Подробная инструкция: см. [`DEPLOY.md`](DEPLOY.md)
+Detailed instructions: see [`DEPLOY.md`](DEPLOY.md)
 
-**Альтернативы для демонстрации:**
-- **Render.com** - аналогично Railway, бесплатный тариф
-- **Fly.io** - поддерживает Docker, бесплатный тариф
-- **VPS** (DigitalOcean, Hetzner) - для полного контроля
+**Alternative demo platforms:**
+- **Render.com** - Similar to Railway, free tier available
+- **Fly.io** - Docker support, free tier available
+- **VPS** (DigitalOcean, Hetzner) - For full control
 
-## Производственное развертывание
+## Production Deployment
 
-Для полноценного продакшена:
-1. Настройте переменные окружения для продакшена
-2. Соберите фронтенд: `npm run build`
-3. Оптимизируйте backend: `php artisan optimize`
-4. Настройте веб-сервер (Nginx/Apache)
-5. Настройте SSL сертификаты
-6. Настройте мониторинг и резервное копирование
+For full production deployment:
+1. Configure production environment variables
+2. Build frontend: `npm run build`
+3. Optimize backend: `php artisan optimize`
+4. Configure web server (Nginx/Apache)
+5. Set up SSL certificates
+6. Configure monitoring and backups
 
-## Лицензия
+## License
 
 MIT License
