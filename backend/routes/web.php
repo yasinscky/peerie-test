@@ -215,6 +215,94 @@ Route::prefix('api')->group(function () {
         return response()->json($response);
     });
 
+    Route::post('/password/forgot', function (Request $request) {
+        $request->validate([
+            'email' => 'required|string|email|exists:users,email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $service = app(VerificationCodeService::class);
+        $codeData = $service->createCode($user, 'password_reset');
+
+        app(ResendEmailService::class)->send(
+            $user->email,
+            'Reset your password',
+            '<p>Your password reset code is: <strong>' . $codeData['plain'] . '</strong></p>'
+        );
+
+        $response = [
+            'success' => true,
+            'user_id' => $user->id,
+            'message' => 'Password reset code sent to your email.',
+        ];
+
+        if (app()->environment('local')) {
+            $response['debug_verification_code'] = $codeData['plain'];
+        }
+
+        return response()->json($response);
+    });
+
+    Route::post('/password/verify-code', function (Request $request) {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'code' => 'required|string',
+        ]);
+
+        $user = User::findOrFail($request->input('user_id'));
+
+        $service = app(VerificationCodeService::class);
+        $verified = $service->verifyCode($user, 'password_reset', $request->input('code'));
+
+        if (!$verified) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification code.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Code verified successfully.',
+        ]);
+    });
+
+    Route::post('/password/reset', function (Request $request) {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'code' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::findOrFail($request->input('user_id'));
+
+        $service = app(VerificationCodeService::class);
+        $verified = $service->verifyCode($user, 'password_reset', $request->input('code'));
+
+        if (!$verified) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification code.',
+            ], 422);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset successfully.',
+        ]);
+    });
+
     Route::middleware('auth')->group(function () {
         Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
         

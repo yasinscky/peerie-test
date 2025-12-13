@@ -1,32 +1,12 @@
 <template>
   <div class="min-h-screen bg-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
     <!-- Navigation -->
-    <nav class="relative px-4 md:px-6 py-3 md:py-4 bg-white">
+    <nav class="relative px-4 md:px-6 py-5 md:py-4 bg-white">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center gap-2">
-          <img src="@/assets/images/logos/logo.svg" alt="Peerie" class="h-8 md:h-12 w-auto">
-          <span class="text-[#1c1a1b] text-lg md:text-xl font-bold md:hidden">Peerie</span>
-        </div>
-
-        <!-- Mobile Icons -->
-        <div class="flex items-center gap-3 md:hidden">
-          <button class="p-2">
-            <svg class="w-5 h-5 text-[#1c1a1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </button>
-          <button class="p-2">
-            <svg class="w-5 h-5 text-[#1c1a1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-          </button>
-          <button class="p-2">
-            <svg class="w-5 h-5 text-[#1c1a1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-          </button>
-        </div>
+        <router-link to="/" class="flex items-center gap-2 cursor-pointer inline-block">
+          <img :src="logoImage" alt="Peerie" class="h-8 md:h-12 w-auto block">
+        </router-link>
 
         <!-- Desktop Action Buttons -->
         <div class="hidden md:flex items-center space-x-4">
@@ -39,6 +19,40 @@
           <router-link 
             to="/register"
             class="px-8 py-3 bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-lg shadow-lg"
+          >
+            Get started
+          </router-link>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button 
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="md:hidden p-2 text-[#1c1a1b]"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div 
+        v-if="mobileMenuOpen"
+        class="md:hidden absolute top-full left-0 right-0 bg-white border-t border-[#DCDCDC] shadow-lg z-50"
+      >
+        <div class="px-6 py-4 space-y-3">
+          <router-link 
+            to="/login"
+            @click="mobileMenuOpen = false"
+            class="block w-full px-4 py-3 text-center text-[#3F4369] border-2 border-[#3F4369] rounded-[15px] hover:bg-[#3F4369] hover:text-white transition-all duration-200 font-bold uppercase text-sm"
+          >
+            Log in
+          </router-link>
+          <router-link 
+            to="/register"
+            @click="mobileMenuOpen = false"
+            class="block w-full px-4 py-3 text-center bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-sm shadow-lg"
           >
             Get started
           </router-link>
@@ -599,4 +613,6 @@ const faqItems = ref([
 const toggleFaq = (index) => {
   faqItems.value[index].isOpen = !faqItems.value[index].isOpen
 }
+
+const mobileMenuOpen = ref(false)
 </script>

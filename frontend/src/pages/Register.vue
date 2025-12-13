@@ -4,25 +4,10 @@
     <nav class="relative px-6 py-4 bg-white">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
         <!-- Logo -->
-        <div class="flex items-center">
+        <router-link to="/" class="flex items-center cursor-pointer">
           <img :src="logoImage" alt="Peerie" class="h-12 w-auto">
-        </div>
+        </router-link>
 
-        <!-- Navigation Links -->
-        <div class="hidden md:flex items-center space-x-8">
-          <router-link to="/" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Home</router-link>
-          <div class="relative group">
-            <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors flex items-center">
-              Industries
-              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </a>
-          </div>
-          <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Services</a>
-          <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Blog</a>
-          <a href="#" class="text-[#1C1A1B] font-semibold text-lg hover:text-[#3F4369] transition-colors">Pricing</a>
-        </div>
 
         <!-- Action Buttons -->
         <div class="hidden md:flex items-center space-x-4">
@@ -35,6 +20,40 @@
           <router-link 
             to="/register"
             class="px-6 py-3 bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-sm shadow-lg"
+          >
+            Get started
+          </router-link>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button 
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="md:hidden p-2 text-[#1c1a1b]"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div 
+        v-if="mobileMenuOpen"
+        class="md:hidden absolute top-full left-0 right-0 bg-white border-t border-[#DCDCDC] shadow-lg z-50"
+      >
+        <div class="px-6 py-4 space-y-3">
+          <router-link 
+            to="/login"
+            @click="mobileMenuOpen = false"
+            class="block w-full px-4 py-3 text-center text-[#3F4369] border-2 border-[#3F4369] rounded-[15px] hover:bg-[#3F4369] hover:text-white transition-all duration-200 font-bold uppercase text-sm"
+          >
+            Log in
+          </router-link>
+          <router-link 
+            to="/register"
+            @click="mobileMenuOpen = false"
+            class="block w-full px-4 py-3 text-center bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-sm shadow-lg"
           >
             Get started
           </router-link>
@@ -194,81 +213,7 @@
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="px-6 py-12 bg-white border-t border-[#DCDCDC]">
-      <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
-          <!-- Logo and Copyright -->
-          <div class="lg:col-span-1">
-            <img :src="logoImage" alt="Peerie" class="h-12 w-auto mb-4">
-            <p class="text-[#DCDCDC] text-2xl font-medium">Copyright 2025 Peerie</p>
-          </div>
 
-          <!-- Services -->
-          <div>
-            <h3 class="text-4xl font-bold text-[#1C1A1B] mb-4 tracking-[-1.6px]">Services</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Web development</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Consulting</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Request an industry</a></li>
-            </ul>
-          </div>
-
-          <!-- Resources -->
-          <div>
-            <h3 class="text-4xl font-bold text-[#1C1A1B] mb-4 tracking-[-1.6px]">Resources</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Blog</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Resource library</a></li>
-            </ul>
-          </div>
-
-          <!-- Support -->
-          <div>
-            <h3 class="text-4xl font-bold text-[#1C1A1B] mb-4 tracking-[-1.6px]">Support</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Help centre</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">FAQ</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Contact</a></li>
-            </ul>
-          </div>
-
-          <!-- Company -->
-          <div>
-            <h3 class="text-4xl font-bold text-[#1C1A1B] mb-4 tracking-[-1.6px]">Company</h3>
-            <ul class="space-y-2">
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">About us</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Legal</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Privacy policy</a></li>
-              <li><a href="#" class="text-xl text-[#1C1A1B] font-medium hover:text-[#F34767] transition-colors">Terms of use</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Newsletter Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start mt-8">
-          <div class="lg:col-span-1">
-            <h3 class="text-4xl font-bold text-[#1C1A1B] mb-4 tracking-[-1.6px]">Subscribe to our news and special offers!</h3>
-            <div class="bg-white border-2 border-[#DCDCDC] rounded-[30px] h-24 flex items-center px-6 mb-4">
-              <input
-                type="email"
-                class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-medium placeholder-[#1C1A1B]"
-                placeholder="Your e-mail"
-              >
-            </div>
-            <div class="flex items-start gap-2 mb-4">
-              <input type="checkbox" id="newsletter" class="mt-1 w-5 h-5 text-[#F34767] border-[#DCDCDC] rounded focus:ring-[#F34767]">
-              <label for="newsletter" class="text-sm text-[#1C1A1B] leading-[1.2]">
-                Yes, I would like to receive email marketing communications from Peerie. I understand that I can unsubscribe at any time.
-              </label>
-            </div>
-            <button class="bg-[#F34767] border-2 border-[#F34767] rounded-[15px] h-[60px] px-8 text-white text-xl font-bold uppercase hover:bg-[#d93d5a] transition-all duration-200">
-              Join newsletter
-            </button>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -387,6 +332,8 @@ export default {
       }
     }
 
+    const mobileMenuOpen = ref(false)
+
     return {
       form,
       isLoading,
@@ -397,7 +344,8 @@ export default {
       isVerifying,
       handleVerifyEmail,
       handleResendCode,
-      logoImage
+      logoImage,
+      mobileMenuOpen
     }
   }
 }

@@ -4,6 +4,7 @@ import { usePostHog } from '@/composables/usePostHog'
 import Home from '../pages/Home.vue'
 import Login from '../pages/Login.vue'
 import Register from '../pages/Register.vue'
+import ForgotPassword from '../pages/ForgotPassword.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import MarketingPlans from '../pages/MarketingPlans.vue'
 import ImageGenerator from '../pages/ImageGenerator.vue'
@@ -30,6 +31,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: Register
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword
   },
   {
     path: '/dashboard',
