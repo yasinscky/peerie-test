@@ -217,16 +217,16 @@ Route::prefix('api')->group(function () {
 
     Route::post('/password/forgot', function (Request $request) {
         $request->validate([
-            'email' => 'required|string|email|exists:users,email',
+            'email' => 'required|string|email',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return response()->json([
-                'success' => false,
-                'message' => 'User not found.',
-            ], 404);
+                'success' => true,
+                'message' => 'If the email exists, a password reset code has been sent.',
+            ]);
         }
 
         $service = app(VerificationCodeService::class);
@@ -241,7 +241,7 @@ Route::prefix('api')->group(function () {
         $response = [
             'success' => true,
             'user_id' => $user->id,
-            'message' => 'Password reset code sent to your email.',
+            'message' => 'If the email exists, a password reset code has been sent.',
         ];
 
         if (app()->environment('local')) {
@@ -249,36 +249,12 @@ Route::prefix('api')->group(function () {
         }
 
         return response()->json($response);
-    });
-
-    Route::post('/password/verify-code', function (Request $request) {
-        $request->validate([
-            'user_id' => 'required|integer|exists:users,id',
-            'code' => 'required|string',
-        ]);
-
-        $user = User::findOrFail($request->input('user_id'));
-
-        $service = app(VerificationCodeService::class);
-        $verified = $service->verifyCode($user, 'password_reset', $request->input('code'));
-
-        if (!$verified) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid or expired verification code.',
-            ], 422);
-        }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Code verified successfully.',
-        ]);
-    });
+    })->middleware('throttle:5,15');
 
     Route::post('/password/reset', function (Request $request) {
         $request->validate([
             'user_id' => 'required|integer|exists:users,id',
-            'code' => 'required|string',
+            'code' => 'required|string|size:6',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
@@ -301,7 +277,7 @@ Route::prefix('api')->group(function () {
             'success' => true,
             'message' => 'Password reset successfully.',
         ]);
-    });
+    })->middleware('throttle:10,15');
 
     Route::middleware('auth')->group(function () {
         Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);

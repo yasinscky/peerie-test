@@ -99,7 +99,7 @@
             </div>
 
             <div v-if="step === 2" class="space-y-6">
-              <form @submit.prevent="verifyCode" class="space-y-6">
+              <form @submit.prevent="goToPasswordStep" class="space-y-6">
                 <div class="relative">
                   <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-24 flex items-center px-6">
                     <input
@@ -113,19 +113,13 @@
                   </div>
                 </div>
 
-                <div v-if="error" class="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800">
-                  <p>{{ error }}</p>
-                </div>
-
                 <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                   <div class="flex-1">
                     <button
                       type="submit"
-                      class="w-full bg-white border-2 border-[#F34767] rounded-[30px] h-20 flex items-center justify-center text-[#F34767] text-xl font-bold uppercase transition-all duration-200 hover:bg-[#F34767] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                      :disabled="isLoading"
+                      class="w-full bg-white border-2 border-[#F34767] rounded-[30px] h-20 flex items-center justify-center text-[#F34767] text-xl font-bold uppercase transition-all duration-200 hover:bg-[#F34767] hover:text-white"
                     >
-                      <span v-if="isLoading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-[#F34767] mr-3 inline-block"></span>
-                      {{ isLoading ? 'Verifying...' : 'Verify code' }}
+                      Continue
                     </button>
                   </div>
                   <button
@@ -277,34 +271,13 @@ const requestReset = async () => {
   }
 }
 
-const verifyCode = async () => {
-  isLoading.value = true
-  error.value = ''
-
-  try {
-    const response = await axios.post('/api/password/verify-code', {
-      user_id: userId.value,
-      code: form.value.code
-    })
-
-    if (response.data.success) {
-      step.value = 3
-    } else {
-      error.value = response.data.message || 'Invalid verification code'
-    }
-  } catch (err) {
-    if (err.response?.status === 422) {
-      if (err.response.data.message) {
-        error.value = err.response.data.message
-      } else {
-        error.value = 'Invalid or expired verification code'
-      }
-    } else {
-      error.value = 'Failed to verify code. Please try again.'
-    }
-  } finally {
-    isLoading.value = false
+const goToPasswordStep = () => {
+  if (!form.value.code || form.value.code.length < 6) {
+    error.value = 'Please enter a valid verification code'
+    return
   }
+  error.value = ''
+  step.value = 3
 }
 
 const resetPassword = async () => {
