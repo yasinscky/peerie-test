@@ -137,11 +137,26 @@
     transform: rotate(27.756deg);
   }
 
-  @media (max-width: 1440px) {
+  @media (max-width: 767px) {
+    .page-container {
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1440px) {
     .page-container {
       max-width: 1280px;
       margin-left: auto;
       margin-right: auto;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .sidebar-hidden {
+      left: -100% !important;
+      transform: translateX(0) !important;
     }
   }
 }

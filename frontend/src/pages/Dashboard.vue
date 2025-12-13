@@ -1,17 +1,26 @@
 <template>
   <div class="min-h-screen relative 2xl:pt-[120px] 2xl:pb-[120px] xl:pt-[60px] xl:pb-[60px]">
-    <div class="dashboard-logo-bg"></div>
+    <div class="dashboard-logo-bg hidden md:block"></div>
       <!-- Logo -->
       <div class="absolute top-[137px] left-[6.3rem] 2xl:block hidden">
         <img :src="logoImage" alt="Peerie Logo" class="w-full max-w-[205px]">
       </div>
       <div class="page-container">
       <!-- Left Sidebar -->
-      <div class="fixed z-40 w-80 xl:w-[387px] overflow-y-auto transition-transform duration-300 md:translate-x-0" 
-          :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
-        <div class="flex flex-col h-full">
+      <div class="fixed z-40 w-full md:w-80 xl:w-[387px] h-screen overflow-y-auto transition-all duration-300 bg-white" 
+          :class="sidebarOpen ? 'translate-x-0 left-0' : 'sidebar-hidden md:left-0 md:translate-x-0'">
+        <div class="flex flex-col min-h-full max-w-[400px] md:max-w-none mx-auto md:mx-0 px-4 md:px-0 relative pt-[40px] pb-[40px] md:pt-0 md:pb-0">
+          <!-- Close button for mobile -->
+          <button 
+            @click="sidebarOpen = false" 
+            class="md:hidden absolute top-0 right-0 z-50 p-2 text-[#3f4369] hover:bg-[#FFEB88] hover:bg-opacity-20 rounded-lg transition-colors"
+          >
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
 
-          <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px]">
+          <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-10 md:pb-10">
             <div class="flex items-center gap-[30px]">
               <div class="w-14 h-14 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
                 <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
@@ -20,7 +29,7 @@
               <div class="">
                 <p class="text-[#1c1a1b] text-sm font-medium">{{ texts.myAccount }}</p>
                 <p class="text-[#3f4369] mt-[15px] text-xl font-bold">{{ user?.name || 'User' }}</p>
-                <div class="flex mt-[18px] items-center justify-between min-w-[200px]">
+                <div class="flex mt-[18px] items-center justify-between min-w-[160px] sm:min-w-[200px]">
                   <button @click="navigateToSettings" class="flex items-center text-[#1c1a1b] text-xs font-bold uppercase hover:bg-[#FFEB88] hover:bg-opacity-20 rounded">
                     <img :src="iconEdit" alt="" class="w-4 h-4 mr-1">
                 <span>{{ texts.edit }}</span>
@@ -45,6 +54,7 @@
               <div class="ml-10 space-y-2 flex flex-col">
                 <router-link 
                   to="/dashboard/marketing-plans"
+                  @click="closeSidebarOnMobile"
                   class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
                   :class="currentRoute === '/dashboard/marketing-plans' 
                     ? 'bg-[#f34767] text-white border-[#f34767]' 
@@ -68,6 +78,7 @@
                 </div>
                 <router-link 
                   to="/dashboard/image-generator"
+                  @click="closeSidebarOnMobile"
                   class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
                   :class="currentRoute === '/dashboard/image-generator' 
                     ? 'bg-[#f34767] text-white border-[#f34767]' 
@@ -77,6 +88,7 @@
                 </router-link>
                 <router-link 
                   to="/dashboard/hashtags"
+                  @click="closeSidebarOnMobile"
                   class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
                   :class="currentRoute === '/dashboard/hashtags' 
                     ? 'bg-[#f34767] text-white border-[#f34767]' 
@@ -97,6 +109,7 @@
               <div class="ml-10 space-y-2 flex flex-col">
                 <router-link
                   to="/dashboard/community"
+                  @click="closeSidebarOnMobile"
                   class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
                   :class="currentRoute === '/dashboard/community' 
                     ? 'bg-[#f34767] text-white border-[#f34767]' 
@@ -117,6 +130,7 @@
               <div class="ml-10 space-y-2 flex flex-col">
                 <router-link 
                   to="/dashboard/settings" 
+                  @click="closeSidebarOnMobile"
                   class="block w-fit text-left px-3 py-2 rounded-[17px] border text-lg font-medium transition-colors"
                   :class="currentRoute === '/dashboard/settings' 
                     ? 'bg-[#f34767] text-white border-[#f34767]' 
@@ -128,14 +142,6 @@
             </div>
           </nav>
 
-          <div class="md:hidden border-t border-[#3f4369] pt-4 mt-4">
-            <button @click="sidebarOpen = false" class="w-full flex items-center justify-center px-4 py-2 text-sm text-[#3f4369] hover:bg-[#FFEB88] hover:bg-opacity-20 rounded-lg transition-colors">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-              Close
-            </button>
-          </div>
         </div>
       </div>
 
@@ -145,7 +151,7 @@
       <!-- Main content area -->
       <div class="md:ml-80 xl:ml-96 bg-white min-h-screen">
         <!-- Mobile header -->
-        <div class="md:hidden sticky top-0 z-20 bg-white border-b border-[#DCDCDC] px-4 py-3 flex items-center justify-between">
+        <div class="md:hidden sticky top-0 z-20 bg-white border-[#DCDCDC] px-4 py-3 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <img :src="logoImage" alt="Peerie Logo" class="h-6">
           </div>
@@ -219,7 +225,7 @@ const texts = computed(() => {
   return {
     myAccount: 'My account',
     edit: 'Edit',
-    exit: 'Exit',
+    exit: 'Log out',
     create: 'Create',
     yourMarketingPlan: 'Your Marketing Plan',
     imageLibrary: 'Image Library',
@@ -257,6 +263,13 @@ const handleLogout = async () => {
 
 const navigateToSettings = () => {
   router.push('/dashboard/settings')
+  closeSidebarOnMobile()
+}
+
+const closeSidebarOnMobile = () => {
+  if (window.innerWidth < 768) {
+    sidebarOpen.value = false
+  }
 }
 
 let lastUserFetchTime = 0
@@ -409,6 +422,7 @@ const handleMonthSelect = ({ year, month }) => {
       month
     }
   })
+  closeSidebarOnMobile()
 }
 
 watch(() => route.path, async (newPath) => {

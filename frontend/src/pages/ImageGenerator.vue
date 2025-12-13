@@ -1,13 +1,13 @@
 <template>
   <div class="max-w-7xl mx-auto">
-    <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40 mb-8">
+    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
       <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 rounded-lg bg-opacity-20 flex items-center justify-center">
+        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
           <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
         </div>
-        <h1 class="text-white text-4xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
+        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
       </div>
-      <div class="flex items-center space-x-2 text-white text-base lg:text-xl font-medium">
+      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
         <span>{{ texts.headerSection }}</span>
         <span class="opacity-40">|</span>
         <span class="opacity-40">{{ texts.headerCurrent }}</span>

@@ -1,49 +1,22 @@
 <template>
-  <div class="min-h-screen bg-white">
-    <main class="min-h-screen">
-        <div class="bg-[#f34767] h-32 lg:h-28 px-4 lg:px-8 flex items-center justify-between rounded-40 md:block hidden">
-          <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 rounded-lg bg-opacity-20 flex items-center justify-center">
-              <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
-            </div>
-            <h1 class="text-white text-4xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
-          </div>
-          <div class="flex items-center space-x-2 text-white text-base lg:text-xl font-medium">
-            <span>{{ texts.headerAccount }}</span>
-            <span class="opacity-40">|</span>
-            <span class="opacity-40">{{ texts.headerTitle }}</span>
-          </div>
-      </div>
-
-      <div class="md:hidden px-4 pt-4 pb-2">
-        <div class="flex gap-2">
-          <button
-            @click="activeTab = 'profile'"
-            class="flex-1 rounded-lg px-4 py-2 text-base font-medium transition-colors"
-            :class="activeTab === 'profile' 
-              ? 'bg-[#f34767] text-white' 
-              : 'bg-white text-[#1c1a1b] border border-[#DCDCDC]'"
-          >
-            {{ texts.profile }}
-          </button>
-          <button
-            @click="activeTab = 'account'"
-            class="flex-1 rounded-lg px-4 py-2 text-base font-medium transition-colors flex items-center justify-center gap-2"
-            :class="activeTab === 'account' 
-              ? 'bg-[#f34767] text-white' 
-              : 'bg-white text-[#1c1a1b] border border-[#DCDCDC]'"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-            </svg>
-            {{ texts.headerAccount }}
-          </button>
+  <div class="max-w-[400px] md:max-w-7xl mx-auto">
+    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
+      <div class="flex items-center space-x-4">
+        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
+          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
         </div>
+        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
       </div>
+      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
+        <span>{{ texts.headerSection }}</span>
+        <span class="opacity-40">|</span>
+        <span class="opacity-40">{{ texts.headerCurrent }}</span>
+      </div>
+    </div>
 
-        <div class="2xl:mt-[65px] xl:mt-[30px] md:mt-0">
-          <div class="2xl:pl-[45px] xl:pl-[30px] md:px-4">
-            <div v-show="activeTab === 'profile' || !isMobile">
+    <div class="md:mt-0">
+      <div class="md:px-4">
+            <div>
               <h2 class="text-[#1c1a1b] text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2 px-4 md:px-0 pt-4 md:pt-0">{{ texts.personalInfoTitle }}</h2>
               <p class="text-[#1c1a1b] text-sm md:text-base lg:text-xl mb-6 px-4 md:px-0">
                 {{ texts.personalInfoDescription }}
@@ -172,7 +145,7 @@
         </div>
 
           <div class="bg-white rounded-[20px] md:rounded-[36px] p-4 md:p-6 lg:p-8 mt-6 md:mt-0">
-            <div v-show="activeTab === 'account' || !isMobile">
+            <div>
               <h2 class="text-[#1c1a1b] text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2 px-4 md:px-0 pt-4 md:pt-0">{{ texts.securityTitle }}</h2>
               <p class="text-[#1c1a1b] text-sm md:text-base lg:text-xl mb-6 px-4 md:px-0">{{ texts.securityDescription }}</p>
               
@@ -282,8 +255,7 @@
             </div>
           </div>
         </div>
-    </main>
-    </div>
+  </div>
 
     <div v-if="message" class="fixed top-4 right-4 z-50">
       <div class="p-4 rounded-lg shadow-lg" :class="message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
@@ -346,6 +318,8 @@ const texts = computed(() => {
     return {
       headerTitle: 'Profil',
       headerAccount: 'Konto',
+      headerSection: 'Konto',
+      headerCurrent: 'Profil',
       profile: 'Profil',
       personalInfoTitle: 'Persönliche Daten',
       personalInfoDescription: 'Bitte fülle alle Pflichtfelder aus, die mit',
@@ -400,6 +374,8 @@ const texts = computed(() => {
   return {
     headerTitle: 'Profile',
     headerAccount: 'Account',
+    headerSection: 'Account',
+    headerCurrent: 'Profile',
     personalInfoTitle: 'Personal Information',
     personalInfoDescription: 'Please fill in all required fields marked with',
     firstNameLabel: 'First name',
