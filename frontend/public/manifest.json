@@ -1,7 +1,7 @@
 {
-  "name": "Peerie - Marketing Planner",
+  "name": "Peerie",
   "short_name": "Peerie",
-  "description": "Professional tool for marketing campaign planning and management",
+  "description": "Peerie is a platform for creating and managing your marketing campaigns.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

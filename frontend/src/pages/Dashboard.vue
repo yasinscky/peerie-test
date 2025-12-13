@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen relative 2xl:pt-[120px] 2xl:pb-[120px] xl:pt-[60px] xl:pb-[60px]">
-    <div class="dashboard-logo-bg hidden md:block"></div>
+  <div class="min-h-screen relative 2xl:pt-[120px] 2xl:pb-[120px] xl:pt-[80px] xl:pb-[80px] md:pt-[50px] md:pb-[50px]">
+    <div class="dashboard-logo-bg hidden xl:block"></div>
       <!-- Logo -->
       <div class="absolute top-[137px] left-[6.3rem] 2xl:block hidden">
         <img :src="logoImage" alt="Peerie Logo" class="w-full max-w-[205px]">
       </div>
       <div class="page-container">
       <!-- Left Sidebar -->
-      <div class="fixed z-40 w-full md:w-80 xl:w-[387px] h-screen overflow-y-auto transition-all duration-300 bg-white" 
-          :class="sidebarOpen ? 'translate-x-0 left-0' : 'sidebar-hidden md:left-0 md:translate-x-0'">
+      <div class="fixed z-40 w-full md:w-80 xl:w-[387px] h-screen overflow-y-auto transition-all duration-300 sidebar" 
+          :class="sidebarOpen ? 'translate-x-0 left-0' : 'sidebar-hidden'">
         <div class="flex flex-col min-h-full max-w-[400px] md:max-w-none mx-auto md:mx-0 px-4 md:px-0 relative pt-[40px] pb-[40px] md:pt-0 md:pb-0">
           <!-- Close button for mobile -->
           <button 
@@ -20,9 +20,9 @@
             </svg>
           </button>
 
-          <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-10 md:pb-10">
-            <div class="flex items-center gap-[30px]">
-              <div class="w-14 h-14 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
+          <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-5 md:pb-5">
+            <div class="flex items-center gap-[30px] md:gap-2">
+              <div class="w-14 h-14 md:w-8 md:h-8 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
                 <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
                 <span v-else class="text-[#3f4369] text-lg font-bold">{{ userInitials }}</span>
               </div>
@@ -149,7 +149,7 @@
       <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-[#1C1A1B] bg-opacity-50 md:hidden"></div>
 
       <!-- Main content area -->
-      <div class="md:ml-80 xl:ml-96 bg-white min-h-screen">
+      <div class="md:ml-80 xl:ml-96 bg-white min-h-screen main__content">
         <!-- Mobile header -->
         <div class="md:hidden sticky top-0 z-20 bg-white border-[#DCDCDC] px-4 py-3 flex items-center justify-between">
           <div class="flex items-center gap-2">

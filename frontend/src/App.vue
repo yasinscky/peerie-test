@@ -4,7 +4,7 @@
   
     
     <!-- Main Content -->
-    <main class="flex-1">
+    <main>
       <router-view />
     </main>
     
