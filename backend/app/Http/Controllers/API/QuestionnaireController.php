@@ -22,7 +22,12 @@ class QuestionnaireController extends Controller
 
     public function submit(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
+        $data = $request->all();
+        if (($data['country'] ?? null) === 'de') {
+            $data['language'] = 'de';
+        }
+
+        $validator = Validator::make($data, [
             'country' => 'required|string|in:de,uk,ie',
             'industry' => 'required|string|in:beauty,physio,coaching',
             'language' => 'required|string|in:de,en',
@@ -59,9 +64,10 @@ class QuestionnaireController extends Controller
 
         try {
             $user = Auth::user();
+            $language = $data['language'];
 
             if ($user) {
-                $user->language = $request->language;
+                $user->language = $language;
                 $user->save();
             }
 
@@ -82,27 +88,27 @@ class QuestionnaireController extends Controller
             $plan = Plan::create([
                 'user_id' => Auth::id(),
                 'title' => $planTitle,
-                'country' => $request->country,
-                'language' => $request->language,
-                'is_local_business' => $request->is_local_business,
-                'has_website' => $request->has_website,
-                'marketing_time_per_week' => $request->marketing_time_per_week,
-                'questionnaire_data' => $request->all(),
+                'country' => $data['country'],
+                'language' => $language,
+                'is_local_business' => $data['is_local_business'],
+                'has_website' => $data['has_website'],
+                'marketing_time_per_week' => $data['marketing_time_per_week'],
+                'questionnaire_data' => $data,
                 
-                'industries' => [$request->industry],
-                'business_goals_defined' => $request->business_goals_defined,
-                'marketing_goals_defined' => $request->marketing_goals_defined,
-                'google_business_claimed' => $request->google_business_claimed ?? false,
-                'core_directories_claimed' => $request->core_directories_claimed ?? false,
-                'industry_directories_claimed' => $request->industry_directories_claimed ?? false,
-                'business_directories_claimed' => $request->business_directories_claimed ?? false,
-                'email_marketing_tool' => $request->email_marketing_tool,
-                'crm_pipeline' => $request->crm_pipeline,
+                'industries' => [$data['industry']],
+                'business_goals_defined' => $data['business_goals_defined'],
+                'marketing_goals_defined' => $data['marketing_goals_defined'],
+                'google_business_claimed' => $data['google_business_claimed'] ?? false,
+                'core_directories_claimed' => $data['core_directories_claimed'] ?? false,
+                'industry_directories_claimed' => $data['industry_directories_claimed'] ?? false,
+                'business_directories_claimed' => $data['business_directories_claimed'] ?? false,
+                'email_marketing_tool' => $data['email_marketing_tool'],
+                'crm_pipeline' => $data['crm_pipeline'],
                 'running_ads' => $runningAds,
-                'has_primary_social_channel' => $request->has_primary_social_channel,
-                'primary_social_channel' => $request->primary_social_channel,
-                'has_secondary_social_channel' => $request->has_secondary_social_channel,
-                'secondary_social_channel' => $request->secondary_social_channel,
+                'has_primary_social_channel' => $data['has_primary_social_channel'],
+                'primary_social_channel' => $data['primary_social_channel'] ?? null,
+                'has_secondary_social_channel' => $data['has_secondary_social_channel'],
+                'secondary_social_channel' => $data['secondary_social_channel'] ?? null,
             ]);
 
             $plan->refresh();
