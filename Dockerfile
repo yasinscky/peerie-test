@@ -58,6 +58,9 @@ RUN mkdir -p bootstrap/cache storage/framework/cache/data \
 # Скрипты выполним в start.sh после настройки окружения
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
+# PHP upload limits (for Livewire/Filament file uploads)
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/99-peerie.ini
+
 # Копирование собранного фронтенда
 COPY --from=frontend-builder /app/frontend/dist /var/www/html/public/dist
 
