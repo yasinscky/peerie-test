@@ -1,5 +1,10 @@
 FROM php:8.3-fpm-alpine
 
+ARG ALPINE_MIRROR=https://mirrors.edge.kernel.org/alpine/
+
+RUN sed -i "s|https\\?://dl-cdn\\.alpinelinux\\.org/alpine/|${ALPINE_MIRROR}|g" /etc/apk/repositories \
+    && sed -i "s|http\\?://dl-cdn\\.alpinelinux\\.org/alpine/|${ALPINE_MIRROR}|g" /etc/apk/repositories
+
 # Установка системных зависимостей
 RUN apk add --no-cache \
     git \

@@ -317,6 +317,11 @@ Route::prefix('api')->group(function () {
         });
 
         Route::get('/hashtags', [HashtagController::class, 'index']);
+
+        Route::prefix('resources')->group(function () {
+            Route::get('/', [App\Http\Controllers\API\ResourceController::class, 'index']);
+            Route::get('/download', [App\Http\Controllers\API\ResourceController::class, 'download']);
+        });
     });
 });
 

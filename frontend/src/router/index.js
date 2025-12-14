@@ -11,6 +11,7 @@ import ImageGenerator from '../pages/ImageGenerator.vue'
 import Settings from '../pages/Settings.vue'
 import Hashtags from '../pages/Hashtags.vue'
 import Community from '../pages/Community.vue'
+import Learn from '../pages/Learn.vue'
 import MultiStepQuestionnaire from '../components/MultiStepQuestionnaire.vue'
 import PlansList from '../components/PlansList.vue'
 
@@ -68,6 +69,11 @@ const routes = [
         path: 'settings',
         name: 'Settings',
         component: Settings
+      },
+      {
+        path: 'learn',
+        name: 'Learn',
+        component: Learn
       }
     ]
   },

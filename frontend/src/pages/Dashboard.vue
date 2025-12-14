@@ -123,6 +123,27 @@
             <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
               <div class="flex items-center space-x-2 mb-3">
                 <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                  <img :src="iconHat" alt="" class="w-5 h-5">
+                </div>
+                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.learn }}</h3>
+              </div>
+              <div class="ml-10 space-y-2 flex flex-col">
+                <router-link 
+                  to="/dashboard/learn"
+                  @click="closeSidebarOnMobile"
+                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                  :class="currentRoute === '/dashboard/learn' 
+                    ? 'bg-[#f34767] text-white border-[#f34767]' 
+                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                >
+                  {{ texts.resources }}
+                </router-link>
+              </div>
+            </div>
+
+            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
+              <div class="flex items-center space-x-2 mb-3">
+                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
                   <img :src="iconUser" alt="" class="w-5 h-5">
                 </div>
                 <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.account }}</h3>
@@ -186,6 +207,7 @@ import logoImage from '@/assets/images/logos/logo.svg'
 import iconNotebook from '@/assets/images/icons/dashboard/notebook.svg'
 import iconStar from '@/assets/images/icons/dashboard/star.svg'
 import iconUser from '@/assets/images/icons/dashboard/user.svg'
+import iconHat from '@/assets/images/icons/dashboard/hat.svg'
 import iconEdit from '@/assets/images/icons/dashboard/edit.svg'
 import iconLogout from '@/assets/images/icons/dashboard/log-out.svg'
 import { useLanguageStore } from '@/stores/language'
@@ -216,6 +238,8 @@ const texts = computed(() => {
       hashtags: 'Hashtags',
       engage: 'Interaktion',
       community: 'Community',
+      learn: 'Lernen',
+      resources: 'Ressourcen',
       account: 'Konto',
       profile: 'Profil',
       menu: 'Menü'
@@ -230,11 +254,13 @@ const texts = computed(() => {
     yourMarketingPlan: 'Your Marketing Plan',
     imageLibrary: 'Image Library',
     hashtags: 'Hashtags',
-    engage: 'Engage',
-    community: 'Community',
-    account: 'Account',
-    profile: 'Profile',
-    menu: 'Menu'
+      engage: 'Engage',
+      community: 'Community',
+      learn: 'Learn',
+      resources: 'Resources',
+      account: 'Account',
+      profile: 'Profile',
+      menu: 'Menu'
   }
 })
 const userInitials = computed(() => {

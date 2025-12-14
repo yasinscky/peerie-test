@@ -54,6 +54,15 @@ chmod -R 775 /var/www/html/storage/framework
 chown -R www-data:www-data /var/www/html/storage/framework
 echo "Session and cache directories ready"
 
+# Директории для Livewire uploads и ресурсов
+echo "Ensuring Livewire upload and resources directories exist and are writable..."
+mkdir -p /var/www/html/storage/app/livewire-tmp
+mkdir -p /var/www/html/storage/app/resources/en
+mkdir -p /var/www/html/storage/app/resources/de
+chmod -R 775 /var/www/html/storage/app
+chown -R www-data:www-data /var/www/html/storage/app
+echo "Livewire upload and resources directories ready"
+
 # Проверка PHP расширения Redis
 echo "Checking PHP Redis extension..."
 if php -m | grep -i redis > /dev/null 2>&1; then
