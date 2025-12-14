@@ -23,8 +23,12 @@ class QuestionnaireController extends Controller
     public function submit(Request $request): JsonResponse
     {
         $data = $request->all();
-        if (($data['country'] ?? null) === 'de') {
+        $country = $data['country'] ?? null;
+        if ($country === 'de') {
             $data['language'] = 'de';
+        }
+        if ($country === 'uk' || $country === 'ie') {
+            $data['language'] = 'en';
         }
 
         $validator = Validator::make($data, [

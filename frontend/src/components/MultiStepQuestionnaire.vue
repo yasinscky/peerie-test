@@ -60,8 +60,21 @@
             <div>
               <label class="form-label">Primary language for marketing</label>
               <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.language === 'de' }">
-                  <input v-model="form.language" type="radio" value="de" class="sr-only" @change="updateProgress">
+                <label
+                  class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                  :class="[
+                    form.language === 'de' ? 'border-primary-500 bg-primary-50' : '',
+                    form.country === 'uk' || form.country === 'ie' ? 'opacity-40 pointer-events-none' : ''
+                  ]"
+                >
+                  <input
+                    v-model="form.language"
+                    type="radio"
+                    value="de"
+                    class="sr-only"
+                    :disabled="form.country === 'uk' || form.country === 'ie'"
+                    @change="updateProgress"
+                  >
                   <div class="flex items-center">
                     <span class="text-2xl mr-3">🇩🇪</span>
                     <div>
@@ -815,6 +828,9 @@ export default {
     watch(() => form.value.country, (newCountry) => {
       if (newCountry === 'de' && form.value.language !== 'de') {
         form.value.language = 'de'
+      }
+      if ((newCountry === 'uk' || newCountry === 'ie') && form.value.language !== 'en') {
+        form.value.language = 'en'
       }
     })
 
