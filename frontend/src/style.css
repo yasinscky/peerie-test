@@ -645,8 +645,6 @@
     height: 349px;
     border-radius: 60px;
     background: #3F4369;
-    z-index: -1;
-    pointer-events: none;
   }
   
 
