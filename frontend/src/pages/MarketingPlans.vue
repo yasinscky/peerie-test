@@ -183,7 +183,7 @@
         <div class="bg-gradient-to-r to-white p-6 border-b border-[#DCDCDC] flex items-center justify-between">
           <div>
             <h3 class="text-2xl font-bold text-[#3F4369]">{{ category.name }}</h3>
-            <p class="text-[#3F4369] opacity-70">{{ category.tasks.length }} tasks • {{ category.totalHours }}h estimated</p>
+            <p class="text-[#3F4369] opacity-70">{{ category.tasks.length }} tasks • {{ formatHoursAndMinutes(category.totalMinutes) }}</p>
           </div>
           <div class="text-right">
             <div class="text-2xl font-bold text-[#F34767]">
@@ -578,7 +578,6 @@ const categorisedTasks = computed(() => {
     return plan.value.categories.map(category => {
       const tasks = category.tasks || []
       const totalMinutes = tasks.reduce((sum, task) => sum + getTaskMinutes(task), 0)
-      const totalHours = Number((totalMinutes / 60).toFixed(1))
       const completed = tasks.filter(task => task.pivot?.completed).length
       const progress = tasks.length > 0
         ? Math.round((completed / tasks.length) * 100)
@@ -588,7 +587,6 @@ const categorisedTasks = computed(() => {
         ...category,
         tasks,
         totalMinutes,
-        totalHours,
         completed,
         progress,
       }
@@ -597,6 +595,19 @@ const categorisedTasks = computed(() => {
 
   return []
 })
+
+const formatHoursAndMinutes = (minutes) => {
+  const value = Number.isFinite(Number(minutes)) ? Math.max(0, Math.round(Number(minutes))) : 0
+  const hours = Math.floor(value / 60)
+  const mins = value % 60
+  if (hours <= 0) {
+    return `${mins}m`
+  }
+  if (mins === 0) {
+    return `${hours}h`
+  }
+  return `${hours}h ${mins}m`
+}
 
 const toggleTask = async (planTaskId, completed) => {
   try {

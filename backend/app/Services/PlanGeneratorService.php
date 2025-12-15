@@ -175,6 +175,22 @@ class PlanGeneratorService
         return 60;
     }
 
+    private function getTaskEffectiveDurationMinutes(Task $task): int
+    {
+        $taskMinutes = $this->getTaskDurationMinutes($task);
+        $frequency = $this->normalizeFrequency($task->frequency);
+
+        if ($frequency === 'weekly') {
+            return $taskMinutes * 4;
+        }
+
+        if ($frequency === 'bi_weekly') {
+            return $taskMinutes * 2;
+        }
+
+        return $taskMinutes;
+    }
+
     private function visitTask(Task $task, Collection $allTasks, array &$visited, array &$visiting, Collection &$sorted): void
     {
         if (isset($visiting[$task->id])) {
@@ -231,8 +247,8 @@ class PlanGeneratorService
 
         $filteredTasks = $this->filterTasks($plan, $year, $month);
         $prioritizedTasks = $this->prioritizeTasks($filteredTasks, $plan, $year, $month);
-        $sortedTasks = $this->sortTasksByDependencies($prioritizedTasks);
-        $limitedTasks = $this->limitTasksByCapacity($sortedTasks, $minutesPerWeek);
+        $orderedTasks = $this->applyPrerequisites($prioritizedTasks);
+        $limitedTasks = $this->limitTasksByCapacity($orderedTasks, $minutesPerWeek);
         $this->savePlanTasks($plan, $limitedTasks, $year, $month);
         
         return [
@@ -243,9 +259,79 @@ class PlanGeneratorService
             'tasks' => $limitedTasks->values(),
             'total_tasks' => $limitedTasks->count(),
             'total_minutes' => $limitedTasks->sum(function (Task $task) {
-                return $this->getTaskDurationMinutes($task);
+                return $this->getTaskEffectiveDurationMinutes($task);
             }),
         ];
+    }
+
+    private function applyPrerequisites(Collection $tasks): Collection
+    {
+        $items = $tasks->values()->all();
+        $count = count($items);
+
+        if ($count < 2) {
+            return $tasks->values();
+        }
+
+        $maxPasses = $count * 2;
+
+        for ($pass = 0; $pass < $maxPasses; $pass++) {
+            $indexById = [];
+            foreach ($items as $idx => $item) {
+                $indexById[$item->id] = $idx;
+            }
+
+            $moved = false;
+
+            foreach ($items as $idx => $task) {
+                $dependencies = is_array($task->dependencies ?? null) ? $task->dependencies : [];
+
+                if ($dependencies === []) {
+                    continue;
+                }
+
+                $maxDependencyIndex = -1;
+                foreach ($dependencies as $dependencyId) {
+                    if (!is_int($dependencyId) && !ctype_digit((string) $dependencyId)) {
+                        continue;
+                    }
+
+                    $dependencyId = (int) $dependencyId;
+
+                    if ($dependencyId === (int) $task->id) {
+                        continue;
+                    }
+
+                    if (!array_key_exists($dependencyId, $indexById)) {
+                        continue;
+                    }
+
+                    $maxDependencyIndex = max($maxDependencyIndex, $indexById[$dependencyId]);
+                }
+
+                if ($maxDependencyIndex <= $idx) {
+                    continue;
+                }
+
+                $taskItem = $items[$idx];
+                array_splice($items, $idx, 1);
+
+                $insertIndex = $maxDependencyIndex;
+                if ($maxDependencyIndex > $idx) {
+                    $insertIndex = $maxDependencyIndex;
+                }
+
+                array_splice($items, $insertIndex, 0, [$taskItem]);
+                $moved = true;
+                break;
+            }
+
+            if (!$moved) {
+                break;
+            }
+        }
+
+        return collect($items)->values();
     }
 
     private function calculatePriority(Task $task, Plan $plan): int
@@ -272,14 +358,14 @@ class PlanGeneratorService
             $effectiveMinutes = $taskMinutes * $multiplier;
 
             if (($usedMinutes + $effectiveMinutes) > $availableMinutes) {
-                continue;
+                break;
             }
 
             $selected->push($task);
             $usedMinutes += $effectiveMinutes;
         }
 
-        return $selected->isNotEmpty() ? $selected : $tasks;
+        return $selected->values();
     }
 
     private function passesQuestionnaireRules(Task $task, Plan $plan): bool

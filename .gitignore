@@ -12,6 +12,7 @@ backend/storage/framework/cache/data/*
 backend/storage/framework/sessions/*
 backend/storage/framework/views/*
 backend/storage/logs/*
+backend/storage/
 backend/bootstrap/cache/*
 
 # SQLite (we use PostgreSQL)
@@ -39,6 +40,12 @@ Thumbs.db
 
 # Docker
 .docker/
+
+# Dumps / local data
+tasks.sql
+backend/tasks.sql
+railway_backup.sql
+*.dump
 
 # Logs
 *.log
