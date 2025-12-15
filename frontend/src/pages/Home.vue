@@ -68,9 +68,6 @@
 
         <div v-if="mobileMenuOpen" class="md:hidden mt-6 rounded-[20px] border border-[#DCDCDC] bg-white shadow-lg overflow-hidden">
           <div class="p-4 flex flex-col gap-3 text-[#1C1A1B]">
-            <a href="#top" class="py-2 font-semibold" @click="mobileMenuOpen = false">Home</a>
-            <a href="#features" class="py-2 font-semibold" @click="mobileMenuOpen = false">Why Peerie</a>
-            <a href="#how" class="py-2 font-semibold" @click="mobileMenuOpen = false">How It Works</a>
             <router-link
               to="/register"
               class="mt-2 h-[50px] rounded-[10px] bg-[#F34767] text-white inline-flex items-center justify-center font-bold uppercase text-[18px]"
@@ -248,6 +245,15 @@
 
       <section class="cta">
         <div class="container cta__inner">
+
+          <div class="cta__button-mobile">
+              <router-link
+                to="/register"
+                class="button button-white cta__button-link"
+              >
+                Get started
+              </router-link>
+            </div>
 
           <div class="cta__content">
             <p class="cta__text">
