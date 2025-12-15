@@ -1,42 +1,77 @@
 <template>
   <div class="min-h-screen bg-white">
-    <!-- Navigation -->
     <nav class="relative px-6 py-4 bg-white">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
-        <!-- Logo -->
         <router-link to="/" class="flex items-center cursor-pointer">
           <img :src="logoImage" alt="Peerie" class="h-12 w-auto">
         </router-link>
 
-        <!-- Action Buttons -->
         <div class="hidden md:flex items-center space-x-4">
+          <div class="h-[40px] rounded-[10px] border-2 border-[#DCDCDC] overflow-hidden inline-flex">
+            <button
+              type="button"
+              class="px-3 font-bold uppercase text-[12px] transition-colors"
+              :class="languageStore.language === 'en' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              @click="languageStore.setLanguage('en')"
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              class="px-3 font-bold uppercase text-[12px] transition-colors"
+              :class="languageStore.language === 'de' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              @click="languageStore.setLanguage('de')"
+            >
+              DE
+            </button>
+          </div>
           <router-link 
             to="/login"
             class="px-6 py-3 text-[#3F4369] border-2 border-[#3F4369] rounded-[15px] hover:bg-[#3F4369] hover:text-white transition-all duration-200 font-bold uppercase text-sm"
           >
-            Log in
+            {{ texts.navLogin }}
           </router-link>
           <router-link 
             to="/register"
             class="px-6 py-3 bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-sm shadow-lg"
           >
-            Get started
+            {{ texts.navGetStarted }}
           </router-link>
         </div>
 
-        <!-- Mobile Menu Button -->
-        <button 
-          @click="mobileMenuOpen = !mobileMenuOpen"
-          class="md:hidden p-2 text-[#1c1a1b]"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
+        <div class="md:hidden flex items-center gap-3">
+          <div class="h-[36px] rounded-[10px] border-2 border-[#DCDCDC] overflow-hidden inline-flex">
+            <button
+              type="button"
+              class="px-3 font-bold uppercase text-[12px] transition-colors"
+              :class="languageStore.language === 'en' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              @click="languageStore.setLanguage('en')"
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              class="px-3 font-bold uppercase text-[12px] transition-colors"
+              :class="languageStore.language === 'de' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              @click="languageStore.setLanguage('de')"
+            >
+              DE
+            </button>
+          </div>
+          <button 
+            type="button"
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="p-2 text-[#1c1a1b]"
+            :aria-label="texts.navMenuLabel"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <!-- Mobile Menu -->
       <div 
         v-if="mobileMenuOpen"
         class="md:hidden absolute top-full left-0 right-0 bg-white border-t border-[#DCDCDC] shadow-lg z-50"
@@ -47,30 +82,28 @@
             @click="mobileMenuOpen = false"
             class="block w-full px-4 py-3 text-center text-[#3F4369] border-2 border-[#3F4369] rounded-[15px] hover:bg-[#3F4369] hover:text-white transition-all duration-200 font-bold uppercase text-sm"
           >
-            Log in
+            {{ texts.navLogin }}
           </router-link>
           <router-link 
             to="/register"
             @click="mobileMenuOpen = false"
             class="block w-full px-4 py-3 text-center bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-sm shadow-lg"
           >
-            Get started
+            {{ texts.navGetStarted }}
           </router-link>
         </div>
       </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="relative px-6 py-12 md:py-20 bg-white overflow-hidden min-h-[calc(100vh-200px)]">
       <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <!-- Left Side - Login Form -->
           <div class="relative z-10">
             <h1 class="text-6xl md:text-7xl lg:text-[96px] font-bold text-[#1C1A1B] mb-6 leading-[0.95]">
-              Welcome back
+              {{ texts.title }}
             </h1>
             <p class="text-3xl md:text-4xl lg:text-[48px] font-bold text-[#1C1A1B] mb-12 tracking-[-1.92px]">
-              Please enter your details
+              {{ texts.subtitle }}
             </p>
 
             <form @submit.prevent="handleLogin" class="space-y-6">
@@ -80,7 +113,7 @@
                     v-model="form.email"
                     type="email"
                     class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
-                    placeholder="E-mail address"
+                    :placeholder="texts.emailPlaceholder"
                     autocomplete="email"
                     required
                   >
@@ -93,7 +126,7 @@
                     v-model="form.password"
                     type="password"
                     class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
-                    placeholder="Password"
+                    :placeholder="texts.passwordPlaceholder"
                     autocomplete="current-password"
                     required
                   >
@@ -105,7 +138,7 @@
                   to="/forgot-password"
                   class="text-[#F34767] text-xl font-medium underline underline-offset-[25%] hover:text-[#d93d5a] transition-colors"
                 >
-                  Forgot password?
+                  {{ texts.forgotPassword }}
                 </router-link>
               </div>
 
@@ -116,21 +149,20 @@
                   :disabled="isLoading"
                 >
                   <span v-if="isLoading" class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#F34767] mr-3 inline-block"></span>
-                  {{ isLoading ? 'Signing in...' : 'Sign in' }}
+                  {{ isLoading ? texts.signingIn : texts.signIn }}
                 </button>
               </div>
 
-              <!-- Sign Up Link -->
               <p class="text-xl text-[#1C1A1B] font-normal">
-                <span>Don't have an account? </span>
+                <span>{{ texts.noAccount }} </span>
                 <router-link to="/register" class="text-[#F34767] font-medium underline underline-offset-[25%] hover:text-[#d93d5a] transition-colors">
-                  Sign up
+                  {{ texts.signUp }}
                 </router-link>
               </p>
 
               <div v-if="verification.show" class="mt-8 space-y-4">
                 <p class="text-lg text-[#1C1A1B]">
-                  Your email is not verified. Enter the verification code we sent to your email.
+                  {{ texts.verificationText }}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                   <div class="flex-1">
@@ -141,7 +173,7 @@
                         inputmode="numeric"
                         maxlength="6"
                         class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
-                        placeholder="Verification code"
+                        :placeholder="texts.verificationCodePlaceholder"
                         required
                       >
                     </div>
@@ -153,7 +185,7 @@
                       :disabled="isVerifying"
                       @click="verifyEmail"
                     >
-                      {{ isVerifying ? 'Verifying...' : 'Verify email' }}
+                      {{ isVerifying ? texts.verifying : texts.verifyEmail }}
                     </button>
                     <button
                       type="button"
@@ -161,7 +193,7 @@
                       :disabled="isVerifying"
                       @click="resendCode"
                     >
-                      Resend code
+                      {{ texts.resendCode }}
                     </button>
                   </div>
                 </div>
@@ -176,7 +208,6 @@
             </div>
           </div>
 
-          <!-- Right Side - Decorative Element -->
           <div class="hidden lg:block relative">
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[9.276deg]">
               <div class="bg-[#DCDCDC] opacity-[0.43] rounded-[100px] w-[627px] h-[707px]"></div>
@@ -194,15 +225,76 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import logoImage from '@/assets/images/logos/logo.svg'
+import { useLanguageStore } from '@/stores/language'
 
 export default {
   name: 'Login',
   setup() {
     const router = useRouter()
+    const languageStore = useLanguageStore()
+
+    const texts = computed(() => {
+      if (languageStore.language === 'de') {
+        return {
+          navLogin: 'Anmelden',
+          navGetStarted: 'Los geht’s',
+          navMenuLabel: 'Menü',
+          title: 'Willkommen zurück',
+          subtitle: 'Bitte gib deine Daten ein',
+          emailPlaceholder: 'E-Mail-Adresse',
+          passwordPlaceholder: 'Passwort',
+          forgotPassword: 'Passwort vergessen?',
+          signingIn: 'Anmeldung...',
+          signIn: 'Anmelden',
+          noAccount: 'Noch kein Konto?',
+          signUp: 'Registrieren',
+          verificationText: 'Deine E-Mail ist noch nicht verifiziert. Gib den Code ein, den wir dir per E-Mail gesendet haben.',
+          verificationCodePlaceholder: 'Bestätigungscode',
+          verifying: 'Wird geprüft...',
+          verifyEmail: 'E-Mail bestätigen',
+          resendCode: 'Code erneut senden',
+          errors: {
+            login: 'Anmeldefehler',
+            emailNotVerified: 'E-Mail nicht verifiziert. Gib den Code ein, den wir dir per E-Mail gesendet haben.',
+            verificationNotAvailable: 'Bestätigung ist nicht verfügbar',
+            enterVerificationCode: 'Bitte gib den Bestätigungscode ein',
+            verificationError: 'Bestätigungsfehler'
+          }
+        }
+      }
+
+      return {
+        navLogin: 'Log in',
+        navGetStarted: 'Get started',
+        navMenuLabel: 'Menu',
+        title: 'Welcome back',
+        subtitle: 'Please enter your details',
+        emailPlaceholder: 'E-mail address',
+        passwordPlaceholder: 'Password',
+        forgotPassword: 'Forgot password?',
+        signingIn: 'Signing in...',
+        signIn: 'Sign in',
+        noAccount: "Don't have an account?",
+        signUp: 'Sign up',
+        verificationText: 'Your email is not verified. Enter the verification code we sent to your email.',
+        verificationCodePlaceholder: 'Verification code',
+        verifying: 'Verifying...',
+        verifyEmail: 'Verify email',
+        resendCode: 'Resend code',
+        errors: {
+          login: 'Login error',
+          emailNotVerified: 'Email not verified. Enter the code we sent to your email.',
+          verificationNotAvailable: 'Verification is not available',
+          enterVerificationCode: 'Please enter the verification code',
+          verificationError: 'Verification error'
+        }
+      }
+    })
+
     const isLoading = ref(false)
     const isVerifying = ref(false)
     const error = ref('')
@@ -231,19 +323,19 @@ export default {
           localStorage.setItem('user', JSON.stringify(response.data.user))
           router.push('/dashboard')
         } else {
-          error.value = response.data.message || 'Login error'
+          error.value = response.data.message || texts.value.errors.login
         }
       } catch (err) {
         if (err.response?.status === 403 && err.response.data?.requires_verification) {
           verification.value.show = true
           verification.value.userId = err.response.data.user_id
           verification.value.code = ''
-          error.value = err.response.data.message || 'Email not verified. Enter the code we sent to your email.'
+          error.value = err.response.data.message || texts.value.errors.emailNotVerified
         } else if (err.response?.status === 422) {
           const errors = Object.values(err.response.data.errors || {}).flat()
           error.value = errors.join(', ')
         } else {
-          error.value = err.response?.data?.message || 'Login error'
+          error.value = err.response?.data?.message || texts.value.errors.login
         }
       } finally {
         isLoading.value = false
@@ -252,12 +344,12 @@ export default {
 
     const verifyEmail = async () => {
       if (!verification.value.userId) {
-        error.value = 'Verification is not available'
+        error.value = texts.value.errors.verificationNotAvailable
         return
       }
 
       if (!verification.value.code) {
-        error.value = 'Please enter the verification code'
+        error.value = texts.value.errors.enterVerificationCode
         return
       }
 
@@ -275,10 +367,10 @@ export default {
           localStorage.setItem('user', JSON.stringify(response.data.user))
           router.push('/dashboard')
         } else {
-          error.value = response.data.message || 'Verification error'
+          error.value = response.data.message || texts.value.errors.verificationError
         }
       } catch (err) {
-        error.value = err.response?.data?.message || 'Verification error'
+        error.value = err.response?.data?.message || texts.value.errors.verificationError
       } finally {
         isVerifying.value = false
       }
@@ -313,7 +405,9 @@ export default {
       verifyEmail,
       resendCode,
       logoImage,
-      mobileMenuOpen
+      mobileMenuOpen,
+      languageStore,
+      texts
     }
   }
 }
