@@ -447,34 +447,34 @@ const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
       login: 'Anmelden',
-      getStarted: 'Loslegen',
-      heroTitlePrefix: 'Digitales Marketing,',
-      heroTitleHighlight: 'einfach',
-      heroSubtitle: 'Mit einer Plattform, die kleine Unternehmen stärkt',
+      getStarted: 'Los geht’s',
+      heroTitlePrefix: 'Digital marketing made',
+      heroTitleHighlight: 'Simple',
+      heroSubtitle: 'Mit einer Plattform, die kleine Unternehmen stark macht',
       signUpUnderline: 'Registriere dich',
       signUpSuffix: 'für Early Access',
-      featuresTitle: 'Was ist drin?',
+      featuresTitle: 'Was steckt drin?',
       benefits: {
-        redTitle: 'Fokussiere dich auf das, was für dein Business funktioniert',
-        redText: 'Erhalte einen Schritt-für-Schritt-Marketingplan, der zu deinem Business passt – ohne Standard-Vorlagen. Du weißt, womit du startest und was du jede Woche tun solltest, um echtes Wachstum zu sehen.',
-        yellowTitle: 'Umsatz steigern',
-        yellowText: 'Erreiche Kund:innen dort, wo sie bereits sind, und führe sie zum Kauf.',
-        greyTitle: 'Bleib konsequent',
-        greyText: 'Werde Teil einer Community von kleinen Unternehmen mit ähnlichen Herausforderungen. Teile Feedback, tausche Tipps aus und bleib dran – Marketing funktioniert besser, wenn du es nicht allein machst.',
-        greenTitle: 'Keine Nächte mehr für Marketing opfern',
-        greenText: 'Du brauchst zusätzliche Unterstützung? Unser Expertenteam übernimmt Webentwicklung oder bietet individuelles Consulting, damit du dich auf dein Business konzentrierst.',
-        purpleTitle: 'Zeit sparen & produktiver werden',
-        purpleText: 'Erstelle Inhalte in Minuten mit branchenspezifischen Ideen und Vorlagen – und bleib produktiv ohne Burnout.'
+        redTitle: 'Fokus auf das, was wirkt',
+        redText: 'Erhalte einen Schritt-für-Schritt-Marketingplan, der genau zu deinem Unternehmen passt – keine 08/15-Playbooks. Du weißt immer, wo du starten sollst und was du jede Woche tun musst, um wirklich zu wachsen.',
+        yellowTitle: 'Steigere deinen Umsatz',
+        yellowText: 'Erreiche deine Kundinnen und Kunden dort, wo sie bereits sind, und führe sie zum Kauf.',
+        greyTitle: 'Bleib dran',
+        greyText: 'Schließ dich einer Community von anderen Kleinunternehmer:innen an, die vor denselben Herausforderungen stehen. Teile Feedback, tausche Tipps aus und bleib dran – denn Marketing funktioniert am besten, wenn du nicht allein damit bist.',
+        greenTitle: 'Schluss mit schlaflosen Marketing-Nächten',
+        greenText: 'Brauchst du mehr Unterstützung? Unser Expertenteam kann deine Website entwickeln oder dich individuell beraten – damit du dich auf dein Geschäft konzentrieren kannst.',
+        purpleTitle: 'Spare Zeit & werde produktiver',
+        purpleText: 'Erstelle Inhalte in wenigen Minuten mit branchenspezifischen Ideen und Vorlagen – und bleib produktiv, ohne in den Burnout zu rutschen.'
       },
-      ctaText: 'Keine generischen Templates. Optimierte Strategie und Inhalte speziell für dein Business.',
-      trustedTitlePrefix: 'Vertraut von',
+      ctaText: 'Keine generischen Vorlagen – Strategie und Inhalte, optimiert speziell für dein Unternehmen.',
+      trustedTitlePrefix: 'Vertraut von ',
       trustedTitleHighlight: 'kleinen Unternehmen',
-      faqTitlePrefix: 'Fragst du dich noch, ob',
+      faqTitlePrefix: 'Noch unsicher, ob Peerie passt?',
       faqTitleMiddle: 'das Richtige',
       faqTitleUnderlined: 'für dich ist?',
-      trialTitlePrefix: 'Teste Peerie',
+      trialTitlePrefix: 'Starte deinen',
       trialTitleAccent: 'kostenlos!',
-      trialSubtitle: 'Starte deinen 7‑Tage GRATIS‑Test – jederzeit kündbar!'
+      trialSubtitle: 'Starte jetzt 14 Tage kostenlos – du kannst jederzeit kündigen!'
     }
   }
 
@@ -694,13 +694,13 @@ const howItems = computed(() => {
 const items = computed(() => {
   if (languageStore.language === 'de') {
     return [
-      { title: 'Marketingstrategie & Umsetzungsplan', text: 'abgestimmt auf dein Business' },
-      { title: 'Content‑Vorlagen', text: 'inklusive sofort nutzbarer Posts' },
-      { title: 'Frische Content‑Ideen', text: 'regelmäßig aktualisiert für deine Branche' },
-      { title: 'Bildbibliothek', text: '1000 kostenlose Stock‑Bilder' },
-      { title: 'Content‑Kalender', text: 'zum Planen, Terminieren und Organisieren' },
-      { title: 'Hashtag‑Bibliothek', text: 'kuratierte Hashtags für deine Nische' },
-      { title: 'Peer‑Community', text: 'für Austausch und Business‑Chancen' }
+      { title: 'Marketingstrategie & Umsetzungsplan', text: 'auf Ihr Unternehmen zugeschnitten' },
+      { title: 'Content‑Vorlagen', text: 'mit sofort einsetzbaren Posts' },
+      { title: 'Frische Content-Ideen', text: 'regelmäßig für Ihre Branche aktualisiert' },
+      { title: 'Bildbibliothek', text: 'mit 1.000 kostenlosen Stockfotos' },
+      { title: 'Content‑Kalender', text: 'für Planung, Terminierung und Organisation' },
+      { title: 'Hashtag‑Bibliothek', text: 'handverlesen und erprobt für deine Nische' },
+      { title: 'Peer‑Community', text: 'für Erfahrungsaustausch und neue Geschäftsmöglichkeiten' }
     ]
   }
 
