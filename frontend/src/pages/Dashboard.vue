@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen relative 2xl:pt-[120px] 2xl:pb-[120px] xl:pt-[80px] xl:pb-[80px] md:pt-[50px] md:pb-[50px]">
+  <div class="min-h-screen relative">
     <div class="dashboard-logo-bg hidden xl:block"></div>
       <!-- Logo -->
       <div class="absolute top-[137px] left-[6.3rem] 2xl:block hidden">
         <img :src="logoImage" alt="Peerie Logo" class="w-full max-w-[205px]">
       </div>
-      <div class="page-container flex md:gap-10 gap-6">
+      <div class="page-container flex md:gap-10 gap-6 md:items-stretch md:overflow-hidden md:h-dvh md:min-h-0">
       <!-- Desktop Sidebar -->
-      <div class="hidden md:block md:w-80 xl:w-[387px] shrink-0">
-        <div class="sticky md:top-[50px] xl:top-[80px] 2xl:top-[120px] overscroll-contain">
+      <div class="hidden md:block md:w-80 xl:w-[387px] shrink-0 md:min-h-0 relative z-20">
+        <div class="h-full min-h-0 overflow-y-auto md:py-[50px] xl:py-[80px] 2xl:py-[120px]">
           <div class="flex flex-col max-w-[400px] md:max-w-none mx-auto md:mx-0 px-4 md:px-0">
 
           <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-5 md:pb-5">
@@ -320,7 +320,7 @@
       <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-[#1C1A1B] bg-opacity-50 md:hidden"></div>
 
       <!-- Main content area -->
-      <div class="flex-1 bg-white min-h-screen main__content">
+      <div class="flex-1 bg-white min-h-screen md:min-h-0 md:h-full md:overflow-y-auto md:py-[50px] xl:py-[80px] 2xl:py-[120px] main__content">
         <!-- Mobile header -->
         <div class="md:hidden sticky top-0 z-20 bg-white border-[#DCDCDC] px-4 py-3 flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -340,7 +340,7 @@
         </div>
 
         <!-- Page content -->
-        <div>
+        <div class="md:min-h-0">
           <router-view />
         </div>
       </div>

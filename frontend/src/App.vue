@@ -1,14 +1,8 @@
 <template>
   <div id="app" class="min-h-screen">
 
-  
-    
-    <!-- Main Content -->
-    <main>
       <router-view />
-    </main>
-    
-    <!-- Footer -->
+      
   </div>
 </template>
 
