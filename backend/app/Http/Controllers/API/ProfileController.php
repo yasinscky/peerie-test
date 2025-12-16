@@ -25,12 +25,22 @@ class ProfileController extends Controller
             ], 401);
         }
 
+        $hasCompletedQuestionnaire = $user->plans()->exists();
+
         return response()->json([
             'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'language' => $user->language,
+                'has_completed_questionnaire' => $hasCompletedQuestionnaire,
+            ],
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'language' => $user->language,
+            'has_completed_questionnaire' => $hasCompletedQuestionnaire,
         ]);
     }
 

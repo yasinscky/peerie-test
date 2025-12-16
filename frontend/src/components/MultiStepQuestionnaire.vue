@@ -835,19 +835,19 @@ export default {
     })
 
     onMounted(async () => {
-      const savedUser = localStorage.getItem('user')
-      if (!savedUser) {
-        router.push('/login')
-        return
-      }
-
       try {
-        const response = await axios.get('/api/plans')
-        if (response.data && response.data.length > 0) {
+        const response = await axios.get('/api/user')
+        if (!response.data?.success) {
+          router.push('/login')
+          return
+        }
+
+        if (response.data?.user?.has_completed_questionnaire) {
           router.push('/dashboard')
+          return
         }
       } catch (error) {
-        console.log('Could not check existing plans')
+        router.push('/login')
       }
     })
 

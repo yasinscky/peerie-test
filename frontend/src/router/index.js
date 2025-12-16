@@ -95,7 +95,8 @@ const routes = [
   {
     path: '/questionnaire',
     name: 'Questionnaire',
-    component: MultiStepQuestionnaire
+    component: MultiStepQuestionnaire,
+    meta: { requiresAuth: true }
   },
   {
     path: '/plans',
@@ -123,11 +124,20 @@ router.beforeEach(async (to, from, next) => {
         return
       }
       
-      if (response.data.user) {
-        posthog?.identify(response.data.user.id.toString(), {
-          email: response.data.user.email,
-          name: response.data.user.name
+      const user = response.data.user || null
+      if (user) {
+        posthog?.identify(user.id.toString(), {
+          email: user.email,
+          name: user.name
         })
+      }
+
+      const isQuestionnaireRoute = to.name === 'Questionnaire' || to.path === '/questionnaire'
+      const hasCompletedQuestionnaire = Boolean(user?.has_completed_questionnaire)
+
+      if (!hasCompletedQuestionnaire && !isQuestionnaireRoute) {
+        next('/questionnaire')
+        return
       }
     } catch (error) {
       console.log('Not authorized, redirecting to login')
