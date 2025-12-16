@@ -12,7 +12,6 @@ import Settings from '../pages/Settings.vue'
 import Hashtags from '../pages/Hashtags.vue'
 import Community from '../pages/Community.vue'
 import Learn from '../pages/Learn.vue'
-import ContentIdeas from '../pages/ContentIdeas.vue'
 import MultiStepQuestionnaire from '../components/MultiStepQuestionnaire.vue'
 import PlansList from '../components/PlansList.vue'
 
@@ -62,11 +61,6 @@ const routes = [
         component: Hashtags
       },
       {
-        path: 'content-ideas',
-        name: 'ContentIdeas',
-        component: ContentIdeas
-      },
-      {
         path: 'community',
         name: 'Community',
         component: Community
@@ -92,11 +86,6 @@ const routes = [
     path: '/image-generator',
     name: 'ImageGeneratorRedirect',
     redirect: '/dashboard/image-generator'
-  },
-  {
-    path: '/content-ideas',
-    name: 'ContentIdeasRedirect',
-    redirect: '/dashboard/content-ideas'
   },
   {
     path: '/settings',
