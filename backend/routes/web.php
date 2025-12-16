@@ -291,33 +291,8 @@ Route::prefix('api')->group(function () {
     })->middleware('throttle:10,15');
 
     Route::middleware('auth')->group(function () {
-        Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
-        
-        Route::get('/plans', [PlanController::class, 'index']);
-        Route::get('/plan/{id}', [PlanController::class, 'show']);
-        Route::get('/plans/available-months', [PlanController::class, 'getAvailableMonths']);
-        Route::post('/plans/generate-month', [PlanController::class, 'generateMonth']);
-        Route::put('/plan/{planId}/plan-task/{planTaskId}', [PlanController::class, 'updateTaskStatus']);
-        
-        Route::get('/tasks', [TaskController::class, 'index']);
-        Route::get('/tasks/{id}', [TaskController::class, 'show']);
-
-        Route::prefix('images')->group(function () {
-            Route::post('/search', [App\Http\Controllers\API\ImageController::class, 'search']);
-            Route::post('/search/category', [App\Http\Controllers\API\ImageController::class, 'searchByCategory']);
-            Route::get('/popular', [App\Http\Controllers\API\ImageController::class, 'popular']);
-            Route::get('/{id}', [App\Http\Controllers\API\ImageController::class, 'getImage']);
-            Route::get('/{id}/download', [App\Http\Controllers\API\ImageController::class, 'download']);
-            Route::post('/download-proxy', [App\Http\Controllers\API\ImageController::class, 'downloadProxy']);
-        });
-
         Route::get('/user', [App\Http\Controllers\API\ProfileController::class, 'show']);
-
-        Route::get('/discord/invite', function () {
-            return response()->json([
-                'url' => env('DISCORD_INVITE_URL', 'https://discord.gg/waJUuHvq'),
-            ]);
-        });
+        Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
 
         Route::prefix('profile')->group(function () {
             Route::put('/', [App\Http\Controllers\API\ProfileController::class, 'update']);
@@ -327,11 +302,37 @@ Route::prefix('api')->group(function () {
             Route::post('/password/request-change', [App\Http\Controllers\API\ProfileController::class, 'requestPasswordChange']);
         });
 
-        Route::get('/hashtags', [HashtagController::class, 'index']);
+        Route::middleware('questionnaire.completed')->group(function () {
+            Route::get('/plans', [PlanController::class, 'index']);
+            Route::get('/plan/{id}', [PlanController::class, 'show']);
+            Route::get('/plans/available-months', [PlanController::class, 'getAvailableMonths']);
+            Route::post('/plans/generate-month', [PlanController::class, 'generateMonth']);
+            Route::put('/plan/{planId}/plan-task/{planTaskId}', [PlanController::class, 'updateTaskStatus']);
+            
+            Route::get('/tasks', [TaskController::class, 'index']);
+            Route::get('/tasks/{id}', [TaskController::class, 'show']);
 
-        Route::prefix('resources')->group(function () {
-            Route::get('/', [App\Http\Controllers\API\ResourceController::class, 'index']);
-            Route::get('/download', [App\Http\Controllers\API\ResourceController::class, 'download']);
+            Route::prefix('images')->group(function () {
+                Route::post('/search', [App\Http\Controllers\API\ImageController::class, 'search']);
+                Route::post('/search/category', [App\Http\Controllers\API\ImageController::class, 'searchByCategory']);
+                Route::get('/popular', [App\Http\Controllers\API\ImageController::class, 'popular']);
+                Route::get('/{id}', [App\Http\Controllers\API\ImageController::class, 'getImage']);
+                Route::get('/{id}/download', [App\Http\Controllers\API\ImageController::class, 'download']);
+                Route::post('/download-proxy', [App\Http\Controllers\API\ImageController::class, 'downloadProxy']);
+            });
+
+            Route::get('/discord/invite', function () {
+                return response()->json([
+                    'url' => env('DISCORD_INVITE_URL', 'https://discord.gg/waJUuHvq'),
+                ]);
+            });
+
+            Route::get('/hashtags', [HashtagController::class, 'index']);
+
+            Route::prefix('resources')->group(function () {
+                Route::get('/', [App\Http\Controllers\API\ResourceController::class, 'index']);
+                Route::get('/download', [App\Http\Controllers\API\ResourceController::class, 'download']);
+            });
         });
     });
 });

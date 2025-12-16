@@ -311,6 +311,19 @@ export default {
       code: ''
     })
 
+    const redirectAfterAuth = async () => {
+      try {
+        const response = await axios.get('/api/user')
+        if (response.data?.success && response.data?.user?.has_completed_questionnaire) {
+          router.push('/dashboard')
+          return
+        }
+        router.push('/questionnaire')
+      } catch (e) {
+        router.push('/questionnaire')
+      }
+    }
+
     const handleLogin = async () => {
       isLoading.value = true
       error.value = ''
@@ -321,7 +334,7 @@ export default {
         if (response.data.success) {
           verification.value.show = false
           localStorage.setItem('user', JSON.stringify(response.data.user))
-          router.push('/dashboard')
+          await redirectAfterAuth()
         } else {
           error.value = response.data.message || texts.value.errors.login
         }
@@ -365,7 +378,7 @@ export default {
         if (response.data.success) {
           verification.value.show = false
           localStorage.setItem('user', JSON.stringify(response.data.user))
-          router.push('/dashboard')
+          await redirectAfterAuth()
         } else {
           error.value = response.data.message || texts.value.errors.verificationError
         }
