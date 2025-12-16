@@ -23,6 +23,20 @@ axios.interceptors.request.use(async (config) => {
   return config
 })
 
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const status = error?.response?.status
+    const data = error?.response?.data
+    if (status === 403 && data?.requires_questionnaire === true) {
+      if (router.currentRoute.value?.path !== '/questionnaire') {
+        await router.replace('/questionnaire')
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+
 window.axios = axios
 
 const app = createApp(App)
