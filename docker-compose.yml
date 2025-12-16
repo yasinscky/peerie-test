@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PHP-FPM сервис
   app:
@@ -61,7 +59,7 @@ services:
 
   # Node.js для фронтенда
   frontend:
-    image: node:18-alpine
+    image: node:24.12.0-alpine
     container_name: marketing_planner_frontend
     working_dir: /app
     volumes:
