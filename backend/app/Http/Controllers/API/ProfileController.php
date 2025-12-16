@@ -131,6 +131,10 @@ class ProfileController extends Controller
             ], 401);
         }
 
+        $request->merge([
+            'new_email' => is_string($request->input('new_email')) ? mb_strtolower(trim($request->input('new_email'))) : $request->input('new_email'),
+        ]);
+
         $request->validate([
             'new_email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
         ]);
@@ -187,6 +191,9 @@ class ProfileController extends Controller
 
         $payload = $verification->payload ?? [];
         $newEmail = $payload['new_email'] ?? null;
+        if (is_string($newEmail)) {
+            $newEmail = mb_strtolower(trim($newEmail));
+        }
 
         if (!$newEmail) {
             return response()->json([
@@ -195,7 +202,7 @@ class ProfileController extends Controller
             ], 422);
         }
 
-        $exists = User::where('email', $newEmail)
+        $exists = User::whereRaw('LOWER(email) = ?', [$newEmail])
             ->where('id', '!=', $user->id)
             ->exists();
 

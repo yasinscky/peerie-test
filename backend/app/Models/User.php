@@ -13,6 +13,12 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public function setEmailAttribute($value): void
+    {
+        $email = is_string($value) ? trim($value) : $value;
+        $this->attributes['email'] = is_string($email) ? mb_strtolower($email) : $email;
+    }
+
     /**
      * The attributes that are mass assignable.
      *

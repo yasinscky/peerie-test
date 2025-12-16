@@ -31,7 +31,11 @@ Route::get('/admin/login', function () {
 })->name('admin.login');
 
 Route::post('/admin/login', function (Request $request) {
-    $credentials = $request->only('email', 'password');
+    $email = is_string($request->email) ? mb_strtolower(trim($request->email)) : $request->email;
+    $credentials = [
+        'email' => $email,
+        'password' => $request->password,
+    ];
 
     if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
         $request->session()->regenerate();
@@ -45,6 +49,10 @@ Route::post('/admin/login', function (Request $request) {
 
 Route::prefix('api')->group(function () {
     Route::post('/register', function (Request $request) {
+        $request->merge([
+            'email' => is_string($request->email) ? mb_strtolower(trim($request->email)) : $request->email,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -86,7 +94,9 @@ Route::prefix('api')->group(function () {
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
+        $email = is_string($request->email) ? mb_strtolower(trim($request->email)) : $request->email;
+
+        if (!Auth::attempt(['email' => $email, 'password' => $request->password], $request->filled('remember'))) {
             throw ValidationException::withMessages([
                 'email' => ['Invalid credentials.'],
             ]);
@@ -220,7 +230,8 @@ Route::prefix('api')->group(function () {
             'email' => 'required|string|email',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $email = is_string($request->email) ? mb_strtolower(trim($request->email)) : $request->email;
+        $user = User::where('email', $email)->first();
 
         if (!$user) {
             return response()->json([

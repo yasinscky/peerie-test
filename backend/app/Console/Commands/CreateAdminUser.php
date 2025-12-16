@@ -33,6 +33,9 @@ class CreateAdminUser extends Command
     public function handle()
     {
         $email = $this->option('email') ?: $this->ask('Admin email');
+        if (is_string($email)) {
+            $email = mb_strtolower(trim($email));
+        }
         $update = $this->option('update');
 
         if ($update) {
