@@ -1,14 +1,14 @@
-# Marketing Planner
+# Peerie
 
-Web application for generating personalized marketing plans based on user questionnaires. Features include monthly task generation, image search, hashtag suggestions, and community integration.
+Web application for generating personalized marketing plans based on user questionnaires. Features include monthly task generation, image search, hashtag suggestions, content ideas calendar, and community integration.
 
 ## Architecture
 
 The project is split into independent **backend** and **frontend** applications:
 
 ```
-marketing-planner/
-├── backend/                 # Laravel 10 API
+peerie/
+├── backend/                 # Laravel 12 API
 │   ├── app/
 │   │   ├── Models/          # Eloquent models
 │   │   ├── Http/Controllers/API/  # API controllers
@@ -17,7 +17,7 @@ marketing-planner/
 │   ├── database/
 │   │   ├── migrations/      # Database migrations
 │   │   └── seeders/         # Database seeders
-│   └── routes/api.php       # API routes
+│   └── routes/web.php       # API routes (mounted under /api)
 │
 ├── frontend/                # Vue 3 SPA
 │   ├── src/
@@ -36,10 +36,11 @@ marketing-planner/
 ## Tech Stack
 
 ### Backend
-- **Laravel 10** - PHP framework
-- **PostgreSQL** - Database
+- **Laravel 12** - PHP framework
+- **PHP 8.4** - Runtime (Docker)
+- **PostgreSQL 15** - Database (Docker)
 - **Redis** - Cache and queues
-- **Laravel Sanctum** - API authentication
+- **Laravel Sanctum 4** - API authentication
 - **Filament 3** - Admin panel
 
 ### Frontend
@@ -48,11 +49,12 @@ marketing-planner/
 - **Pinia** - State management
 - **Tailwind CSS** - Styling
 - **Axios** - HTTP client
+- **Vite 6** - Build tool
 
 ### DevOps
 - **Docker** - Containerization
 - **Nginx** - Web server
-- **Vite** - Frontend build tool
+- **Node.js 24** - Frontend runtime (Docker)
 
 ## Quick Start
 
@@ -60,7 +62,7 @@ marketing-planner/
 
 ```bash
 git clone <repository-url>
-cd marketing-planner
+cd peerie
 
 # Backend setup
 cp backend/.env.example backend/.env
@@ -74,15 +76,18 @@ cp frontend/.env.example frontend/.env
 
 ```bash
 # Build and start all services
-docker-compose up -d --build
+docker compose up -d --build
 
 # Backend setup
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan migrate
-docker-compose exec app php artisan db:seed --class=TaskSeeder
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed --class=TaskSeeder
 
 # Create admin user for Filament
-docker-compose exec app php artisan make:filament-user
+docker compose exec app php artisan make:filament-user
+
+# Optional: public storage symlink
+docker compose exec app php artisan storage:link
 ```
 
 ### 3. Access Applications
@@ -134,6 +139,12 @@ POST /api/images/download-proxy      # Download image via proxy
 GET  /api/hashtags                    # Get hashtags for user's plan (by industry/country)
 ```
 
+### Content Ideas
+```
+GET  /api/content-ideas/available-months     # Current and next month
+GET  /api/content-ideas/by-date?date=YYYY-MM-DD  # Get idea for a specific date
+```
+
 ### Profile
 ```
 GET  /api/user                        # Get current user profile
@@ -155,6 +166,7 @@ GET  /api/discord/invite              # Get Discord community invite URL
 - **Monthly Task Generation**: Automatically generate tasks for each month based on plan configuration
 - **Image Search**: Search and download images from multiple sources (Unsplash, Pexels, Pixabay)
 - **Hashtag Suggestions**: Get industry and country-specific hashtag recommendations
+- **Content Ideas Calendar**: Daily content ideas with copyable caption and hashtags (managed via admin panel)
 - **Task Management**: Track and complete marketing tasks with notes and completion status
 - **Email Verification**: Secure email verification system for user registration
 - **Profile Management**: Update profile, change email/password with verification
