@@ -87,6 +87,16 @@
                 >
                   {{ texts.hashtags }}
                 </router-link>
+                <router-link 
+                  to="/dashboard/content-ideas"
+                  @click="closeSidebarOnMobile"
+                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                  :class="currentRoute === '/dashboard/content-ideas' 
+                    ? 'bg-[#f34767] text-white border-[#f34767]' 
+                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                >
+                  {{ texts.contentIdeas }}
+                </router-link>
               </div>
             </div>
 
@@ -247,6 +257,16 @@
                 >
                   {{ texts.hashtags }}
                 </router-link>
+                <router-link 
+                  to="/dashboard/content-ideas"
+                  @click="closeSidebarOnMobile"
+                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                  :class="currentRoute === '/dashboard/content-ideas' 
+                    ? 'bg-[#f34767] text-white border-[#f34767]' 
+                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                >
+                  {{ texts.contentIdeas }}
+                </router-link>
               </div>
             </div>
 
@@ -386,6 +406,7 @@ const texts = computed(() => {
       yourMarketingPlan: 'Dein Marketingplan',
       imageLibrary: 'Bildbibliothek',
       hashtags: 'Hashtags',
+      contentIdeas: 'Content Ideen',
       engage: 'Interaktion',
       community: 'Community',
       learn: 'Lernen',
@@ -404,6 +425,7 @@ const texts = computed(() => {
     yourMarketingPlan: 'Your Marketing Plan',
     imageLibrary: 'Image Library',
     hashtags: 'Hashtags',
+    contentIdeas: 'Content Ideas',
       engage: 'Engage',
       community: 'Community',
       learn: 'Learn',

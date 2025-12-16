@@ -329,6 +329,11 @@ Route::prefix('api')->group(function () {
 
             Route::get('/hashtags', [HashtagController::class, 'index']);
 
+            Route::prefix('content-ideas')->group(function () {
+                Route::get('/available-months', [App\Http\Controllers\API\ContentIdeasController::class, 'getAvailableMonths']);
+                Route::get('/by-date', [App\Http\Controllers\API\ContentIdeasController::class, 'getByDate']);
+            });
+
             Route::prefix('resources')->group(function () {
                 Route::get('/', [App\Http\Controllers\API\ResourceController::class, 'index']);
                 Route::get('/download', [App\Http\Controllers\API\ResourceController::class, 'download']);
