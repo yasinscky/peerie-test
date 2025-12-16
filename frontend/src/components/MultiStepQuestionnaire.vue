@@ -842,7 +842,10 @@ export default {
           return
         }
 
-        if (response.data?.user?.has_completed_questionnaire) {
+        const hasCompletedQuestionnaire = Boolean(
+          (response.data?.user?.has_completed_questionnaire ?? response.data?.has_completed_questionnaire) === true
+        )
+        if (hasCompletedQuestionnaire) {
           router.push('/dashboard')
           return
         }

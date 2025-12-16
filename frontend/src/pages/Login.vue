@@ -314,7 +314,10 @@ export default {
     const redirectAfterAuth = async () => {
       try {
         const response = await axios.get('/api/user')
-        if (response.data?.success && response.data?.user?.has_completed_questionnaire) {
+        const hasCompletedQuestionnaire = Boolean(
+          (response.data?.user?.has_completed_questionnaire ?? response.data?.has_completed_questionnaire) === true
+        )
+        if (response.data?.success && hasCompletedQuestionnaire) {
           router.push('/dashboard')
           return
         }

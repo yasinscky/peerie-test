@@ -133,7 +133,9 @@ router.beforeEach(async (to, from, next) => {
       }
 
       const isQuestionnaireRoute = to.name === 'Questionnaire' || to.path === '/questionnaire'
-      const hasCompletedQuestionnaire = Boolean(user?.has_completed_questionnaire)
+      const hasCompletedQuestionnaire = Boolean(
+        (user?.has_completed_questionnaire ?? response.data?.has_completed_questionnaire) === true
+      )
 
       if (!hasCompletedQuestionnaire && !isQuestionnaireRoute) {
         next('/questionnaire')

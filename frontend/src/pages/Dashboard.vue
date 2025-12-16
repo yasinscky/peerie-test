@@ -464,6 +464,15 @@ const fetchUser = async (force = false) => {
     lastUserFetchTime = Date.now()
     
     if (response.data.success) {
+      const hasCompletedQuestionnaire = Boolean(
+        (response.data?.user?.has_completed_questionnaire ?? response.data?.has_completed_questionnaire) === true
+      )
+
+      if (!hasCompletedQuestionnaire) {
+        router.replace('/questionnaire')
+        return
+      }
+
       user.value = {
         id: response.data.id,
         name: response.data.name,
