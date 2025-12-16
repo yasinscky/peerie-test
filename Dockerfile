@@ -1,5 +1,5 @@
 # Multi-stage build для production
-FROM node:18-alpine AS frontend-builder
+FROM node:24.12.0-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
@@ -10,7 +10,7 @@ ENV VITE_POSTHOG_API_KEY=$VITE_POSTHOG_API_KEY
 ENV VITE_POSTHOG_HOST=$VITE_POSTHOG_HOST
 RUN npm run build
 
-FROM php:8.3-fpm-alpine AS php-builder
+FROM php:8.4-fpm-alpine AS php-builder
 RUN apk add --no-cache \
     git \
     curl \
