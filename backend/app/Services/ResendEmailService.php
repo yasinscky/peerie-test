@@ -77,7 +77,15 @@ class ResendEmailService
 
         $bodyHtml = $contentHtml;
         if (is_string($code) && $code !== '') {
-            $bodyHtml = preg_replace('/<strong>\s*' . preg_quote($code, '/') . '\s*<\/strong>/i', '', $bodyHtml);
+            $escapedCode = preg_quote($code, '/');
+
+            $bodyHtml = preg_replace('/<p\b[^>]*>[\s\S]*?' . $escapedCode . '[\s\S]*?<\/p>/i', '', $bodyHtml);
+            $bodyHtml = preg_replace('/<div\b[^>]*>[\s\S]*?' . $escapedCode . '[\s\S]*?<\/div>/i', '', $bodyHtml);
+            $bodyHtml = preg_replace('/<p\b[^>]*>[\s\S]*?\bcode\s+is\b[\s\S]*?<\/p>/i', '', $bodyHtml);
+            $bodyHtml = preg_replace('/<div\b[^>]*>[\s\S]*?\bcode\s+is\b[\s\S]*?<\/div>/i', '', $bodyHtml);
+
+            $bodyHtml = preg_replace('/<strong>\s*' . $escapedCode . '\s*<\/strong>/i', '', $bodyHtml);
+            $bodyHtml = trim($bodyHtml);
         }
 
         $codeBlockHtml = '';
@@ -90,9 +98,6 @@ class ResendEmailService
                 . '<div style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:34px;line-height:40px;font-weight:700;letter-spacing:8px;color:' . $secondary . ';margin:0;user-select:all;-webkit-user-select:all;">' . htmlspecialchars($code, ENT_QUOTES, 'UTF-8') . '</div>'
                 . '</div>'
                 . '<div style="font-size:13px;line-height:18px;color:' . $muted . ';margin:10px 0 0;">Tip: tap/click the code to select it, then copy.</div>'
-                . '<div style="margin:12px 0 0;">'
-                . '<input readonly value="' . htmlspecialchars($code, ENT_QUOTES, 'UTF-8') . '" style="width:100%;max-width:320px;display:block;margin:0 auto;padding:12px 14px;border:1px solid ' . $border . ';border-radius:14px;background:' . $surface . ';color:' . $text . ';font-size:16px;text-align:center;" />'
-                . '</div>'
                 . '</td></tr></table>';
         }
 
