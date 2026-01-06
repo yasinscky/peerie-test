@@ -70,7 +70,7 @@ Route::prefix('api')->group(function () {
 
         app(ResendEmailService::class)->send(
             $user->email,
-            'Verify your email',
+            'Verification code for Peerie',
             '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
@@ -110,7 +110,7 @@ Route::prefix('api')->group(function () {
 
             app(ResendEmailService::class)->send(
                 $user->email,
-                'Verify your email',
+                'Verification code for Peerie',
                 '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
             );
 
@@ -209,7 +209,7 @@ Route::prefix('api')->group(function () {
 
         app(ResendEmailService::class)->send(
             $user->email,
-            'Verify your email',
+            'Verification code for Peerie',
             '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
