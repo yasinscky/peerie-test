@@ -145,7 +145,7 @@
                     <input
                       v-model="form.code"
                       type="text"
-                      class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
+                      class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder:text-gray-400"
                       :placeholder="texts.verificationCodePlaceholder"
                       required
                       maxlength="6"
@@ -308,7 +308,7 @@ const texts = computed(() => {
     navMenuLabel: 'Menu',
     title: 'Reset password',
     emailPlaceholder: 'E-mail address',
-    verificationCodePlaceholder: 'Verification code',
+    verificationCodePlaceholder: 'Confirmation code',
     newPasswordPlaceholder: 'New password',
     confirmNewPasswordPlaceholder: 'Confirm new password',
     sending: 'Sending...',
@@ -323,7 +323,7 @@ const texts = computed(() => {
     backToLogin: 'Back to login',
     steps: {
       enterEmail: 'Enter your email address',
-      enterCode: 'Enter verification code',
+      enterCode: 'Enter confirmation code',
       enterNewPassword: 'Enter new password',
       success: 'Password reset successful'
     },
@@ -331,7 +331,7 @@ const texts = computed(() => {
       sendResetCode: 'Failed to send reset code',
       sendResetCodeTryAgain: 'Failed to send reset code. Please try again.',
       userNotFound: 'User with this email not found',
-      invalidVerificationCode: 'Please enter a valid verification code',
+      invalidVerificationCode: 'Please enter a valid confirmation code',
       passwordsDoNotMatch: 'Passwords do not match',
       passwordTooShort: 'Password must be at least 8 characters',
       resetFailed: 'Failed to reset password',

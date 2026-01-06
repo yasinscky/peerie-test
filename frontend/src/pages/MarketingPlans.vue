@@ -100,10 +100,10 @@
           </div>
           </div>
 
-      <!-- In Progress -->
+      <!-- Pending -->
       <div class="bg-white border-2 border-[#3F4369] rounded-[30px] px-6 py-5 flex items-center justify-between">
         <div>
-          <p class="text-sm text-[#3F4369] opacity-70">In progress</p>
+          <p class="text-sm text-[#3F4369] opacity-70">Pending</p>
           <p class="text-3xl font-extrabold text-[#3F4369] mt-1">{{ stats.inProgressTasks }}</p>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-[#FFEB88] flex items-center justify-center">

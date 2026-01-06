@@ -164,21 +164,21 @@
                 <p class="text-lg text-[#1C1A1B]">
                   {{ texts.verificationText }}
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
-                  <div class="flex-1">
+                <div class="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch sm:items-center">
+                  <div class="flex-1 min-w-[220px]">
                     <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-20 flex items-center px-6">
                       <input
                         v-model="verification.code"
                         type="text"
                         inputmode="numeric"
                         maxlength="6"
-                        class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
+                        class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder:text-gray-400"
                         :placeholder="texts.verificationCodePlaceholder"
                         required
                       >
                     </div>
                   </div>
-                  <div class="flex flex-col sm:flex-row gap-3">
+                  <div class="flex flex-col sm:flex-row flex-wrap gap-3">
                     <button
                       type="button"
                       class="px-6 py-3 bg-[#F34767] text-white rounded-[20px] text-lg font-bold uppercase hover:bg-[#d93d5a] transition-all disabled:opacity-50"
@@ -252,15 +252,15 @@ export default {
           signIn: 'Anmelden',
           noAccount: 'Noch kein Konto?',
           signUp: 'Registrieren',
-          verificationText: 'Deine E-Mail ist noch nicht verifiziert. Gib den Code ein, den wir dir per E-Mail gesendet haben.',
+          verificationText: 'Deine E-Mail ist noch nicht verifiziert. Gib den Bestätigungscode ein, den wir dir per E-Mail gesendet haben.',
           verificationCodePlaceholder: 'Bestätigungscode',
           verifying: 'Wird geprüft...',
-          verifyEmail: 'E-Mail bestätigen',
+          verifyEmail: 'Bestätigungscode senden',
           resendCode: 'Code erneut senden',
           errors: {
             login: 'Anmeldefehler',
             emailNotVerified: 'E-Mail nicht verifiziert. Gib den Code ein, den wir dir per E-Mail gesendet haben.',
-            verificationNotAvailable: 'Bestätigung ist nicht verfügbar',
+            verificationNotAvailable: 'Bestätigungscode ist nicht verfügbar',
             enterVerificationCode: 'Bitte gib den Bestätigungscode ein',
             verificationError: 'Bestätigungsfehler'
           }
@@ -280,16 +280,16 @@ export default {
         signIn: 'Sign in',
         noAccount: "Don't have an account?",
         signUp: 'Sign up',
-        verificationText: 'Your email is not verified. Enter the verification code we sent to your email.',
-        verificationCodePlaceholder: 'Verification code',
+        verificationText: 'Your email is not verified. Enter the confirmation code we sent to your email.',
+        verificationCodePlaceholder: 'Confirmation code',
         verifying: 'Verifying...',
-        verifyEmail: 'Verify email',
+        verifyEmail: 'Send verification code',
         resendCode: 'Resend code',
         errors: {
           login: 'Login error',
           emailNotVerified: 'Email not verified. Enter the code we sent to your email.',
-          verificationNotAvailable: 'Verification is not available',
-          enterVerificationCode: 'Please enter the verification code',
+          verificationNotAvailable: 'Confirmation code is not available',
+          enterVerificationCode: 'Please enter the confirmation code',
           verificationError: 'Verification error'
         }
       }
