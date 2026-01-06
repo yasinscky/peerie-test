@@ -9,6 +9,12 @@
       </div>
     </div>
 
+    <div class="mb-8">
+      <p class="text-[#3F4369] opacity-70 leading-relaxed max-w-5xl">
+        {{ texts.intro }}
+      </p>
+    </div>
+
     <div v-if="loading" class="flex justify-center items-center py-12">
       <div class="text-[#3F4369]">{{ texts.loading }}</div>
     </div>
@@ -63,6 +69,7 @@ const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
       headerTitle: 'Ressourcen',
+      intro: 'Verwenden Sie die Vorlagen auf dieser Seite, um wichtige Teile Ihres Marketings schnell zu dokumentieren und zu organisieren – von Zielen und idealen Kunden (Personas) bis hin zur Wettbewerbsanalyse und mehr – ohne bei Null anfangen zu müssen. Alles hier ist auf Ihren Marketingplan abgestimmt, und wenn eine Vorlage relevant ist, weisen wir in den Aufgaben Ihres Plans darauf hin, damit Sie wissen, welche Sie als Nächstes verwenden sollten. Um loszulegen, laden Sie einfach eine Vorlage auf Ihren Computer herunter und füllen Sie sie in Ihrem eigenen Tempo aus.',
       description: 'Lade dir unsere Content Bank Vorlage herunter, um deine Marketing-Inhalte zu erstellen.',
       download: 'Datei herunterladen',
       downloading: 'Wird heruntergeladen...',
@@ -73,6 +80,7 @@ const texts = computed(() => {
 
   return {
     headerTitle: 'Resources',
+    intro: "Use the templates on this page to quickly document and organise key parts of your marketing — from goals and ideal customers (personas) to competitor analysis and more — without starting from scratch. Everything here is aligned with your marketing plan, and when a template is relevant, we’ll call it out in the tasks in your plan so you know what to use next. To get started, simply download a template to your computer and fill it in at your own pace.",
     description: 'Download our Content Bank Template to create your marketing content.',
     download: 'Download File',
     downloading: 'Downloading...',
