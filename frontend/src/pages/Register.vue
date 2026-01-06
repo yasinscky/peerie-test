@@ -207,15 +207,18 @@
                     >
                       {{ isVerifying ? texts.verifying : texts.verifyEmail }}
                     </button>
-                    <button
+                  <button
                       type="button"
                       class="px-6 py-3 border-2 border-[#F34767] text-[#F34767] rounded-[20px] text-lg font-bold uppercase hover:bg-[#F34767] hover:text-white transition-all disabled:opacity-50"
-                      :disabled="isVerifying"
+                      :disabled="isVerifying || resendCooldown > 0"
                       @click="handleResendCode"
                     >
-                      {{ texts.resendCode }}
+                      {{ resendCodeLabel }}
                     </button>
                   </div>
+                </div>
+                <div v-if="notice" class="mt-4 px-4 py-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-900">
+                  <p>{{ notice }}</p>
                 </div>
               </div>
             </form>
@@ -245,7 +248,7 @@
 </template>
 
 <script>
-import { computed, ref } from 'vue'
+import { computed, ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import logoImage from '@/assets/images/logos/logo.svg'
@@ -278,12 +281,16 @@ export default {
           verifying: 'Wird geprüft...',
           verifyEmail: 'Bestätigungscode senden',
           resendCode: 'Code erneut senden',
+          resendCodeWithTimer: 'Code erneut senden ({seconds}s)',
+          resendSent: 'Bestätigungscode wurde erneut gesendet.',
+          spamTip: 'Wir haben dir den Bestätigungscode erneut gesendet. Falls du die E-Mail nicht siehst, prüfe bitte deinen Spam-/Junk-Ordner.',
           errors: {
             passwordsDoNotMatch: 'Passwörter stimmen nicht überein',
             registration: 'Registrierungsfehler',
             verificationNotAvailable: 'Bestätigungscode ist nicht verfügbar',
             enterVerificationCode: 'Bitte gib den Bestätigungscode ein',
-            verificationError: 'Bestätigungsfehler'
+            verificationError: 'Bestätigungsfehler',
+            resendCooldown: 'Bitte warte noch {seconds}s, bevor du einen neuen Code anforderst.'
           }
         }
       }
@@ -307,18 +314,26 @@ export default {
         verifying: 'Verifying...',
         verifyEmail: 'Send verification code',
         resendCode: 'Resend code',
+        resendCodeWithTimer: 'Resend code ({seconds}s)',
+        resendSent: 'Verification code has been resent.',
+        spamTip: 'We’ve resent your verification code. If you still don’t see the email, please check your spam/junk folder.',
         errors: {
           passwordsDoNotMatch: 'Passwords do not match',
           registration: 'Registration error',
           verificationNotAvailable: 'Confirmation code is not available',
           enterVerificationCode: 'Please enter the confirmation code',
-          verificationError: 'Verification error'
+          verificationError: 'Verification error',
+          resendCooldown: 'Please wait {seconds}s before requesting a new code.'
         }
       }
     })
     const isLoading = ref(false)
     const isVerifying = ref(false)
     const error = ref('')
+    const notice = ref('')
+    const resendCooldown = ref(0)
+    const resendAttempts = ref(0)
+    let resendIntervalId = null
 
     const form = ref({
       name: '',
@@ -333,9 +348,39 @@ export default {
       code: ''
     })
 
+    const startResendCooldown = (seconds) => {
+      const value = Number.isFinite(Number(seconds)) ? Math.max(0, Math.round(Number(seconds))) : 0
+      resendCooldown.value = value
+
+      if (resendIntervalId) {
+        clearInterval(resendIntervalId)
+        resendIntervalId = null
+      }
+
+      if (value <= 0) {
+        return
+      }
+
+      resendIntervalId = setInterval(() => {
+        resendCooldown.value = Math.max(0, resendCooldown.value - 1)
+        if (resendCooldown.value <= 0 && resendIntervalId) {
+          clearInterval(resendIntervalId)
+          resendIntervalId = null
+        }
+      }, 1000)
+    }
+
+    const resendCodeLabel = computed(() => {
+      if (resendCooldown.value > 0) {
+        return texts.value.resendCodeWithTimer.replace('{seconds}', String(resendCooldown.value))
+      }
+      return texts.value.resendCode
+    })
+
     const handleRegister = async () => {
       isLoading.value = true
       error.value = ''
+      notice.value = ''
 
       if (form.value.password !== form.value.password_confirmation) {
         error.value = texts.value.errors.passwordsDoNotMatch
@@ -352,6 +397,9 @@ export default {
             verification.value.userId = response.data.user_id
             verification.value.code = ''
             error.value = ''
+            notice.value = ''
+            resendAttempts.value = 0
+            startResendCooldown(response.data?.cooldown_seconds ?? 30)
           } else if (response.data.user) {
           localStorage.setItem('user', JSON.stringify(response.data.user))
           router.push('/questionnaire')
@@ -409,17 +457,42 @@ export default {
         return
       }
 
+      if (resendCooldown.value > 0) {
+        error.value = texts.value.errors.resendCooldown.replace('{seconds}', String(resendCooldown.value))
+        return
+      }
+
       isVerifying.value = true
+      error.value = ''
+      notice.value = ''
 
       try {
-        await axios.post('/api/email/resend-registration-code', {
+        const response = await axios.post('/api/email/resend-registration-code', {
           user_id: verification.value.userId
         })
-      } catch {
+        startResendCooldown(response.data?.cooldown_seconds ?? 30)
+        resendAttempts.value += 1
+        const shouldShowSpamTip = Boolean(response.data?.show_spam_tip) || resendAttempts.value >= 1
+        notice.value = shouldShowSpamTip ? texts.value.spamTip : texts.value.resendSent
+      } catch (err) {
+        if (err.response?.status === 429) {
+          const retryAfter = err.response?.data?.retry_after ?? 30
+          startResendCooldown(retryAfter)
+          error.value = texts.value.errors.resendCooldown.replace('{seconds}', String(Math.max(1, Math.round(Number(retryAfter) || 1))))
+        } else {
+          error.value = err.response?.data?.message || texts.value.errors.verificationError
+        }
       } finally {
         isVerifying.value = false
       }
     }
+
+    onUnmounted(() => {
+      if (resendIntervalId) {
+        clearInterval(resendIntervalId)
+        resendIntervalId = null
+      }
+    })
 
     const mobileMenuOpen = ref(false)
 
@@ -433,6 +506,9 @@ export default {
       isVerifying,
       handleVerifyEmail,
       handleResendCode,
+      notice,
+      resendCooldown,
+      resendCodeLabel,
       logoImage,
       mobileMenuOpen,
       languageStore,

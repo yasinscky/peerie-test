@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
 use App\Services\VerificationCodeService;
@@ -47,6 +48,32 @@ Route::post('/admin/login', function (Request $request) {
     ]);
 })->name('admin.login.post');
 
+const VERIFICATION_COOLDOWN_SECONDS = 30;
+const VERIFICATION_COUNTER_TTL_MINUTES = 360;
+const VERIFICATION_COOLDOWN_TTL_MINUTES = 360;
+
+function getRegistrationVerificationLastSentKey(int $userId): string
+{
+    return 'registration_verification_last_sent:' . $userId;
+}
+
+function getRegistrationVerificationResendCountKey(int $userId): string
+{
+    return 'registration_verification_resend_count:' . $userId;
+}
+
+function getVerificationRetryAfter(?int $lastSentAt, int $cooldownSeconds): int
+{
+    if (!$lastSentAt) {
+        return 0;
+    }
+
+    $elapsed = time() - $lastSentAt;
+    $remaining = $cooldownSeconds - $elapsed;
+
+    return $remaining > 0 ? $remaining : 0;
+}
+
 Route::prefix('api')->group(function () {
     Route::post('/register', function (Request $request) {
         $request->merge([
@@ -74,10 +101,14 @@ Route::prefix('api')->group(function () {
             '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
+        Cache::put(getRegistrationVerificationLastSentKey($user->id), time(), now()->addMinutes(VERIFICATION_COOLDOWN_TTL_MINUTES));
+        Cache::put(getRegistrationVerificationResendCountKey($user->id), 0, now()->addMinutes(VERIFICATION_COUNTER_TTL_MINUTES));
+
         $response = [
             'success' => true,
             'user_id' => $user->id,
             'requires_verification' => true,
+            'cooldown_seconds' => VERIFICATION_COOLDOWN_SECONDS,
             'message' => 'Registration successful. Please verify your email.',
         ];
 
@@ -204,6 +235,21 @@ Route::prefix('api')->group(function () {
             ]);
         }
 
+        $lastSentAt = Cache::get(getRegistrationVerificationLastSentKey($user->id));
+        $retryAfter = getVerificationRetryAfter(is_numeric($lastSentAt) ? (int) $lastSentAt : null, VERIFICATION_COOLDOWN_SECONDS);
+        if ($retryAfter > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please wait before requesting a new verification code.',
+                'cooldown_seconds' => VERIFICATION_COOLDOWN_SECONDS,
+                'retry_after' => $retryAfter,
+            ], 429);
+        }
+
+        if (!Cache::has(getRegistrationVerificationResendCountKey($user->id))) {
+            Cache::put(getRegistrationVerificationResendCountKey($user->id), 0, now()->addMinutes(VERIFICATION_COUNTER_TTL_MINUTES));
+        }
+
         $service = app(VerificationCodeService::class);
         $codeData = $service->createCode($user, 'registration');
 
@@ -213,9 +259,15 @@ Route::prefix('api')->group(function () {
             '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
         );
 
+        Cache::put(getRegistrationVerificationLastSentKey($user->id), time(), now()->addMinutes(VERIFICATION_COOLDOWN_TTL_MINUTES));
+        $resendCount = (int) Cache::increment(getRegistrationVerificationResendCountKey($user->id));
+
         $response = [
             'success' => true,
             'message' => 'Verification code resent.',
+            'cooldown_seconds' => VERIFICATION_COOLDOWN_SECONDS,
+            'resend_count' => $resendCount,
+            'show_spam_tip' => $resendCount >= 1,
         ];
 
         if (app()->environment('local')) {

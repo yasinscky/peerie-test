@@ -496,6 +496,133 @@
             </div>
           </div>
 
+          <!-- Step 6: Review -->
+          <div v-if="currentStep === 6" class="space-y-6">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Review your answers</h2>
+                <p class="text-gray-600">
+                  Please double-check your answers. If something is wrong, go back and edit it. When everything looks correct, click Create plan.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <div class="border rounded-lg p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900">Business Profile</h3>
+                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(1)">Edit</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-sm text-gray-500">Country</div>
+                    <div class="font-medium text-gray-900">{{ countryLabel }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Industry</div>
+                    <div class="font-medium text-gray-900">{{ industryLabel }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Language</div>
+                    <div class="font-medium text-gray-900">{{ languageLabel }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Local presence</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.is_local_business) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Weekly marketing tasks load</div>
+                    <div class="font-medium text-gray-900">{{ marketingTimeLabel }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border rounded-lg p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900">Goals & tactics</h3>
+                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(2)">Edit</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-sm text-gray-500">Business goals defined</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.business_goals_defined) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Marketing goals defined</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.marketing_goals_defined) }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="form.is_local_business" class="border rounded-lg p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900">Local presence</h3>
+                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(3)">Edit</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-sm text-gray-500">Google Business Profile claimed</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.google_business_claimed) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Apple Business and Bing Places claimed</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.core_directories_claimed) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Industry directories claimed</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.industry_directories_claimed) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Business directories claimed</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.business_directories_claimed) }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border rounded-lg p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900">Tools</h3>
+                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(4)">Edit</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-sm text-gray-500">Website in place</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.has_website) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Email marketing tool in place</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.email_marketing_tool) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">CRM or pipeline</div>
+                    <div class="font-medium text-gray-900">{{ yesNo(form.crm_pipeline) }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Running ads</div>
+                    <div class="font-medium text-gray-900">{{ runningAdsLabel }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border rounded-lg p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                  <h3 class="text-lg font-semibold text-gray-900">Social Media Channels</h3>
+                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(5)">Edit</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div class="text-sm text-gray-500">Primary channel</div>
+                    <div class="font-medium text-gray-900">{{ primarySocialLabel }}</div>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-500">Secondary channel</div>
+                    <div class="font-medium text-gray-900">{{ secondarySocialLabel }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Navigation Buttons -->
           <div class="flex justify-between pt-6">
             <button 
@@ -514,7 +641,7 @@
               :disabled="isLoading || !canProceed"
             >
               <span v-if="isLoading" class="spinner mr-2"></span>
-              {{ isLoading ? 'Creating plan...' : isLastStep ? 'Create Plan' : 'Next →' }}
+              {{ primaryCtaLabel }}
             </button>
           </div>
         </form>
@@ -567,7 +694,8 @@ export default {
     const currentStep = ref(1)
     
     const totalSteps = computed(() => {
-      return form.value.is_local_business === false ? 4 : 5
+      const base = form.value.is_local_business === false ? 4 : 5
+      return base + 1
     })
 
     const form = ref({
@@ -651,12 +779,16 @@ export default {
       2: 'Goals & tactics',
       3: 'Local presence',
       4: 'Tools',
-      5: 'Social Media Channels'
+      5: 'Social Media Channels',
+      6: 'Review'
     }
 
     const currentStepTitle = computed(() => stepTitles[currentStep.value])
     
     const displayStep = computed(() => {
+      if (currentStep.value === 6 && !form.value.is_local_business) {
+        return 5
+      }
       if (currentStep.value > 3 && !form.value.is_local_business) {
         return currentStep.value - 1
       }
@@ -709,9 +841,8 @@ export default {
       return total > 0 ? (completed / total) * 100 : 0
     })
 
-    const isLastStep = computed(() => {
-      return currentStep.value === 5
-    })
+    const isQuestionnaireLastStep = computed(() => currentStep.value === 5)
+    const isReviewStep = computed(() => currentStep.value === 6)
 
     const canProceed = computed(() => {
       switch (currentStep.value) {
@@ -740,6 +871,8 @@ export default {
                  form.value.has_secondary_social_channel !== null &&
                  (form.value.has_primary_social_channel === false || form.value.primary_social_channel) &&
                  (form.value.has_secondary_social_channel === false || form.value.secondary_social_channel)
+        case 6:
+          return true
         default:
           return false
       }
@@ -763,8 +896,13 @@ export default {
     const nextStep = async () => {
       if (!canProceed.value) return
 
-      if (isLastStep.value) {
+      if (isReviewStep.value) {
         await submitQuestionnaire()
+        return
+      }
+
+      if (isQuestionnaireLastStep.value) {
+        currentStep.value = 6
       } else {
         currentStep.value++
         if (currentStep.value === 3 && !form.value.is_local_business) {
@@ -781,6 +919,58 @@ export default {
         }
       }
     }
+
+    const goToStep = (step) => {
+      const target = Number(step)
+      if (!Number.isFinite(target)) return
+      if (target === 3 && !form.value.is_local_business) {
+        currentStep.value = 4
+        return
+      }
+      if (target >= 1 && target <= 5) {
+        currentStep.value = target
+      }
+    }
+
+    const yesNo = (value) => {
+      if (value === true) return 'Yes'
+      if (value === false) return 'No'
+      return '—'
+    }
+
+    const countryLabel = computed(() => countries.find(c => c.value === form.value.country)?.label || '—')
+    const industryLabel = computed(() => industries.find(i => i.value === form.value.industry)?.label || '—')
+    const languageLabel = computed(() => {
+      if (form.value.language === 'de') return 'DE (German)'
+      if (form.value.language === 'en') return 'EN (English)'
+      return '—'
+    })
+    const marketingTimeLabel = computed(() => timeOptions.find(o => o.value === form.value.marketing_time_per_week)?.label || '—')
+    const runningAdsLabel = computed(() => {
+      if (form.value.running_ads_none === true) return 'None'
+      const list = Array.isArray(form.value.running_ads) ? form.value.running_ads : []
+      if (list.length === 0) return '—'
+      return list
+        .map(v => adsChannelOptions.value.find(o => o.value === v)?.label || v)
+        .join(', ')
+    })
+    const primarySocialLabel = computed(() => {
+      if (form.value.has_primary_social_channel === false) return 'None'
+      if (!form.value.primary_social_channel) return '—'
+      return socialChannels.find(c => c.value === form.value.primary_social_channel)?.label || form.value.primary_social_channel
+    })
+    const secondarySocialLabel = computed(() => {
+      if (form.value.has_secondary_social_channel === false) return 'None'
+      if (!form.value.secondary_social_channel) return '—'
+      return socialChannels.find(c => c.value === form.value.secondary_social_channel)?.label || form.value.secondary_social_channel
+    })
+
+    const primaryCtaLabel = computed(() => {
+      if (isLoading.value) return 'Creating plan...'
+      if (isReviewStep.value) return 'Create Plan'
+      if (isQuestionnaireLastStep.value) return 'Review answers →'
+      return 'Next →'
+    })
 
     const submitQuestionnaire = async () => {
       isLoading.value = true
@@ -865,7 +1055,8 @@ export default {
       displayStep,
       currentStepTitle,
       progress,
-      isLastStep,
+      isQuestionnaireLastStep,
+      isReviewStep,
       canProceed,
       countries,
       industries,
@@ -881,7 +1072,17 @@ export default {
       onRunningAdsNoneChange,
       nextStep,
       prevStep,
+      goToStep,
       submitQuestionnaire,
+      yesNo,
+      countryLabel,
+      industryLabel,
+      languageLabel,
+      marketingTimeLabel,
+      runningAdsLabel,
+      primarySocialLabel,
+      secondarySocialLabel,
+      primaryCtaLabel,
       logoImage
     }
   }
