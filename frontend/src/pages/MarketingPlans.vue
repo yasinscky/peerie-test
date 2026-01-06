@@ -211,21 +211,23 @@
               :class="task.pivot.completed 
                 ? 'bg-[#1C8E9E] bg-opacity-10 border-[#1C8E9E]' 
                 : 'bg-white border-[#DCDCDC] hover:border-[#F34767] hover:bg-[#FFEBD0]'"
-              @click="toggleTask(task.pivot.id, !task.pivot.completed)"
+              @click="openTaskModal(task)"
             >
               <div class="flex items-start justify-between">
                 <div class="flex-1">
                   <div class="flex items-start space-x-3">
-                    <div 
+                    <button
+                      type="button"
                       class="w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 transition-colors"
                       :class="task.pivot.completed 
                         ? 'bg-[#1C8E9E] border-[#1C8E9E]' 
                         : 'border-[#DCDCDC] hover:border-[#F34767]'"
+                      @click.stop="toggleTask(task.pivot.id, !task.pivot.completed)"
                     >
                       <svg v-if="task.pivot.completed" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                       </svg>
-                    </div>
+                    </button>
                     <div class="flex-1">
                       <h4 class="font-medium text-[#3F4369] mb-1" :class="task.pivot.completed ? 'line-through opacity-70' : ''">
                         {{ task.title }}
