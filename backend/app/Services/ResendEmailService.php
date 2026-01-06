@@ -57,23 +57,75 @@ class ResendEmailService
         $logoUrl = $this->resolveLogoUrl();
         $preheader = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
 
-        return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $preheader . '</title></head>'
-            . '<body style="margin:0;padding:0;background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111827;">'
-            . '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">' . $preheader . '</div>'
-            . '<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:#f6f7f9;padding:24px 12px;">'
-            . '<tr><td align="center">'
-            . '<table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(16,24,40,0.06);">'
-            . '<tr><td style="padding:20px 24px;border-bottom:1px solid #eef2f7;">'
-            . '<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr>'
-            . '<td align="left" style="vertical-align:middle;">'
-            . ($logoUrl ? '<img src="' . htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') . '" width="40" height="40" alt="' . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '" style="display:block;border-radius:10px;">' : '')
-            . '</td>'
-            . '<td align="right" style="vertical-align:middle;font-size:16px;font-weight:600;color:#111827;">' . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '</td>'
-            . '</tr></table>'
+        $primary = '#F34767';
+        $secondary = '#3F4369';
+        $background = '#f6f7f9';
+        $surface = '#ffffff';
+        $muted = '#6b7280';
+        $text = '#111827';
+        $border = '#e5e7eb';
+
+        $code = null;
+        $textOnly = trim(preg_replace('/\s+/', ' ', strip_tags($contentHtml)));
+        if (preg_match('/\b(\d{6})\b/', $textOnly, $m)) {
+            $code = $m[1];
+        }
+
+        $safeBrand = htmlspecialchars($brand, ENT_QUOTES, 'UTF-8');
+        $safeLogoUrl = $logoUrl ? htmlspecialchars($logoUrl, ENT_QUOTES, 'UTF-8') : null;
+        $safeSubject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
+
+        $bodyHtml = $contentHtml;
+        if (is_string($code) && $code !== '') {
+            $bodyHtml = preg_replace('/<strong>\s*' . preg_quote($code, '/') . '\s*<\/strong>/i', '', $bodyHtml);
+        }
+
+        $codeBlockHtml = '';
+        if (is_string($code) && $code !== '') {
+            $codeBlockHtml =
+                '<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 20px;">'
+                . '<tr><td style="padding:0;">'
+                . '<div style="font-size:14px;line-height:20px;color:' . $muted . ';margin:0 0 10px;">Your confirmation code</div>'
+                . '<div style="border:1px solid ' . $border . ';border-radius:16px;background:#f9fafb;padding:18px 16px;text-align:center;">'
+                . '<div style="font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:34px;line-height:40px;font-weight:700;letter-spacing:8px;color:' . $secondary . ';margin:0;user-select:all;-webkit-user-select:all;">' . htmlspecialchars($code, ENT_QUOTES, 'UTF-8') . '</div>'
+                . '</div>'
+                . '<div style="font-size:13px;line-height:18px;color:' . $muted . ';margin:10px 0 0;">Tip: tap/click the code to select it, then copy.</div>'
+                . '<div style="margin:12px 0 0;">'
+                . '<input readonly value="' . htmlspecialchars($code, ENT_QUOTES, 'UTF-8') . '" style="width:100%;max-width:320px;display:block;margin:0 auto;padding:12px 14px;border:1px solid ' . $border . ';border-radius:14px;background:' . $surface . ';color:' . $text . ';font-size:16px;text-align:center;" />'
+                . '</div>'
+                . '</td></tr></table>';
+        }
+
+        $headerHtml = '<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="padding:28px 24px 0;">'
+            . '<tr><td align="center" style="padding:0 0 18px;">'
+            . ($safeLogoUrl ? '<img src="' . $safeLogoUrl . '" width="56" height="56" alt="' . $safeBrand . '" style="display:block;border-radius:14px;">' : '<div style="width:56px;height:56px;border-radius:14px;background:' . $primary . ';display:inline-block;"></div>')
             . '</td></tr>'
-            . '<tr><td style="padding:24px;">' . $contentHtml . '</td></tr>'
-            . '<tr><td style="padding:16px 24px;border-top:1px solid #eef2f7;font-size:12px;color:#6b7280;">'
-            . htmlspecialchars($brand, ENT_QUOTES, 'UTF-8') . '</td></tr>'
+            . '<tr><td align="center" style="font-size:18px;line-height:22px;font-weight:700;color:' . $text . ';padding:0 0 6px;">' . $safeBrand . '</td></tr>'
+            . '</table>';
+
+        $footerHtml = '<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="padding:0 24px 26px;">'
+            . '<tr><td style="border-top:1px solid #eef2f7;padding-top:16px;font-size:12px;line-height:18px;color:' . $muted . ';">'
+            . 'If you didn’t request this email, you can safely ignore it.'
+            . '</td></tr></table>';
+
+        return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $preheader . '</title></head>'
+            . '<body style="margin:0;padding:0;background:' . $background . ';font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:' . $text . ';">'
+            . '<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">' . $preheader . '</div>'
+            . '<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background:' . $background . ';padding:24px 12px;">'
+            . '<tr><td align="center">'
+            . '<table role="presentation" cellpadding="0" cellspacing="0" width="600" style="width:600px;max-width:600px;background:' . $surface . ';border-radius:22px;overflow:hidden;box-shadow:0 8px 24px rgba(16,24,40,0.08);border:1px solid rgba(17,24,39,0.06);">'
+            . '<tr><td style="background:' . $surface . ';">' . $headerHtml . '</td></tr>'
+            . '<tr><td style="padding:18px 24px 8px;">'
+            . '<div style="font-size:28px;line-height:34px;font-weight:800;color:' . $text . ';margin:0 0 14px;">' . $safeSubject . '</div>'
+            . '</td></tr>'
+            . '<tr><td style="padding:0 24px 6px;">' . $codeBlockHtml . '</td></tr>'
+            . '<tr><td style="padding:0 24px 18px;">'
+            . '<div style="font-size:16px;line-height:24px;color:#374151;">' . $bodyHtml . '</div>'
+            . '</td></tr>'
+            . '<tr><td style="padding:0 24px 28px;">'
+            . '<div style="height:10px;border-radius:999px;background:linear-gradient(90deg,' . $primary . ', ' . $secondary . ');opacity:0.12;"></div>'
+            . '</td></tr>'
+            . '<tr><td>' . $footerHtml . '</td></tr>'
             . '</table>'
             . '</td></tr></table>'
             . '</body></html>';
