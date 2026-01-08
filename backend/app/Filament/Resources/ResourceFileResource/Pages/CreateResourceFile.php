@@ -24,6 +24,11 @@ class CreateResourceFile extends CreateRecord
                 $data['original_filename'] = basename($data['file']);
             }
         }
+
+        if (isset($data['original_filename']) && is_string($data['original_filename'])) {
+            $data['original_filename'] = trim($data['original_filename']);
+            $data['original_filename'] = rtrim($data['original_filename'], ". \t");
+        }
         
         unset($data['file']);
         

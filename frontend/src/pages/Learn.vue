@@ -114,6 +114,38 @@ const fetchResource = async () => {
   }
 }
 
+const getFilenameFromContentDisposition = (header) => {
+  if (!header || typeof header !== 'string') return null
+
+  const filenameStarMatch = header.match(/filename\*\s*=\s*([^;]+)/i)
+  if (filenameStarMatch?.[1]) {
+    let value = filenameStarMatch[1].trim()
+    value = value.replace(/^"(.*)"$/, '$1').trim()
+    const utf8Prefix = "UTF-8''"
+    if (value.toUpperCase().startsWith(utf8Prefix)) {
+      value = value.slice(utf8Prefix.length)
+    }
+    try {
+      const decoded = decodeURIComponent(value)
+      const cleaned = decoded.replace(/[\u0000-\u001F\u007F]/g, '').trim().replace(/[ .\t]+$/, '')
+      return cleaned || null
+    } catch {
+      const cleaned = value.replace(/[\u0000-\u001F\u007F]/g, '').trim().replace(/[ .\t]+$/, '')
+      return cleaned || null
+    }
+  }
+
+  const filenameMatch = header.match(/filename\s*=\s*([^;]+)/i)
+  if (filenameMatch?.[1]) {
+    let value = filenameMatch[1].trim()
+    value = value.replace(/^"(.*)"$/, '$1')
+    const cleaned = value.replace(/[\u0000-\u001F\u007F]/g, '').trim().replace(/[ .\t]+$/, '')
+    return cleaned || null
+  }
+
+  return null
+}
+
 const downloadFile = async (item) => {
   try {
     downloadingId.value = item.id
@@ -125,14 +157,9 @@ const downloadFile = async (item) => {
     const link = document.createElement('a')
     link.href = url
     
-    const contentDisposition = response.headers['content-disposition']
-    let filename = item?.filename || 'resource'
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i)
-      if (filenameMatch) {
-        filename = filenameMatch[1]
-      }
-    }
+    const contentDisposition = response.headers?.['content-disposition'] || response.headers?.['Content-Disposition']
+    const filenameFromHeader = getFilenameFromContentDisposition(contentDisposition)
+    const filename = filenameFromHeader || item?.filename || 'resource'
     
     link.setAttribute('download', filename)
     document.body.appendChild(link)

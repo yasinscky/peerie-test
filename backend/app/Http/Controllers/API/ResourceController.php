@@ -89,9 +89,19 @@ class ResourceController extends Controller
             ], 404);
         }
 
+        $downloadName = $resourceFile->original_filename;
+        if (is_string($downloadName)) {
+            $downloadName = preg_replace('/[\x00-\x1F\x7F]/', '', $downloadName) ?? $downloadName;
+            $downloadName = trim($downloadName);
+            $downloadName = rtrim($downloadName, ". \t");
+        }
+        if (!is_string($downloadName) || $downloadName === '') {
+            $downloadName = 'resource';
+        }
+
         return response()->download(
             Storage::disk('local')->path($resourceFile->file_path),
-            $resourceFile->original_filename
+            $downloadName
         );
     }
 
@@ -126,9 +136,19 @@ class ResourceController extends Controller
             ], 404);
         }
 
+        $downloadName = $resourceFile->original_filename;
+        if (is_string($downloadName)) {
+            $downloadName = preg_replace('/[\x00-\x1F\x7F]/', '', $downloadName) ?? $downloadName;
+            $downloadName = trim($downloadName);
+            $downloadName = rtrim($downloadName, ". \t");
+        }
+        if (!is_string($downloadName) || $downloadName === '') {
+            $downloadName = 'resource';
+        }
+
         return response()->download(
             Storage::disk('local')->path($resourceFile->file_path),
-            $resourceFile->original_filename
+            $downloadName
         );
     }
 }

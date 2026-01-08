@@ -60,6 +60,11 @@ class EditResourceFile extends EditRecord
         } else {
             unset($data['file_path']);
         }
+
+        if (isset($data['original_filename']) && is_string($data['original_filename'])) {
+            $data['original_filename'] = trim($data['original_filename']);
+            $data['original_filename'] = rtrim($data['original_filename'], ". \t");
+        }
         
         unset($data['file']);
         
