@@ -19,6 +19,7 @@ class ContentIdea extends Model
         'hashtags',
         'tips',
         'language',
+        'audience',
     ];
 
     protected $casts = [

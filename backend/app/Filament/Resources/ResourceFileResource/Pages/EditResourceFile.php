@@ -43,7 +43,7 @@ class EditResourceFile extends EditRecord
             $filePath = $data['file'][0];
             $data['file_path'] = $filePath;
             
-            if (!isset($data['original_filename'])) {
+            if (!isset($data['original_filename']) || empty($data['original_filename'])) {
                 $data['original_filename'] = basename($filePath);
             }
         } else if (isset($data['file']) && is_string($data['file']) && !empty($data['file'])) {
@@ -54,7 +54,7 @@ class EditResourceFile extends EditRecord
             }
             
             $data['file_path'] = $data['file'];
-            if (!isset($data['original_filename'])) {
+            if (!isset($data['original_filename']) || empty($data['original_filename'])) {
                 $data['original_filename'] = basename($data['file']);
             }
         } else {

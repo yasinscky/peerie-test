@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
 class ResourceFileResource extends Resource
@@ -41,9 +42,21 @@ class ResourceFileResource extends Resource
                             ->default('en')
                             ->required()
                             ->native(false),
+                        Forms\Components\TextInput::make('sort_order')
+                            ->label('Sort order')
+                            ->numeric()
+                            ->default(0)
+                            ->required(),
+                        Forms\Components\DateTimePicker::make('published_at')
+                            ->label('Published at')
+                            ->native(false),
                         Forms\Components\FileUpload::make('file')
                             ->label('File')
-                            ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->acceptedFileTypes([
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/pdf',
+                                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                            ])
                             ->directory(function ($get, $record) {
                                 $lang = $get('language') ?? ($record?->language ?? 'en');
                                 return 'resources/' . $lang;
@@ -51,9 +64,10 @@ class ResourceFileResource extends Resource
                             ->visibility('private')
                             ->required(fn ($context) => $context === 'create')
                             ->disk('local')
+                            ->storeFileNamesIn('original_filename')
                             ->deletable(false)
                             ->downloadable(false)
-                            ->helperText('Upload a .docx file. File will be stored in resources/{language} folder.')
+                            ->helperText('Upload a .docx, .pdf, or .pptx file. File will be stored in resources/{language} folder.')
                             ->columnSpanFull(),
                     ]),
             ]);
@@ -84,6 +98,14 @@ class ResourceFileResource extends Resource
                 Tables\Columns\TextColumn::make('original_filename')
                     ->label('Filename')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('sort_order')
+                    ->label('Sort order')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('published_at')
+                    ->label('Published at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime()
@@ -94,6 +116,11 @@ class ResourceFileResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $query
+                    ->orderByDesc('sort_order')
+                    ->orderByRaw('COALESCE(published_at, created_at) DESC');
+            })
             ->filters([
                 Tables\Filters\SelectFilter::make('language')
                     ->label('Language')

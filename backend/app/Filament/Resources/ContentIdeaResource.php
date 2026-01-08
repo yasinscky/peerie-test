@@ -14,6 +14,21 @@ class ContentIdeaResource extends Resource
 {
     protected static ?string $model = ContentIdea::class;
 
+    private static function audienceOptions(): array
+    {
+        return [
+            'coaches_de' => 'Coaches DE',
+            'coaches_uk' => 'Coaches UK',
+            'coaches_ie' => 'Coaches IRE',
+            'physio_de' => 'Physio DE',
+            'physio_uk' => 'Physio UK',
+            'physio_ie' => 'Physio IRE',
+            'beauty_de' => 'Beauty DE',
+            'beauty_uk' => 'Beauty UK',
+            'beauty_ie' => 'Beauty IRE',
+        ];
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
     protected static ?string $navigationLabel = 'Content Ideas';
     protected static ?string $modelLabel = 'Content Idea';
@@ -37,6 +52,12 @@ class ContentIdeaResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->placeholder('Healthy Habits Checklist'),
+                        Forms\Components\Select::make('audience')
+                            ->label('Audience')
+                            ->options(self::audienceOptions())
+                            ->searchable()
+                            ->native(false)
+                            ->required(),
                         Forms\Components\Select::make('language')
                             ->label('Language')
                             ->options([

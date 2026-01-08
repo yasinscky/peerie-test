@@ -7,6 +7,7 @@ use App\Models\ResourceFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ResourceController extends Controller
@@ -24,29 +25,39 @@ class ResourceController extends Controller
 
         $language = $user->language ?? 'en';
         
-        $resourceFile = ResourceFile::where('language', $language)
-            ->orderBy('created_at', 'desc')
-            ->first();
+        $resourceFilesQuery = ResourceFile::where('language', $language)
+            ->orderByDesc('sort_order')
+            ->orderByRaw('COALESCE(published_at, created_at) DESC');
 
-        if (!$resourceFile) {
+        $resourceFiles = $resourceFilesQuery->get();
+
+        if ($resourceFiles->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Resource file not found for your language'
             ], 404);
         }
 
+        $latestResourceFile = $resourceFiles->first();
+
         return response()->json([
             'success' => true,
             'resource' => [
+                'id' => $latestResourceFile->id,
+                'title' => $latestResourceFile->title,
+                'language' => $latestResourceFile->language,
+                'filename' => $latestResourceFile->original_filename,
+            ],
+            'resources' => $resourceFiles->map(fn (ResourceFile $resourceFile) => [
                 'id' => $resourceFile->id,
                 'title' => $resourceFile->title,
                 'language' => $resourceFile->language,
                 'filename' => $resourceFile->original_filename,
-            ]
+            ])->values(),
         ]);
     }
 
-    public function download(): StreamedResponse|JsonResponse
+    public function download(): BinaryFileResponse|JsonResponse
     {
         $user = Auth::user();
         
@@ -60,7 +71,8 @@ class ResourceController extends Controller
         $language = $user->language ?? 'en';
         
         $resourceFile = ResourceFile::where('language', $language)
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('sort_order')
+            ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->first();
 
         if (!$resourceFile) {
@@ -77,8 +89,45 @@ class ResourceController extends Controller
             ], 404);
         }
 
-        return Storage::disk('local')->download(
-            $resourceFile->file_path,
+        return response()->download(
+            Storage::disk('local')->path($resourceFile->file_path),
+            $resourceFile->original_filename
+        );
+    }
+
+    public function downloadById(int $id): BinaryFileResponse|JsonResponse
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not authenticated'
+            ], 401);
+        }
+
+        $language = $user->language ?? 'en';
+
+        $resourceFile = ResourceFile::where('id', $id)
+            ->where('language', $language)
+            ->first();
+
+        if (!$resourceFile) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Resource file not found for your language'
+            ], 404);
+        }
+
+        if (!Storage::disk('local')->exists($resourceFile->file_path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'File not found on server'
+            ], 404);
+        }
+
+        return response()->download(
+            Storage::disk('local')->path($resourceFile->file_path),
             $resourceFile->original_filename
         );
     }

@@ -14,5 +14,7 @@ class ResourceFile extends Model
         'language',
         'file_path',
         'original_filename',
+        'sort_order',
+        'published_at',
     ];
 }

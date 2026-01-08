@@ -4,7 +4,6 @@ namespace App\Filament\Resources\ResourceFileResource\Pages;
 
 use App\Filament\Resources\ResourceFileResource;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Facades\Storage;
 
 class CreateResourceFile extends CreateRecord
 {
@@ -16,12 +15,12 @@ class CreateResourceFile extends CreateRecord
             $filePath = $data['file'][0];
             $data['file_path'] = $filePath;
             
-            if (!isset($data['original_filename'])) {
+            if (!isset($data['original_filename']) || empty($data['original_filename'])) {
                 $data['original_filename'] = basename($filePath);
             }
         } else if (isset($data['file']) && is_string($data['file']) && !empty($data['file'])) {
             $data['file_path'] = $data['file'];
-            if (!isset($data['original_filename'])) {
+            if (!isset($data['original_filename']) || empty($data['original_filename'])) {
                 $data['original_filename'] = basename($data['file']);
             }
         }

@@ -10,6 +10,45 @@ use Illuminate\Support\Facades\Auth;
 
 class ContentIdeasController extends Controller
 {
+    private function audienceFromUser(?\App\Models\User $user): ?string
+    {
+        if (!$user) {
+            return null;
+        }
+
+        $plan = $user->latestPlan;
+        if (!$plan) {
+            return null;
+        }
+
+        $industry = data_get($plan, 'questionnaire_data.industry');
+        $country = data_get($plan, 'questionnaire_data.country');
+
+        if (!is_string($industry) || !is_string($country) || $industry === '' || $country === '') {
+            return null;
+        }
+
+        $industrySegment = match ($industry) {
+            'coaching' => 'coaches',
+            'physio' => 'physio',
+            'beauty' => 'beauty',
+            default => null,
+        };
+
+        $countrySegment = match ($country) {
+            'de' => 'de',
+            'uk' => 'uk',
+            'ie' => 'ie',
+            default => null,
+        };
+
+        if (!$industrySegment || !$countrySegment) {
+            return null;
+        }
+
+        return $industrySegment . '_' . $countrySegment;
+    }
+
     public function getAvailableMonths(): JsonResponse
     {
         $user = Auth::user();
@@ -62,10 +101,21 @@ class ContentIdeasController extends Controller
 
         $date = \Carbon\Carbon::parse($request->input('date'))->format('Y-m-d');
         $userLanguage = $user->language ?? 'en';
+        $audience = $this->audienceFromUser($user);
 
-        $contentIdea = ContentIdea::where('date', $date)
-            ->where('language', $userLanguage)
-            ->first();
+        $contentIdea = null;
+
+        if ($audience) {
+            $contentIdea = ContentIdea::where('date', $date)
+                ->where('audience', $audience)
+                ->first();
+        }
+
+        if (!$contentIdea) {
+            $contentIdea = ContentIdea::where('date', $date)
+                ->where('language', $userLanguage)
+                ->first();
+        }
 
         if (!$contentIdea) {
             return response()->json([

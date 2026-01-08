@@ -389,6 +389,7 @@ Route::prefix('api')->group(function () {
             Route::prefix('resources')->group(function () {
                 Route::get('/', [App\Http\Controllers\API\ResourceController::class, 'index']);
                 Route::get('/download', [App\Http\Controllers\API\ResourceController::class, 'download']);
+                Route::get('/download/{id}', [App\Http\Controllers\API\ResourceController::class, 'downloadById']);
             });
         });
     });
