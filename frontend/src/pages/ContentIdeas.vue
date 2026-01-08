@@ -385,7 +385,7 @@ const fetchContentIdea = async (date) => {
     showModal.value = false
     contentIdea.value = null
     
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = formatDateForApi(date)
     const response = await axios.get('/api/content-ideas/by-date', {
       params: { date: dateStr }
     })
@@ -393,7 +393,7 @@ const fetchContentIdea = async (date) => {
     if (response.data.success && response.data.data) {
       contentIdea.value = {
         ...response.data.data,
-        date: new Date(response.data.data.date)
+        date: parseApiDate(response.data.data.date)
       }
       showModal.value = true
     } else {
@@ -444,6 +444,28 @@ const copyToClipboard = async (text) => {
   } catch (error) {
     console.error('Failed to copy:', error)
   }
+}
+
+const formatDateForApi = (date) => {
+  const d = new Date(date)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const parseApiDate = (value) => {
+  if (!value) return null
+  if (value instanceof Date) return value
+  if (typeof value !== 'string') return new Date(value)
+
+  const parts = value.split('-').map((v) => parseInt(v, 10))
+  if (parts.length !== 3 || parts.some((v) => Number.isNaN(v))) {
+    return new Date(value)
+  }
+
+  const [year, month, day] = parts
+  return new Date(year, month - 1, day)
 }
 
 onMounted(async () => {
