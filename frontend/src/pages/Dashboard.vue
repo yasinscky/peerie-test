@@ -78,6 +78,16 @@
                   {{ texts.imageLibrary }}
                 </router-link>
                 <router-link 
+                  to="/dashboard/content-ideas"
+                  @click="closeSidebarOnMobile"
+                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                  :class="currentRoute === '/dashboard/content-ideas' 
+                    ? 'bg-[#f34767] text-white border-[#f34767]' 
+                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                >
+                  {{ texts.contentIdeas }}
+                </router-link>
+                <router-link 
                   to="/dashboard/hashtags"
                   @click="closeSidebarOnMobile"
                   class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
@@ -238,6 +248,16 @@
                   {{ texts.imageLibrary }}
                 </router-link>
                 <router-link 
+                  to="/dashboard/content-ideas"
+                  @click="closeSidebarOnMobile"
+                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
+                  :class="currentRoute === '/dashboard/content-ideas' 
+                    ? 'bg-[#f34767] text-white border-[#f34767]' 
+                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                >
+                  {{ texts.contentIdeas }}
+                </router-link>
+                <router-link 
                   to="/dashboard/hashtags"
                   @click="closeSidebarOnMobile"
                   class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
@@ -385,6 +405,7 @@ const texts = computed(() => {
       create: 'Erstellen',
       yourMarketingPlan: 'Dein Marketingplan',
       imageLibrary: 'Bildbibliothek',
+      contentIdeas: 'Content Ideen',
       hashtags: 'Hashtags',
       engage: 'Interaktion',
       community: 'Community',
@@ -403,6 +424,7 @@ const texts = computed(() => {
     create: 'Create',
     yourMarketingPlan: 'Your Marketing Plan',
     imageLibrary: 'Image Library',
+    contentIdeas: 'Content Ideas',
     hashtags: 'Hashtags',
       engage: 'Engage',
       community: 'Community',
