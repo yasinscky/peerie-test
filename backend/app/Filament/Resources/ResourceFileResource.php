@@ -118,7 +118,7 @@ class ResourceFileResource extends Resource
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $query
-                    ->orderByDesc('sort_order')
+                    ->orderBy('sort_order')
                     ->orderByRaw('COALESCE(published_at, created_at) DESC');
             })
             ->filters([

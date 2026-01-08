@@ -26,7 +26,7 @@ class ResourceController extends Controller
         $language = $user->language ?? 'en';
         
         $resourceFilesQuery = ResourceFile::where('language', $language)
-            ->orderByDesc('sort_order')
+            ->orderBy('sort_order')
             ->orderByRaw('COALESCE(published_at, created_at) DESC');
 
         $resourceFiles = $resourceFilesQuery->get();
@@ -71,7 +71,7 @@ class ResourceController extends Controller
         $language = $user->language ?? 'en';
         
         $resourceFile = ResourceFile::where('language', $language)
-            ->orderByDesc('sort_order')
+            ->orderBy('sort_order')
             ->orderByRaw('COALESCE(published_at, created_at) DESC')
             ->first();
 
