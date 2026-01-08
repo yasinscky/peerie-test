@@ -52,11 +52,12 @@ class ContentIdeaResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->placeholder('Healthy Habits Checklist'),
-                        Forms\Components\Select::make('audience')
+                        Forms\Components\Select::make('audiences')
                             ->label('Audience')
                             ->options(self::audienceOptions())
                             ->searchable()
                             ->native(false)
+                            ->multiple()
                             ->required(),
                         Forms\Components\Select::make('language')
                             ->label('Language')

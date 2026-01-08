@@ -18,13 +18,13 @@ class CreateContentIdea extends CreateRecord
         }
 
         $this->form->fill([
-            'audience' => $activeTab,
+            'audiences' => [$activeTab],
         ]);
     }
 
     protected function getRedirectUrl(): string
     {
-        $audience = $this->record?->audience;
+        $audience = $this->record?->audiences[0] ?? null;
 
         return ContentIdeaResource::getUrl('index', [
             'activeTab' => is_string($audience) && $audience !== '' ? $audience : null,

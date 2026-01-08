@@ -107,7 +107,7 @@ class ContentIdeasController extends Controller
 
         if ($audience) {
             $contentIdea = ContentIdea::where('date', $date)
-                ->where('audience', $audience)
+                ->whereJsonContains('audiences', $audience)
                 ->first();
         }
 

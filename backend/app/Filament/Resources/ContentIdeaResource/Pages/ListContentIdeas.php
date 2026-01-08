@@ -21,23 +21,23 @@ class ListContentIdeas extends ListRecords
     {
         return [
             'coaches_de' => Tab::make('Coaches DE')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'coaches_de')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'coaches_de')),
             'coaches_uk' => Tab::make('Coaches UK')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'coaches_uk')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'coaches_uk')),
             'coaches_ie' => Tab::make('Coaches IRE')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'coaches_ie')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'coaches_ie')),
             'physio_de' => Tab::make('Physio DE')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'physio_de')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'physio_de')),
             'physio_uk' => Tab::make('Physio UK')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'physio_uk')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'physio_uk')),
             'physio_ie' => Tab::make('Physio IRE')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'physio_ie')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'physio_ie')),
             'beauty_de' => Tab::make('Beauty DE')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'beauty_de')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'beauty_de')),
             'beauty_uk' => Tab::make('Beauty UK')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'beauty_uk')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'beauty_uk')),
             'beauty_ie' => Tab::make('Beauty IRE')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('audience', 'beauty_ie')),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereJsonContains('audiences', 'beauty_ie')),
         ];
     }
 

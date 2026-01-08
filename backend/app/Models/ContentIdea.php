@@ -19,10 +19,11 @@ class ContentIdea extends Model
         'hashtags',
         'tips',
         'language',
-        'audience',
+        'audiences',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'audiences' => 'array',
     ];
 }
