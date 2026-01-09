@@ -114,6 +114,11 @@ class ContentIdeasController extends Controller
         if (!$contentIdea) {
             $contentIdea = ContentIdea::where('date', $date)
                 ->where('language', $userLanguage)
+                ->where(function ($query) {
+                    $query
+                        ->whereNull('audiences')
+                        ->orWhereRaw("audiences = '[]'::jsonb");
+                })
                 ->first();
         }
 
