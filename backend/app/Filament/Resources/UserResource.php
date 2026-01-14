@@ -114,19 +114,19 @@ class UserResource extends Resource
                     ->label('Language')
                     ->formatStateUsing(fn (?string $state): string => strtoupper($state ?? '—'))
                     ->badge(),
-                Tables\Columns\TextColumn::make('latestPlan.business_type')
+                Tables\Columns\TextColumn::make('latestPlanIndustry')
                     ->label('Industry')
+                    ->getStateUsing(fn (User $record): ?string => data_get($record->latestPlan, 'industries.0') ?? data_get($record->latestPlan, 'questionnaire_data.industry'))
                     ->formatStateUsing(function (?string $state): string {
                         if ($state === null) {
                             return '—';
                         }
 
                         return match ($state) {
-                            'any' => 'Any',
                             'beauty' => 'Beauty',
                             'physio' => 'Physio',
                             'coaching' => 'Coaching',
-                            default => 'Any',
+                            default => (string) $state,
                         };
                     })
                     ->badge(),

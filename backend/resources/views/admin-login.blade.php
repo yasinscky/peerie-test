@@ -42,7 +42,7 @@
             color: #555;
             font-weight: 500;
         }
-        .form-group input {
+        .form-group input:not([type="checkbox"]) {
             width: 100%;
             padding: 0.75rem;
             border: 2px solid #e1e5e9;
@@ -51,9 +51,19 @@
             transition: border-color 0.3s;
             box-sizing: border-box;
         }
-        .form-group input:focus {
+        .form-group input:not([type="checkbox"]):focus {
             outline: none;
             border-color: #667eea;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            user-select: none;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+            margin: 0;
         }
         .login-button {
             width: 100%;
@@ -74,14 +84,6 @@
             color: #e53e3e;
             font-size: 0.875rem;
             margin-top: 0.5rem;
-        }
-        .admin-link {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        .admin-link a {
-            color: #667eea;
-            text-decoration: none;
         }
     </style>
 </head>
@@ -112,17 +114,14 @@
             </div>
             
             <div class="form-group">
-                <label>
-                    <input type="checkbox" name="remember"> Remember me
+                <label class="checkbox-label">
+                    <input type="checkbox" name="remember">
+                    <span>Remember me</span>
                 </label>
             </div>
             
             <button type="submit" class="login-button">Sign in</button>
         </form>
-        
-        <div class="admin-link">
-            <a href="/admin">Go to Filament admin</a>
-        </div>
     </div>
 </body>
 </html>
