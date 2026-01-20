@@ -8,7 +8,7 @@
       <div class="page-container flex md:gap-10 gap-6 md:items-stretch md:overflow-hidden md:h-dvh md:min-h-0">
       <!-- Desktop Sidebar -->
       <div class="hidden md:block md:w-80 xl:w-[387px] shrink-0 md:min-h-0 relative z-20">
-        <div class="h-full min-h-0 overflow-y-auto md:py-[50px] xl:py-[80px] 2xl:py-[120px]">
+        <div class="h-full min-h-0 overflow-y-auto no-scrollbar md:py-[50px] xl:py-[80px] 2xl:py-[120px]">
           <div class="flex flex-col max-w-[400px] md:max-w-none mx-auto md:mx-0 px-4 md:px-0">
 
           <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-5 md:pb-5">
@@ -169,7 +169,7 @@
       </div>
 
       <!-- Mobile Sidebar -->
-      <div class="fixed top-0 bottom-0 z-40 w-full md:hidden h-dvh overflow-y-auto overscroll-contain transition-all duration-300 sidebar" 
+      <div class="fixed top-0 bottom-0 z-40 w-full md:hidden h-dvh overflow-y-auto no-scrollbar overscroll-contain transition-all duration-300 sidebar" 
           :class="sidebarOpen ? 'translate-x-0 left-0' : 'sidebar-hidden'">
         <div class="flex flex-col min-h-full max-w-[400px] mx-auto px-4 relative pt-[40px] pb-[40px]">
           <button 
@@ -340,7 +340,7 @@
       <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-[#1C1A1B] bg-opacity-50 md:hidden"></div>
 
       <!-- Main content area -->
-      <div class="flex-1 bg-white min-h-screen md:min-h-0 md:h-full md:overflow-y-auto md:py-[50px] xl:py-[80px] 2xl:py-[120px] main__content">
+      <div class="flex-1 bg-white min-h-screen md:min-h-0 md:h-full md:overflow-y-auto no-scrollbar md:py-[50px] xl:py-[80px] 2xl:py-[120px] main__content">
         <!-- Mobile header -->
         <div class="md:hidden sticky top-0 z-20 bg-white border-[#DCDCDC] px-4 py-3 flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -422,7 +422,7 @@ const texts = computed(() => {
     edit: 'Edit',
     exit: 'Log out',
     create: 'Create',
-    yourMarketingPlan: 'Your Marketing Plan',
+    yourMarketingPlan: 'My Marketing Plan',
     imageLibrary: 'Image Library',
     contentIdeas: 'Content Ideas',
     hashtags: 'Hashtags',

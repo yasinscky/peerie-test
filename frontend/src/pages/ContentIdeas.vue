@@ -112,7 +112,7 @@
             </svg>
           </button>
 
-          <div class="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
+          <div class="p-6 sm:p-8 overflow-y-auto no-scrollbar max-h-[90vh]">
             <h2 class="text-2xl font-bold text-[#3F4369] mb-2">
               {{ formatDateTitle(contentIdea.date) }}: {{ contentIdea.title }}
             </h2>

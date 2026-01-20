@@ -146,7 +146,7 @@ export default {
       }
 
       return {
-        title: 'Your Marketing Plan',
+        title: 'My Marketing Plan',
         subtitle: 'View your personalized marketing plan generated from your questionnaire',
         loading: 'Loading plans...',
         emptyTitle: 'No Plan Yet',

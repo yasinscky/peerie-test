@@ -328,7 +328,7 @@
           </svg>
         </button>
 
-        <div class="p-6 sm:p-8 overflow-y-auto max-h-[90vh]">
+        <div class="p-6 sm:p-8 overflow-y-auto no-scrollbar max-h-[90vh]">
           <div class="flex flex-wrap gap-3 items-start mb-6">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#DCDCDC] text-[#3F4369]">
               ⏱️ {{ getTaskMinutes(selectedTask) }} min
@@ -408,10 +408,10 @@ const texts = computed(() => {
   }
 
   return {
-    headerTitle: 'Your Marketing Plan',
+    headerTitle: 'My Marketing Plan',
     headerSection: 'Create',
-    headerCurrent: 'Your Marketing Plan',
-    title: 'Your Marketing Plan',
+    headerCurrent: 'My Marketing Plan',
+    title: 'My Marketing Plan',
     subtitle: 'Track your personalized marketing tasks by category',
     emptyTitle: "You don't have any plans yet",
     emptyText: 'Your marketing plan will be created after completing the questionnaire'
