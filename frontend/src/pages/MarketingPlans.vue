@@ -338,13 +338,35 @@
             </span>
           </div>
 
-          <h2 class="text-2xl font-semibold text-[#3F4369] mb-4">{{ selectedTask.title }}</h2>
-
           <div
             v-if="selectedTask?.description"
             class="prose max-w-none text-[#3F4369] leading-relaxed instruction-content"
           >
-            <div v-html="selectedTask.description" />
+            <div v-html="instructionPage.html" />
+          </div>
+
+          <div v-if="selectedTask?.description && parsedInstruction.hasPages && totalInstructionPages > 1" class="mt-6 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-[#DCDCDC] text-[#3F4369] hover:bg-gray-50 disabled:opacity-50"
+              :disabled="!instructionPage.canBack"
+              @click="instructionPageIndex = Math.max(0, instructionPageIndex - 1)"
+            >
+              Back
+            </button>
+
+            <div class="text-sm font-medium text-[#3F4369] opacity-70">
+              {{ instructionPage.label }}
+            </div>
+
+            <button
+              type="button"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-[#F34767] text-white hover:bg-[#d93b57] disabled:opacity-50"
+              :disabled="!instructionPage.canNext"
+              @click="instructionPageIndex = Math.min(totalInstructionPages - 1, instructionPageIndex + 1)"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
@@ -379,6 +401,137 @@ const showGenerateMonthModal = ref(false)
 const generateMonthYear = ref(new Date().getFullYear())
 const generateMonthMonth = ref(new Date().getMonth() + 1)
 const isGeneratingMonth = ref(false)
+const instructionPageIndex = ref(0)
+
+const parsedInstruction = computed(() => {
+  const html = String(selectedTask.value?.description || '')
+  if (!html) {
+    return {
+      titleHtml: '',
+      introHtml: '',
+      steps: [],
+      hasPages: false,
+    }
+  }
+
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(html, 'text/html')
+
+    const titleEl = doc.body?.querySelector('h1')
+    if (titleEl) {
+      titleEl.setAttribute('class', 'text-2xl font-semibold text-[#3F4369] mb-4')
+    }
+    const titleHtml = titleEl ? titleEl.outerHTML : ''
+
+    const h2s = Array.from(doc.body?.querySelectorAll('h2') || [])
+    if (h2s.length === 0) {
+      return {
+        titleHtml,
+        introHtml: (doc.body?.innerHTML || html),
+        steps: [],
+        hasPages: false,
+      }
+    }
+
+    const sections = h2s.map((h2, idx) => {
+      const nodes = [h2]
+      let node = h2.nextSibling
+      const nextH2 = h2s[idx + 1] || null
+      while (node && node !== nextH2) {
+        nodes.push(node)
+        node = node.nextSibling
+      }
+      const wrapper = doc.createElement('div')
+      nodes.forEach(n => wrapper.appendChild(n.cloneNode(true)))
+      const headingText = String(h2.textContent || '').trim()
+      return {
+        headingText,
+        html: wrapper.innerHTML,
+        isStep: /^step\s*\d+/i.test(headingText),
+      }
+    })
+
+    const firstStepIndex = sections.findIndex(s => s.isStep)
+    const introSections = firstStepIndex >= 0 ? sections.slice(0, firstStepIndex) : sections
+    const stepSections = firstStepIndex >= 0 ? sections.slice(firstStepIndex).filter(s => s.isStep) : []
+
+    const introHtml = introSections.map(s => s.html).join('')
+    const steps = stepSections.map(s => ({
+      title: s.headingText,
+      html: s.html,
+    }))
+
+    return {
+      titleHtml,
+      introHtml,
+      steps,
+      hasPages: introHtml.trim().length > 0 || steps.length > 0,
+    }
+  } catch {
+    return {
+      titleHtml: '',
+      introHtml: html,
+      steps: [],
+      hasPages: false,
+    }
+  }
+})
+
+const totalInstructionPages = computed(() => {
+  const hasIntro = parsedInstruction.value.introHtml.trim().length > 0
+  const stepsCount = parsedInstruction.value.steps.length
+  return (hasIntro ? 1 : 0) + stepsCount
+})
+
+const instructionPage = computed(() => {
+  const html = String(selectedTask.value?.description || '')
+  const hasIntro = parsedInstruction.value.introHtml.trim().length > 0
+  const idx = Number(instructionPageIndex.value) || 0
+
+  if (!parsedInstruction.value.hasPages) {
+    return {
+      label: '',
+      html,
+      canBack: false,
+      canNext: false,
+    }
+  }
+
+  if (hasIntro && idx === 0) {
+    return {
+      label: 'Intro',
+      html: `${parsedInstruction.value.titleHtml}${parsedInstruction.value.introHtml}`,
+      canBack: false,
+      canNext: totalInstructionPages.value > 1,
+    }
+  }
+
+  const stepIndex = hasIntro ? idx - 1 : idx
+  const step = parsedInstruction.value.steps[stepIndex]
+  if (!step) {
+    return {
+      label: '',
+      html: `${parsedInstruction.value.titleHtml}${parsedInstruction.value.introHtml}`,
+      canBack: idx > 0,
+      canNext: false,
+    }
+  }
+
+  return {
+    label: `Step ${stepIndex + 1} of ${parsedInstruction.value.steps.length}`,
+    html: `${parsedInstruction.value.titleHtml}${step.html}`,
+    canBack: idx > 0,
+    canNext: idx < totalInstructionPages.value - 1,
+  }
+})
+
+watch(
+  () => selectedTask.value?.id,
+  () => {
+    instructionPageIndex.value = 0
+  }
+)
 const isDevelopment = computed(() => {
   if (import.meta.env.MODE === 'development') {
     return true
