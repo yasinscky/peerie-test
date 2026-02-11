@@ -13,14 +13,28 @@ if [ -n "$DB_HOST" ]; then
     sleep 1
   done
   echo "PostgreSQL is up!"
+  echo "Waiting 5s for PostgreSQL to accept application connections..."
+  sleep 5
 else
   echo "WARNING: DB_HOST not set, skipping database connection check"
 fi
 
-# Запуск миграций (обязательно до старта веб-сервера)
+# Запуск миграций с повторами (БД/прокси Railway иногда обрывает первый запрос)
 if [ -n "$DB_HOST" ]; then
   echo "Running migrations..."
-  php artisan migrate --force || echo "Migration failed, continuing..."
+  MIGRATE_ATTEMPTS=1
+  while [ "$MIGRATE_ATTEMPTS" -le 5 ]; do
+    if php artisan migrate --force; then
+      echo "Migrations completed."
+      break
+    fi
+    echo "Migration attempt $MIGRATE_ATTEMPTS failed, retrying in 10s..."
+    sleep 10
+    MIGRATE_ATTEMPTS=$((MIGRATE_ATTEMPTS + 1))
+  done
+  if [ "$MIGRATE_ATTEMPTS" -gt 5 ]; then
+    echo "Migration failed after 5 attempts, continuing..."
+  fi
 else
   echo "Skipping migrations - no DB_HOST"
 fi
