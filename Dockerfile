@@ -75,6 +75,9 @@ RUN chown -R www-data:www-data /var/www/html \
 # Экспозиция порта
 EXPOSE 80
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+  CMD ["/bin/sh", "-c", "curl -fsS -o /dev/null http://127.0.0.1:${PORT:-80}/ || exit 1"]
+
 # Скрипт запуска для production
 COPY docker/start.sh /start.sh
 RUN chmod +x /start.sh
