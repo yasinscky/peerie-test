@@ -148,6 +148,14 @@ class PlanController extends Controller
             }
         }
 
+        foreach ($plans as $plan) {
+            try {
+                $this->planGenerator->syncNewTasksForMonth($plan, $year, $month);
+            } catch (\Exception $e) {
+                \Log::error("Failed to sync new tasks for plan {$plan->id} for {$year}-{$month}: " . $e->getMessage());
+            }
+        }
+
         $plans->load(['tasks' => function ($query) use ($year, $month) {
             $query->where('plan_tasks.year', $year)
                   ->where('plan_tasks.month', $month)
@@ -176,6 +184,12 @@ class PlanController extends Controller
 
         $year = $request->query('year', now()->year);
         $month = $request->query('month', now()->month);
+
+        try {
+            $this->planGenerator->syncNewTasksForMonth($plan, $year, $month);
+        } catch (\Exception $e) {
+            \Log::error("Failed to sync new tasks for plan {$plan->id} for {$year}-{$month}: " . $e->getMessage());
+        }
 
         $plan->load(['tasks' => function ($query) use ($year, $month) {
             $query->where('plan_tasks.year', $year)

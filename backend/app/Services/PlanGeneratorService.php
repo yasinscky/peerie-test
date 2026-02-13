@@ -240,6 +240,73 @@ class PlanGeneratorService
         }
     }
 
+    public function syncNewTasksForMonth(Plan $plan, int $year, int $month): void
+    {
+        $existingPlanTasks = PlanTask::where('plan_id', $plan->id)
+            ->where('year', $year)
+            ->where('month', $month)
+            ->pluck('task_id')
+            ->toArray();
+
+        $filteredTasks = $this->filterTasks($plan, $year, $month);
+
+        $newTasks = $filteredTasks->filter(function ($task) use ($existingPlanTasks) {
+            return !in_array($task->id, $existingPlanTasks, true);
+        });
+
+        if ($newTasks->isEmpty()) {
+            return;
+        }
+
+        $hoursPerWeek = max(1, (int) ($plan->marketing_time_per_week ?? 4));
+        $minutesPerWeek = $hoursPerWeek * 60;
+        $monthlyCapacity = $minutesPerWeek * 4;
+
+        $existingTotalMinutes = PlanTask::where('plan_id', $plan->id)
+            ->where('year', $year)
+            ->where('month', $month)
+            ->with('task')
+            ->get()
+            ->sum(function ($planTask) {
+                if (!$planTask->task) {
+                    return 0;
+                }
+                return $this->getTaskEffectiveDurationMinutes($planTask->task);
+            });
+
+        $availableMinutes = max(0, $monthlyCapacity - $existingTotalMinutes);
+
+        if ($availableMinutes <= 0) {
+            return;
+        }
+
+        $prioritizedNewTasks = $this->prioritizeTasks($newTasks, $plan, $year, $month);
+        $orderedNewTasks = $this->applyPrerequisites($prioritizedNewTasks);
+        
+        $selectedTasks = collect();
+        $usedMinutes = 0;
+        
+        foreach ($orderedNewTasks as $task) {
+            $taskMinutes = $this->getTaskEffectiveDurationMinutes($task);
+            
+            if (($usedMinutes + $taskMinutes) <= $availableMinutes) {
+                $selectedTasks->push($task);
+                $usedMinutes += $taskMinutes;
+            }
+        }
+
+        foreach ($selectedTasks as $task) {
+            PlanTask::create([
+                'plan_id' => $plan->id,
+                'task_id' => $task->id,
+                'week' => 1,
+                'year' => $year,
+                'month' => $month,
+                'completed' => false,
+            ]);
+        }
+    }
+
     public function generatePlanForMonth(Plan $plan, int $year, int $month): array
     {
         $hoursPerWeek = max(1, (int) ($plan->marketing_time_per_week ?? 4));
