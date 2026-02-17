@@ -7,11 +7,32 @@
       </div>
       <div class="page-container flex md:gap-10 gap-6 md:items-stretch md:overflow-hidden md:h-dvh md:min-h-0">
       <!-- Desktop Sidebar -->
-      <div class="hidden md:block md:w-80 xl:w-[387px] shrink-0 md:min-h-0 relative z-20">
+      <div 
+        class="hidden md:block shrink-0 md:min-h-0 relative z-20 transition-all duration-300"
+        :class="sidebarCollapsed ? 'md:w-20' : 'md:w-80 xl:w-[387px]'"
+      >
         <div class="h-full min-h-0 overflow-y-auto no-scrollbar md:py-[50px] xl:py-[80px] 2xl:py-[120px]">
-          <div class="flex flex-col max-w-[400px] md:max-w-none mx-auto md:mx-0 px-4 md:px-0">
+          <div class="flex flex-col max-w-[400px] md:max-w-none mx-auto md:mx-0 transition-all duration-300"
+               :class="sidebarCollapsed ? 'px-2 items-center' : 'px-4 md:px-0'">
+          
+          <button
+            @click="toggleSidebar"
+            class="mb-4 p-2 rounded-lg border-2 border-[#3f4369] bg-white hover:bg-[#FFEBD0] transition-colors self-start"
+            :class="sidebarCollapsed ? 'mx-auto' : ''"
+            :title="sidebarCollapsed ? texts.expandSidebar : texts.collapseSidebar"
+          >
+            <svg 
+              class="w-6 h-6 text-[#3f4369] transition-transform duration-300" 
+              :class="sidebarCollapsed ? 'rotate-180' : ''"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+          </button>
 
-          <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-5 md:pb-5">
+          <div v-if="!sidebarCollapsed" class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-5 md:pb-5">
             <div class="flex items-center gap-[30px] md:gap-2">
               <div class="w-14 h-14 md:w-8 md:h-8 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
                 <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
@@ -33,27 +54,48 @@
               </div>
             </div>
           </div>
+          
+          <div v-else class="mb-6 rounded-full border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-2 w-14 h-14 mx-auto">
+            <div class="w-full h-full rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden cursor-pointer" 
+                 @click="navigateToSettings"
+                 :title="user?.name || 'User'">
+              <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
+              <span v-else class="text-[#3f4369] text-sm font-bold">{{ userInitials }}</span>
+            </div>
+          </div>
 
           <nav class="space-y-6 flex-1">
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
+            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
+                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
+              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
                 <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
                   <img :src="iconNotebook" alt="" class="w-5 h-5">
                 </div>
                 <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.create }}</h3>
               </div>
-              <div class="ml-10 space-y-2 flex flex-col">
+              <div v-else class="flex items-center justify-center mb-2">
+                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                  <img :src="iconNotebook" alt="" class="w-5 h-5">
+                </div>
+              </div>
+              <div class="space-y-2 flex flex-col"
+                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
                 <router-link 
                   to="/dashboard/marketing-plans"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/marketing-plans' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                  :class="[
+                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
+                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
+                    currentRoute === '/dashboard/marketing-plans' 
+                      ? 'bg-[#f34767] text-white border-[#f34767]' 
+                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
+                  ]"
+                  :title="sidebarCollapsed ? texts.yourMarketingPlan : ''"
                 >
-                  {{ texts.yourMarketingPlan }}
+                  <span v-if="!sidebarCollapsed">{{ texts.yourMarketingPlan }}</span>
+                  <span v-else class="text-xl">📋</span>
                 </router-link>
-                <div v-if="currentRoute === '/dashboard/marketing-plans' && availableMonths.length > 0" class="ml-4 mt-1 space-y-1">
+                <div v-if="!sidebarCollapsed && currentRoute === '/dashboard/marketing-plans' && availableMonths.length > 0" class="ml-4 mt-1 space-y-1">
                   <button
                     v-for="monthOption in availableMonths"
                     :key="`${monthOption.year}-${monthOption.month}`"
@@ -70,95 +112,146 @@
                 <router-link 
                   to="/dashboard/image-generator"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/image-generator' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                  :class="[
+                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
+                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
+                    currentRoute === '/dashboard/image-generator' 
+                      ? 'bg-[#f34767] text-white border-[#f34767]' 
+                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
+                  ]"
+                  :title="sidebarCollapsed ? texts.imageLibrary : ''"
                 >
-                  {{ texts.imageLibrary }}
+                  <span v-if="!sidebarCollapsed">{{ texts.imageLibrary }}</span>
+                  <span v-else class="text-xl">🖼️</span>
                 </router-link>
                 <router-link 
                   to="/dashboard/content-ideas"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/content-ideas' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                  :class="[
+                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
+                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
+                    currentRoute === '/dashboard/content-ideas' 
+                      ? 'bg-[#f34767] text-white border-[#f34767]' 
+                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
+                  ]"
+                  :title="sidebarCollapsed ? texts.contentIdeas : ''"
                 >
-                  {{ texts.contentIdeas }}
+                  <span v-if="!sidebarCollapsed">{{ texts.contentIdeas }}</span>
+                  <span v-else class="text-xl">💡</span>
                 </router-link>
                 <router-link 
                   to="/dashboard/hashtags"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/hashtags' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                  :class="[
+                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
+                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
+                    currentRoute === '/dashboard/hashtags' 
+                      ? 'bg-[#f34767] text-white border-[#f34767]' 
+                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
+                  ]"
+                  :title="sidebarCollapsed ? texts.hashtags : ''"
                 >
-                  {{ texts.hashtags }}
+                  <span v-if="!sidebarCollapsed">{{ texts.hashtags }}</span>
+                  <span v-else class="text-xl">#️⃣</span>
                 </router-link>
               </div>
             </div>
 
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
+            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
+                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
+              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
                 <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
                   <img :src="iconStar" alt="" class="w-5 h-5">
                 </div>
                 <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.engage }}</h3>
               </div>
-              <div class="ml-10 space-y-2 flex flex-col">
+              <div v-else class="flex items-center justify-center mb-2">
+                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                  <img :src="iconStar" alt="" class="w-5 h-5">
+                </div>
+              </div>
+              <div class="space-y-2 flex flex-col"
+                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
                 <router-link
                   to="/dashboard/community"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/community' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                  :class="[
+                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
+                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
+                    currentRoute === '/dashboard/community' 
+                      ? 'bg-[#f34767] text-white border-[#f34767]' 
+                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
+                  ]"
+                  :title="sidebarCollapsed ? texts.community : ''"
                 >
-                  {{ texts.community }}
+                  <span v-if="!sidebarCollapsed">{{ texts.community }}</span>
+                  <span v-else class="text-xl">⭐</span>
                 </router-link>
               </div>
             </div>
 
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
+            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
+                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
+              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
                 <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
                   <img :src="iconHat" alt="" class="w-5 h-5">
                 </div>
                 <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.learn }}</h3>
               </div>
-              <div class="ml-10 space-y-2 flex flex-col">
+              <div v-else class="flex items-center justify-center mb-2">
+                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                  <img :src="iconHat" alt="" class="w-5 h-5">
+                </div>
+              </div>
+              <div class="space-y-2 flex flex-col"
+                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
                 <router-link 
                   to="/dashboard/learn"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/learn' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                  :class="[
+                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
+                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
+                    currentRoute === '/dashboard/learn' 
+                      ? 'bg-[#f34767] text-white border-[#f34767]' 
+                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
+                  ]"
+                  :title="sidebarCollapsed ? texts.resources : ''"
                 >
-                  {{ texts.resources }}
+                  <span v-if="!sidebarCollapsed">{{ texts.resources }}</span>
+                  <span v-else class="text-xl">🎓</span>
                 </router-link>
               </div>
             </div>
 
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
+            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
+                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
+              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
                 <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
                   <img :src="iconUser" alt="" class="w-5 h-5">
                 </div>
                 <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.account }}</h3>
               </div>
-              <div class="ml-10 space-y-2 flex flex-col">
+              <div v-else class="flex items-center justify-center mb-2">
+                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
+                  <img :src="iconUser" alt="" class="w-5 h-5">
+                </div>
+              </div>
+              <div class="space-y-2 flex flex-col"
+                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
                 <router-link 
                   to="/dashboard/settings" 
                   @click="closeSidebarOnMobile"
-                  class="block w-fit text-left px-3 py-2 rounded-[17px] border text-lg font-medium transition-colors"
-                  :class="currentRoute === '/dashboard/settings' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
+                  :class="[
+                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
+                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
+                    currentRoute === '/dashboard/settings' 
+                      ? 'bg-[#f34767] text-white border-[#f34767]' 
+                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
+                  ]"
+                  :title="sidebarCollapsed ? texts.profile : ''"
                 >
-                  {{ texts.profile }}
+                  <span v-if="!sidebarCollapsed">{{ texts.profile }}</span>
+                  <span v-else class="text-xl">👤</span>
                 </router-link>
               </div>
             </div>
@@ -387,12 +480,18 @@ const router = useRouter()
 const route = useRoute()
 
 const sidebarOpen = ref(false)
+const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
 const user = ref(null)
 const availableMonths = ref([])
 const selectedYear = ref(parseInt(route.query.year) || new Date().getFullYear())
 const selectedMonth = ref(parseInt(route.query.month) || new Date().getMonth() + 1)
 
 const languageStore = useLanguageStore()
+
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value
+  localStorage.setItem('sidebarCollapsed', sidebarCollapsed.value)
+}
 
 const currentRoute = computed(() => route.path)
 
@@ -413,7 +512,9 @@ const texts = computed(() => {
       resources: 'Ressourcen',
       account: 'Konto',
       profile: 'Profil',
-      menu: 'Menü'
+      menu: 'Menü',
+      collapseSidebar: 'Seitenleiste einklappen',
+      expandSidebar: 'Seitenleiste ausklappen'
     }
   }
 
@@ -432,7 +533,9 @@ const texts = computed(() => {
       resources: 'Resources',
       account: 'Account',
       profile: 'Profile',
-      menu: 'Menu'
+      menu: 'Menu',
+      collapseSidebar: 'Collapse sidebar',
+      expandSidebar: 'Expand sidebar'
   }
 })
 const userInitials = computed(() => {
