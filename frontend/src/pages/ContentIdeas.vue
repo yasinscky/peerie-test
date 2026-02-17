@@ -588,10 +588,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.calendar {
-  min-height: 400px;
-}
-
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
