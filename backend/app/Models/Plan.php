@@ -158,7 +158,7 @@ class Plan extends Model
             }
 
             $categories[$mappedCategory]['tasks'][] = $task;
-            $categories[$mappedCategory]['totalMinutes'] += (int) ($task->duration_minutes ?? 0);
+            $categories[$mappedCategory]['totalMinutes'] += $this->getTaskEffectiveDurationMinutes($task);
 
             if ($task->pivot && $task->pivot->completed) {
                 $categories[$mappedCategory]['completed']++;
@@ -277,5 +277,43 @@ class Plan extends Model
         }
 
         return implode(' • ', $parts);
+    }
+
+    private function getTaskEffectiveDurationMinutes($task): int
+    {
+        $taskMinutes = (int) ($task->duration_minutes ?? 60);
+        $frequency = $this->normalizeFrequency($task->frequency);
+
+        if ($frequency === 'weekly') {
+            return $taskMinutes * 4;
+        }
+
+        if ($frequency === 'bi_weekly') {
+            return $taskMinutes * 2;
+        }
+
+        return $taskMinutes;
+    }
+
+    private function normalizeFrequency(?string $frequency): string
+    {
+        if ($frequency === null) {
+            return 'once';
+        }
+
+        $normalized = strtolower(trim($frequency));
+        $normalized = str_replace([' ', '-'], '_', $normalized);
+
+        return match ($normalized) {
+            'biweekly' => 'bi_weekly',
+            'bi_weekly' => 'bi_weekly',
+            'every_2_weeks' => 'bi_weekly',
+            'halfyearly' => 'half_yearly',
+            'half_yearly' => 'half_yearly',
+            'every_6_months' => 'half_yearly',
+            'yearly', 'annual', 'annually' => 'yearly',
+            'one_time', 'one-off', 'one_off' => 'once',
+            default => $normalized,
+        };
     }
 }

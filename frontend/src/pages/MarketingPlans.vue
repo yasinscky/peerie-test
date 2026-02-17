@@ -732,7 +732,6 @@ const categorisedTasks = computed(() => {
   if (Array.isArray(plan.value.categories) && plan.value.categories.length > 0) {
     return plan.value.categories.map(category => {
       const tasks = category.tasks || []
-      const totalMinutes = tasks.reduce((sum, task) => sum + getTaskMinutes(task), 0)
       const completed = tasks.filter(task => task.pivot?.completed).length
       const progress = tasks.length > 0
         ? Math.round((completed / tasks.length) * 100)
@@ -741,7 +740,7 @@ const categorisedTasks = computed(() => {
       return {
         ...category,
         tasks,
-        totalMinutes,
+        totalMinutes: category.totalMinutes || 0,
         completed,
         progress,
       }
