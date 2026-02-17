@@ -84,6 +84,75 @@ class ContentIdeasController extends Controller
         ]);
     }
 
+    public function getByMonth(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not authenticated'
+            ], 401);
+        }
+
+        $request->validate([
+            'year' => 'required|integer',
+            'month' => 'required|integer|min:1|max:12',
+        ]);
+
+        $year = (int) $request->input('year');
+        $month = (int) $request->input('month');
+        
+        $startDate = \Carbon\Carbon::create($year, $month, 1)->startOfMonth();
+        $endDate = $startDate->copy()->endOfMonth();
+
+        $userLanguage = $user->language ?? 'en';
+        $audience = $this->audienceFromUser($user);
+
+        $query = ContentIdea::whereBetween('date', [$startDate, $endDate]);
+
+        if ($audience) {
+            $query->where(function ($q) use ($audience, $userLanguage) {
+                $q->whereJsonContains('audiences', $audience)
+                  ->orWhere(function ($subQuery) use ($userLanguage) {
+                      $subQuery->where('language', $userLanguage)
+                               ->where(function ($innerQuery) {
+                                   $innerQuery->whereNull('audiences')
+                                              ->orWhereRaw("audiences = '[]'::jsonb");
+                               });
+                  });
+            });
+        } else {
+            $query->where('language', $userLanguage)
+                  ->where(function ($subQuery) {
+                      $subQuery->whereNull('audiences')
+                               ->orWhereRaw("audiences = '[]'::jsonb");
+                  });
+        }
+
+        $contentIdeas = $query->orderBy('date', 'asc')->get();
+
+        $ideas = $contentIdeas->map(function ($idea) {
+            $date = $idea->date instanceof \Carbon\Carbon 
+                ? $idea->date->format('Y-m-d')
+                : \Carbon\Carbon::parse($idea->date)->format('Y-m-d');
+
+            return [
+                'id' => $idea->id,
+                'date' => $date,
+                'title' => $idea->title,
+                'caption' => $idea->caption,
+                'hashtags' => $idea->hashtags,
+                'tips' => $idea->tips,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $ideas
+        ]);
+    }
+
     public function getByDate(Request $request): JsonResponse
     {
         $user = Auth::user();

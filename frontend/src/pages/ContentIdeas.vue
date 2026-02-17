@@ -14,8 +14,35 @@
       </div>
     </div>
 
-    <div class="mb-8">
+    <div class="flex items-center justify-between mb-8">
       <p class="text-[#3F4369] opacity-70 mt-2">{{ texts.subtitle }}</p>
+      
+      <div class="flex items-center gap-2 bg-white rounded-lg border-2 border-[#DCDCDC] p-1">
+        <button
+          @click="viewMode = 'calendar'"
+          :class="viewMode === 'calendar' 
+            ? 'bg-[#3F4369] text-white' 
+            : 'bg-white text-[#3F4369] hover:bg-[#FFEBD0]'"
+          class="p-2 rounded transition-colors"
+          :title="texts.calendarView"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </button>
+        <button
+          @click="viewMode = 'list'"
+          :class="viewMode === 'list' 
+            ? 'bg-[#3F4369] text-white' 
+            : 'bg-white text-[#3F4369] hover:bg-[#FFEBD0]'"
+          class="p-2 rounded transition-colors"
+          :title="texts.listView"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div v-if="availableMonths.length > 0" class="mb-8">
@@ -63,8 +90,8 @@
         </div>
       </div>
 
-      <div class="calendar">
-        <div class="grid grid-cols-7 gap-1 mb-2">
+      <div v-if="viewMode === 'calendar'" class="calendar">
+        <div class="grid grid-cols-7 gap-2 mb-2">
           <div
             v-for="day in dayNames"
             :key="day"
@@ -74,15 +101,54 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-7 gap-1">
+        <div class="grid grid-cols-7 gap-2">
           <div
             v-for="(day, index) in calendarDays"
             :key="index"
-            class="aspect-square flex items-center justify-center text-sm transition-colors cursor-pointer rounded-lg"
+            class="min-h-[100px] p-2 flex flex-col transition-colors cursor-pointer rounded-lg border"
             :class="getDayClasses(day)"
             @click="selectDate(day)"
           >
-            <span v-if="day">{{ day.date }}</span>
+            <div v-if="day" class="flex flex-col h-full">
+              <div class="text-right text-sm font-medium mb-1" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
+                {{ day.date }}
+              </div>
+              <div v-if="getIdeaForDate(day.fullDate)" class="flex-1 flex items-start">
+                <p class="text-xs leading-tight line-clamp-3" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
+                  {{ getIdeaForDate(day.fullDate).title }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="viewMode === 'list'" class="space-y-2">
+        <div
+          v-for="day in calendarDaysWithIdeas"
+          :key="day.date"
+          class="flex items-center px-4 py-3 border border-[#DCDCDC] rounded-lg hover:bg-[#FFEBD0] hover:border-[#f34767] transition-colors cursor-pointer"
+          @click="selectDate(day)"
+        >
+          <div class="flex items-center gap-4 flex-1">
+            <div class="text-center min-w-[60px]">
+              <div class="text-lg font-bold text-[#3F4369]">{{ day.date }}</div>
+              <div class="text-xs text-[#3F4369] opacity-70">{{ formatDayName(day.fullDate) }}</div>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 text-sm text-[#3F4369] opacity-50 mb-1">
+                <span>12:00 AM</span>
+                <span v-if="getIdeaForDate(day.fullDate)" class="inline-flex items-center">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
+                  </svg>
+                </span>
+              </div>
+              <p v-if="getIdeaForDate(day.fullDate)" class="font-medium text-[#3F4369]">
+                {{ getIdeaForDate(day.fullDate).title }}
+              </p>
+              <p v-else class="text-[#3F4369] opacity-50 italic">{{ texts.noIdea }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -189,6 +255,8 @@ const contentIdea = ref(null)
 const isLoadingIdea = ref(false)
 const copyCaptionText = ref('Copy to clipboard')
 const copyHashtagsText = ref('Copy to clipboard')
+const viewMode = ref('calendar')
+const monthIdeas = ref([])
 
 const texts = computed(() => {
   if (languageStore.language === 'de') {
@@ -200,7 +268,10 @@ const texts = computed(() => {
       monthSelector: 'Monat auswählen',
       loading: 'Lädt...',
       noIdeaFound: 'Keine Idee für dieses Datum gefunden',
-      errorLoading: 'Fehler beim Laden der Idee'
+      errorLoading: 'Fehler beim Laden der Idee',
+      calendarView: 'Kalenderansicht',
+      listView: 'Listenansicht',
+      noIdea: 'Keine Idee'
     }
   }
 
@@ -212,7 +283,10 @@ const texts = computed(() => {
     monthSelector: 'Select Month',
     loading: 'Loading...',
     noIdeaFound: 'No idea found for this date',
-    errorLoading: 'Error loading idea'
+    errorLoading: 'Error loading idea',
+    calendarView: 'Calendar View',
+    listView: 'List View',
+    noIdea: 'No idea'
   }
 })
 
@@ -265,10 +339,42 @@ const formatMonthFull = (year, month) => {
   return `${monthNames[month - 1]} ${year}`
 }
 
-const selectMonth = (year, month) => {
+const selectMonth = async (year, month) => {
   selectedYear.value = year
   selectedMonth.value = month
   selectedDate.value = null
+  await fetchMonthIdeas(year, month)
+}
+
+const fetchMonthIdeas = async (year, month) => {
+  try {
+    const response = await axios.get('/api/content-ideas/by-month', {
+      params: { year, month }
+    })
+    if (response.data.success) {
+      monthIdeas.value = response.data.data || []
+    }
+  } catch (error) {
+    console.error('Failed to load month ideas:', error)
+    monthIdeas.value = []
+  }
+}
+
+const getIdeaForDate = (date) => {
+  if (!date || !monthIdeas.value.length) return null
+  const dateStr = formatDateForApi(date)
+  return monthIdeas.value.find(idea => idea.date === dateStr) || null
+}
+
+const calendarDaysWithIdeas = computed(() => {
+  return calendarDays.value.filter(day => day && getIdeaForDate(day.fullDate))
+})
+
+const formatDayName = (date) => {
+  const dayNames = languageStore.language === 'de'
+    ? ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  return dayNames[date.getDay()]
 }
 
 const canGoPrevious = computed(() => {
@@ -357,16 +463,17 @@ const isDateToday = (date) => {
 }
 
 const getDayClasses = (day) => {
-  if (!day) return 'bg-transparent'
+  if (!day) return 'bg-transparent border-transparent'
   
+  const hasIdea = getIdeaForDate(day.fullDate)
   const classes = []
   
-  if (day.isSelected) {
-    classes.push('bg-[#f34767] text-white font-bold')
-  } else if (day.isToday) {
-    classes.push('bg-blue-500 text-white font-bold')
+  if (day.isToday) {
+    classes.push('bg-[#1C8E9E] text-white border-[#1C8E9E]')
+  } else if (hasIdea) {
+    classes.push('bg-white border-[#DCDCDC] hover:bg-[#FFEBD0] hover:border-[#f34767]')
   } else {
-    classes.push('text-[#3F4369] hover:bg-[#FFEBD0]')
+    classes.push('bg-gray-50 border-gray-200 text-[#3F4369] opacity-40 cursor-default')
   }
   
   return classes.join(' ')
@@ -374,9 +481,13 @@ const getDayClasses = (day) => {
 
 const selectDate = async (day) => {
   if (!day) return
-  selectedDate.value = day.fullDate
   
-  await fetchContentIdea(day.fullDate)
+  const idea = getIdeaForDate(day.fullDate)
+  if (!idea) return
+  
+  selectedDate.value = day.fullDate
+  contentIdea.value = idea
+  showModal.value = true
 }
 
 const fetchContentIdea = async (date) => {
@@ -470,12 +581,23 @@ const parseApiDate = (value) => {
 
 onMounted(async () => {
   await fetchAvailableMonths()
+  if (selectedYear.value && selectedMonth.value) {
+    await fetchMonthIdeas(selectedYear.value, selectedMonth.value)
+  }
 })
 </script>
 
 <style scoped>
 .calendar {
   min-height: 400px;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .fade-enter-from,

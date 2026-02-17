@@ -383,6 +383,7 @@ Route::prefix('api')->group(function () {
 
             Route::prefix('content-ideas')->group(function () {
                 Route::get('/available-months', [App\Http\Controllers\API\ContentIdeasController::class, 'getAvailableMonths']);
+                Route::get('/by-month', [App\Http\Controllers\API\ContentIdeasController::class, 'getByMonth']);
                 Route::get('/by-date', [App\Http\Controllers\API\ContentIdeasController::class, 'getByDate']);
             });
 
