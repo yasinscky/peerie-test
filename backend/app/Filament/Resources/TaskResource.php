@@ -635,6 +635,12 @@ class TaskResource extends Resource
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ReplicateAction::make()
+                    ->beforeReplicaSaved(function (Task $replica): void {
+                        $replica->title = $replica->title . ' (Copy)';
+                        $replica->global_order = ($replica->global_order ?? 0) + 1;
+                    })
+                    ->successNotificationTitle('Task duplicated successfully'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
