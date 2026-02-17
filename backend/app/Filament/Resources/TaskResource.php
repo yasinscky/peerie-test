@@ -635,8 +635,7 @@ class TaskResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->defaultSort('global_order', 'asc')
-            ->modifyQueryUsing(fn (Builder $query) => $query->orderBy('id', 'asc'));
+            ->modifyQueryUsing(fn (Builder $query) => $query->orderBy('global_order', 'asc')->orderBy('id', 'asc'));
     }
 
     public static function getRelations(): array
