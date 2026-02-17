@@ -842,6 +842,10 @@ const formatFrequency = (frequency) => {
 }
 
 const getInstructionPreview = (task) => {
+  if (task?.short_description) {
+    return task.short_description
+  }
+  
   if (!task?.description) return ''
   const text = task.description
     .replace(/<[^>]+>/g, ' ')

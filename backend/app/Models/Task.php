@@ -18,6 +18,7 @@ class Task extends Model
         'external_id',
         'action_id',
         'title',
+        'short_description',
         'description',
         'duration_minutes',
         'frequency',

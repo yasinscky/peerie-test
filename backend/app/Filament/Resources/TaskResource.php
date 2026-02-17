@@ -59,7 +59,14 @@ class TaskResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-                Forms\Components\Section::make('5. Prerequisites')
+                Forms\Components\Textarea::make('short_description')
+                    ->label('5. Short Description (Preview)')
+                    ->maxLength(200)
+                    ->rows(3)
+                    ->helperText('Brief summary shown in task preview (max 200 characters)')
+                    ->columnSpanFull(),
+
+                Forms\Components\Section::make('6. Prerequisites')
                     ->schema([
                         Forms\Components\Repeater::make('prerequisites')
                             ->label('Prerequisites')
@@ -126,7 +133,7 @@ class TaskResource extends Resource
                     ->collapsible(),
 
                 Forms\Components\Select::make('frequency')
-                    ->label('6. Cadence')
+                    ->label('7. Cadence')
                     ->options([
                         'once' => 'Once',
                         'weekly' => 'Weekly',
@@ -139,7 +146,7 @@ class TaskResource extends Resource
                     ->required(),
 
                 Forms\Components\Select::make('target_countries')
-                    ->label('7. Country')
+                    ->label('8. Country')
                     ->options([
                         'UK' => 'United Kingdom (UK)',
                         'IRE' => 'Ireland (IRE)',
@@ -150,7 +157,7 @@ class TaskResource extends Resource
                     ->helperText('Select one or multiple countries'),
 
                 Forms\Components\Select::make('language')
-                    ->label('8. Language')
+                    ->label('9. Language')
                     ->options([
                         'en' => 'English',
                         'de' => 'Deutsch',
@@ -159,7 +166,7 @@ class TaskResource extends Resource
                     ->required(),
 
                 Forms\Components\Select::make('target_industries')
-                    ->label('9. Industries')
+                    ->label('10. Industries')
                     ->options([
                         'all' => 'All industries',
                         'beauty' => 'Beauty',
@@ -171,7 +178,7 @@ class TaskResource extends Resource
                     ->helperText('Select one or multiple industries or choose "All industries" for tasks valid for any industry.'),
 
                 Forms\Components\Select::make('allowed_capacities')
-                    ->label('10. CapacityAllowed')
+                    ->label('11. CapacityAllowed')
                     ->options([
                         2 => '2 hours',
                         4 => '4 hours',
@@ -181,7 +188,7 @@ class TaskResource extends Resource
                     ->helperText('Select one or multiple capacities'),
 
                 Forms\Components\Select::make('duration_minutes')
-                    ->label('11. EffortMin')
+                    ->label('12. EffortMin')
                     ->options([
                         15 => '15 minutes',
                         30 => '30 minutes',
@@ -193,7 +200,7 @@ class TaskResource extends Resource
                     ->required(),
 
                 Forms\Components\Select::make('local_presence_options')
-                    ->label('12. LocalPresence')
+                    ->label('13. LocalPresence')
                     ->options([
                         'any' => 'Any (show for all businesses)',
                         'yes' => 'Only for local businesses',
@@ -204,7 +211,7 @@ class TaskResource extends Resource
                     ->required(),
 
                 Forms\Components\Select::make('template')
-                    ->label('13. Template')
+                    ->label('14. Template')
                     ->options([
                         'yes' => 'Yes',
                         'no' => 'No',
@@ -213,7 +220,7 @@ class TaskResource extends Resource
                     ->required(),
 
                 Forms\Components\RichEditor::make('description')
-                    ->label('14. Instruction')
+                    ->label('15. Instruction')
                     ->required()
                     ->toolbarButtons([
                         'attachFiles',
