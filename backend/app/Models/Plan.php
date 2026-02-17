@@ -297,23 +297,6 @@ class Plan extends Model
 
     private function normalizeFrequency(?string $frequency): string
     {
-        if ($frequency === null) {
-            return 'once';
-        }
-
-        $normalized = strtolower(trim($frequency));
-        $normalized = str_replace([' ', '-'], '_', $normalized);
-
-        return match ($normalized) {
-            'biweekly' => 'bi_weekly',
-            'bi_weekly' => 'bi_weekly',
-            'every_2_weeks' => 'bi_weekly',
-            'halfyearly' => 'half_yearly',
-            'half_yearly' => 'half_yearly',
-            'every_6_months' => 'half_yearly',
-            'yearly', 'annual', 'annually' => 'yearly',
-            'one_time', 'one-off', 'one_off' => 'once',
-            default => $normalized,
-        };
+        return $frequency ?? 'once';
     }
 }
