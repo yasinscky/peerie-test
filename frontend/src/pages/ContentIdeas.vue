@@ -91,7 +91,7 @@
       </div>
 
       <div v-if="viewMode === 'calendar'" class="calendar">
-        <div class="grid grid-cols-7 gap-2 mb-2">
+        <div class="grid grid-cols-7 gap-3 mb-3">
           <div
             v-for="day in dayNames"
             :key="day"
@@ -101,20 +101,20 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-7 gap-2">
+        <div class="grid grid-cols-7 gap-3">
           <div
             v-for="(day, index) in calendarDays"
             :key="index"
-            class="min-h-[100px] p-2 flex flex-col transition-colors cursor-pointer rounded-lg border"
+            class="min-h-[140px] p-3 flex flex-col transition-colors cursor-pointer rounded-lg border"
             :class="getDayClasses(day)"
             @click="selectDate(day)"
           >
             <div v-if="day" class="flex flex-col h-full">
-              <div class="text-right text-sm font-medium mb-1" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
+              <div class="text-right text-sm font-medium mb-2" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
                 {{ day.date }}
               </div>
               <div v-if="getIdeaForDate(day.fullDate)" class="flex-1 flex items-start">
-                <p class="text-xs leading-tight line-clamp-3" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
+                <p class="text-sm leading-tight line-clamp-4" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
                   {{ getIdeaForDate(day.fullDate).title }}
                 </p>
               </div>
@@ -596,6 +596,14 @@ onMounted(async () => {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
