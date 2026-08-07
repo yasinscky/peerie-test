@@ -38,7 +38,7 @@ peerie/
 ### Backend
 - **Laravel 12** - PHP framework
 - **PHP 8.4** - Runtime (Docker)
-- **PostgreSQL 15** - Database (Docker)
+- **PostgreSQL 17** - Database (Docker)
 - **Redis** - Cache and queues
 - **Laravel Sanctum 4** - API authentication
 - **Filament 3** - Admin panel
@@ -79,15 +79,15 @@ cp frontend/.env.example frontend/.env
 docker compose up -d --build
 
 # Backend setup
-docker compose exec app php artisan key:generate
-docker compose exec app php artisan migrate
-docker compose exec app php artisan db:seed --class=TaskSeeder
+./bin/artisan key:generate
+./bin/artisan migrate
+./bin/artisan db:seed --class=TaskSeeder
 
 # Create admin user for Filament
-docker compose exec app php artisan make:filament-user
+./bin/artisan make:filament-user
 
 # Optional: public storage symlink
-docker compose exec app php artisan storage:link
+./bin/artisan storage:link
 ```
 
 ### 3. Access Applications
@@ -176,24 +176,21 @@ GET  /api/discord/invite              # Get Discord community invite URL
 
 ### Backend Development
 
+Requires **PHP 8.4** (`backend/.php-version`). With Docker Compose, use wrappers from the repo root:
+
 ```bash
-cd backend
+docker compose up -d app
 
 # Install dependencies
-composer install
+./bin/composer install
 
-# Run development server
-php artisan serve
-
-# Run migrations
-php artisan migrate
-
-# Run seeders
-php artisan db:seed
-
-# Process queues
-php artisan queue:work
+# Artisan
+./bin/artisan migrate
+./bin/artisan db:seed
+./bin/artisan queue:work
 ```
+
+API: http://localhost:8000 (via nginx). For `php artisan serve` on the host, install PHP 8.4 locally (e.g. `brew install php@8.4`).
 
 ### Frontend Development
 
