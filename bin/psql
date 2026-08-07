@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -eu
+docker compose exec -T postgres psql -U postgres -d marketing_planner "$@"
+

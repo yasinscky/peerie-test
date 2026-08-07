@@ -1,5 +1,4 @@
 services:
-  # PHP-FPM сервис
   app:
     build:
       context: ./backend
@@ -14,7 +13,6 @@ services:
       - postgres
       - redis
 
-  # Nginx веб-сервер
   nginx:
     build:
       context: .
@@ -30,9 +28,8 @@ services:
     depends_on:
       - app
 
-  # PostgreSQL база данных
   postgres:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     container_name: marketing_planner_db
     environment:
       POSTGRES_DB: marketing_planner
@@ -46,7 +43,6 @@ services:
     networks:
       - marketing_network
 
-  # Redis для кэша и очередей
   redis:
     image: redis:7-alpine
     container_name: marketing_planner_redis
@@ -57,7 +53,6 @@ services:
     networks:
       - marketing_network
 
-  # Node.js для фронтенда
   frontend:
     image: node:24.12.0-alpine
     container_name: marketing_planner_frontend
