@@ -1,56 +1,49 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
-      <div class="flex items-center">
-        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
-          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
+  <div class="max-w-[1440px] mx-auto">
+    <div class="mb-6 md:mb-8">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">
+            {{ texts.headerTitle }}
+          </h1>
+          <div class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-[14px] text-purple/70 tracking-[-0.7px]">
+            <span>{{ texts.subtitle }}</span>
+            <button
+              v-if="isDevelopment"
+              type="button"
+              class="text-purple hover:text-red underline underline-offset-2"
+              @click="showGenerateMonthModal = true"
+            >
+              Generate Month (Test)
+            </button>
+          </div>
         </div>
-        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
-      </div>
-      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
-        <span>{{ texts.headerSection }}</span>
-        <span class="opacity-40">|</span>
-        <span class="opacity-40">{{ texts.headerCurrent }}</span>
       </div>
     </div>
 
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
-        <p class="text-[#3F4369] opacity-70 mt-2">{{ texts.subtitle }}</p>
-        <button
-          v-if="isDevelopment"
-          @click="showGenerateMonthModal = true"
-          class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
-        >
-          Generate Month (Test)
-        </button>
-      </div>
-    </div>
-
-    <!-- Generate Month Modal (Test) -->
     <div
       v-if="isDevelopment && showGenerateMonthModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       @click.self="showGenerateMonthModal = false"
     >
       <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-        <h3 class="text-xl font-bold text-[#3F4369] mb-4">Generate Tasks for Month</h3>
+        <h3 class="text-xl font-bold text-black mb-4">Generate Tasks for Month</h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-[#3F4369] mb-2">Year</label>
+            <label class="block text-sm font-medium text-black mb-2">Year</label>
             <input
               v-model.number="generateMonthYear"
               type="number"
               min="2020"
               max="2100"
-              class="w-full px-3 py-2 border border-[#DCDCDC] rounded-lg focus:outline-none focus:border-[#f34767]"
-            />
+              class="w-full px-3 py-2 border border-grey rounded-lg focus:outline-none focus:border-red"
+            >
           </div>
           <div>
-            <label class="block text-sm font-medium text-[#3F4369] mb-2">Month</label>
+            <label class="block text-sm font-medium text-black mb-2">Month</label>
             <select
               v-model.number="generateMonthMonth"
-              class="w-full px-3 py-2 border border-[#DCDCDC] rounded-lg focus:outline-none focus:border-[#f34767]"
+              class="w-full px-3 py-2 border border-grey rounded-lg focus:outline-none focus:border-red"
             >
               <option :value="1">January</option>
               <option :value="2">February</option>
@@ -69,15 +62,17 @@
         </div>
         <div class="flex justify-end gap-3 mt-6">
           <button
+            type="button"
+            class="px-4 py-2 text-purple border border-grey rounded-[20px] hover:bg-rose"
             @click="showGenerateMonthModal = false"
-            class="px-4 py-2 text-[#3F4369] border border-[#DCDCDC] rounded-lg hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
-            @click="generateMonthTasks"
+            type="button"
+            class="px-4 py-2 bg-red text-white rounded-[16px] hover:bg-red-dark disabled:opacity-50"
             :disabled="isGeneratingMonth"
-            class="px-4 py-2 bg-[#f34767] text-white rounded-lg hover:bg-[#d93b57] disabled:opacity-50"
+            @click="generateMonthTasks"
           >
             {{ isGeneratingMonth ? 'Generating...' : 'Generate' }}
           </button>
@@ -85,301 +80,307 @@
       </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <!-- Completed Tasks -->
-      <div class="bg-white border-2 border-[#3F4369] rounded-[30px] px-6 py-5 flex items-center justify-between">
-        <div>
-          <p class="text-sm text-[#3F4369] opacity-70">Completed tasks</p>
-          <p class="text-3xl font-extrabold text-[#3F4369] mt-1">{{ stats.completedTasks }}</p>
-        </div>
-        <div class="w-12 h-12 rounded-2xl bg-[#1C8E9E] flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          </div>
-
-      <!-- Pending -->
-      <div class="bg-white border-2 border-[#3F4369] rounded-[30px] px-6 py-5 flex items-center justify-between">
-        <div>
-          <p class="text-sm text-[#3F4369] opacity-70">Pending</p>
-          <p class="text-3xl font-extrabold text-[#3F4369] mt-1">{{ stats.inProgressTasks }}</p>
-        </div>
-        <div class="w-12 h-12 rounded-2xl bg-[#FFEB88] flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          </div>
-
-      <!-- Total Tasks -->
-      <div class="bg-white border-2 border-[#3F4369] rounded-[30px] px-6 py-5 flex items-center justify-between">
-        <div>
-          <p class="text-sm text-[#3F4369] opacity-70">Total tasks</p>
-          <p class="text-3xl font-extrabold text-[#3F4369] mt-1">{{ stats.totalTasks }}</p>
-        </div>
-        <div class="w-12 h-12 rounded-2xl bg-[#3F4369] flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-        </div>
-      </div>
+    <div v-if="isLoading" class="text-center py-16">
+      <svg class="w-12 h-12 text-red mx-auto mb-4 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+      </svg>
+      <p class="text-purple/70">Loading plans...</p>
     </div>
 
-    <!-- Plan Overview -->
-    <div v-if="plan" class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] mb-8">
-      <div class="bg-gradient-to-r to-white p-6 border-b border-[#DCDCDC]">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="text-2xl font-bold text-[#3F4369] mb-2">{{ plan.title }}</h3>
-            <div class="flex items-center space-x-4 text-sm text-[#3F4369] opacity-70">
-              <span class="flex items-center">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                {{ plan.country }}
-              </span>
-              <span class="flex items-center" v-if="plan.industries && plan.industries.length">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                </svg>
-                {{ plan.industries.join(', ') }}
-              </span>
-            </div>
-          </div>
-          <div class="text-right">
-            <div class="text-3xl font-bold text-[#F34767]">
-              {{ getProgressPercentage(plan) }}%
-            </div>
-            <p class="text-sm text-[#3F4369] opacity-70">completed</p>
-          </div>
-        </div>
-        
-        <!-- Progress Bar -->
-        <div class="mt-4">
-          <div class="w-full bg-[#DCDCDC] rounded-full h-3">
-            <div 
-              class="bg-[#F34767] h-3 rounded-full transition-all duration-300"
-              :style="{ width: getProgressPercentage(plan) + '%' }"
-            ></div>
-          </div>
-          <div class="flex justify-between text-sm text-[#3F4369] opacity-70 mt-2">
-            <span>{{ plan.completed_tasks || 0 }} completed</span>
-            <span>{{ plan.total_tasks || 0 }} total tasks</span>
-          </div>
-        </div>
-      </div>
+    <div v-else-if="!plan" class="bg-white rounded-[30px] shadow-card p-10 text-center">
+      <h3 class="text-xl font-bold text-black mb-2">{{ texts.emptyTitle }}</h3>
+      <p class="text-purple/70">{{ texts.emptyText }}</p>
     </div>
 
-    <!-- Categorised Tasks -->
-    <div v-if="plan && categorisedTasks.length > 0" class="space-y-6">
-      <div 
-        v-for="category in categorisedTasks" 
-        :key="category.name"
-        class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] overflow-hidden"
-      >
-        <div class="bg-gradient-to-r to-white p-6 border-b border-[#DCDCDC] flex items-center justify-between">
-          <div>
-            <h3 class="text-2xl font-bold text-[#3F4369]">{{ category.name }}</h3>
-            <p class="text-[#3F4369] opacity-70">{{ category.tasks.length }} tasks • {{ formatHoursAndMinutes(category.totalMinutes) }}</p>
-          </div>
-          <div class="text-right">
-            <div class="text-2xl font-bold text-[#F34767]">
-              {{ category.progress }}%
+    <div v-else class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-5">
+      <div class="space-y-5 min-w-0">
+        <section class="bg-white rounded-[30px] shadow-card p-5 md:p-8 relative overflow-hidden">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2 text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">
+                <span>{{ texts.stageLabel }}</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-red" />
+                <span>{{ planFocusLabel }}</span>
+              </div>
+              <h2 class="mt-3 text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none">
+                {{ texts.planTitle }} {{ monthName }}
+              </h2>
+              <p class="mt-3 text-[16px] text-purple/70 tracking-[-0.8px] max-w-[490px] leading-snug">
+                {{ planSubtitle }}
+              </p>
             </div>
-            <p class="text-sm text-[#3F4369] opacity-70">completed</p>
-          </div>
-        </div>
-
-        <div class="p-6">
-          <div v-if="category.tasks.length === 0" class="text-center py-8">
-            <div class="w-16 h-16 bg-[#FFEBD0] rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg class="w-8 h-8 text-[#3F4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 009.586 13H7"/>
+            <div class="relative w-24 h-24 shrink-0">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 96 96">
+                <circle cx="48" cy="48" r="39" fill="none" stroke="rgb(var(--color-cream))" stroke-width="10" />
+                <circle
+                  cx="48"
+                  cy="48"
+                  r="39"
+                  fill="none"
+                  stroke="rgb(var(--color-red))"
+                  stroke-width="10"
+                  stroke-linecap="round"
+                  :stroke-dasharray="circumference"
+                  :stroke-dashoffset="progressOffset"
+                />
               </svg>
-            </div>
-            <p class="text-[#3F4369] opacity-70">No tasks in this category</p>
-          </div>
-
-          <div v-else class="space-y-3">
-            <div
-              v-for="task in category.tasks"
-              :key="task.id"
-              class="p-4 rounded-lg border transition-all cursor-pointer"
-              :class="task.pivot.completed 
-                ? 'bg-[#1C8E9E] bg-opacity-10 border-[#1C8E9E]' 
-                : 'bg-white border-[#DCDCDC] hover:border-[#F34767] hover:bg-[#FFEBD0]'"
-              @click="openTaskModal(task)"
-            >
-              <div class="flex items-start justify-between">
-                <div class="flex-1">
-                  <div class="flex items-start space-x-3">
-                    <button
-                      type="button"
-                      class="w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 transition-colors"
-                      :class="task.pivot.completed 
-                        ? 'bg-[#1C8E9E] border-[#1C8E9E]' 
-                        : 'border-[#DCDCDC] hover:border-[#F34767]'"
-                      @click.stop="toggleTask(task.pivot.id, !task.pivot.completed)"
-                    >
-                      <svg v-if="task.pivot.completed" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                      </svg>
-                    </button>
-                    <div class="flex-1">
-                      <h4 class="font-medium text-[#3F4369] mb-1" :class="task.pivot.completed ? 'line-through opacity-70' : ''">
-                        {{ task.title }}
-                      </h4>
-                      <p class="text-sm text-[#3F4369] opacity-70" :class="task.pivot.completed ? 'line-through' : ''">
-                        {{ getInstructionPreview(task) }}
-                      </p>
-                  
-                      
-                      <!-- Task Meta -->
-                      <div class="flex flex-wrap gap-2 mt-2">
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#FFEBD0] text-[#3F4369]">
-                          ⏱️ {{ getTaskMinutes(task) }} min
-                        </span>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#1C8E9E]/10 text-[#1C8E9E]">
-                          📅 {{ formatFrequency(task.frequency) }}
-                        </span>
-                      </div>
-
-                      <div class="mt-4 flex flex-wrap items-center gap-3">
-                        <button
-                          class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg border border-[#F34767] text-[#F34767] hover:bg-[#F34767] hover:text-white transition-colors"
-                          @click.stop="openTaskModal(task)"
-                        >
-                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12h.01M12 12h.01M9 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.932L3 20l1.084-3.252C3.379 15.59 3 13.846 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                          </svg>
-                          View instructions
-                        </button>
-                      </div>
-                      
-                      <!-- Task Notes -->
-                      <div v-if="task.pivot.notes" class="bg-[#FFEBD0] border border-[#F34767] rounded-lg p-3 mt-3">
-                        <div class="text-sm">
-                          <span class="font-medium text-[#3F4369]">Notes:</span>
-                          <span class="text-[#3F4369] ml-1">{{ task.pivot.notes }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Task Status Badge -->
-                <div class="flex items-center space-x-2">
-                  <span 
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
-                    :class="task.pivot.completed 
-                      ? 'bg-[#1C8E9E] text-white' 
-                      : 'bg-[#FFEBD0] text-[#3F4369]'"
-                  >
-                    {{ task.pivot.completed ? 'Completed' : 'Pending' }}
-                  </span>
-                </div>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-[24px] font-bold tracking-[-1.2px] text-black">{{ progressPercent }}%</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Empty State -->
-    <div v-else-if="!isLoading && categorisedTasks.length === 0" class="text-center py-12">
-      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-      </svg>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ texts.emptyTitle }}</h3>
-      <p class="text-gray-600 dark:text-gray-400 mb-6">{{ texts.emptyText }}</p>
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
-        <p class="text-blue-800 text-sm">
-          <strong>Information:</strong> Marketing plan is created automatically after completing the questionnaire during registration.
-        </p>
-      </div>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-12">
-      <svg class="w-16 h-16 text-blue-600 mx-auto mb-4 animate-spin" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <p class="text-gray-600 dark:text-gray-400">Loading plans...</p>
-    </div>
-  </div>
-
-  <!-- Task Instruction Modal -->
-  <transition name="fade">
-    <div
-      v-if="instructionModalOpen && selectedTask"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
-    >
-      <div class="relative max-w-3xl w-full bg-white rounded-2xl shadow-2xl border border-[#DCDCDC] max-h-[90vh] overflow-hidden">
-        <button
-          class="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full bg-[#FFEBD0] text-[#F34767] hover:bg-[#F34767] hover:text-white transition-colors"
-          @click="closeTaskModal"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-
-        <div class="p-6 sm:p-8 overflow-y-auto no-scrollbar max-h-[90vh]">
-          <div class="flex flex-wrap gap-3 items-start mb-6">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#DCDCDC] text-[#3F4369]">
-              ⏱️ {{ getTaskMinutes(selectedTask) }} min
-            </span>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#1C8E9E]/10 text-[#1C8E9E]">
-              📅 {{ formatFrequency(selectedTask.frequency) }}
-            </span>
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div>
+              <div class="h-2.5 w-[100px] rounded-[10px] bg-yellow mb-3" />
+              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">
+                {{ stats.completedTasks }}/{{ stats.totalTasks }}
+              </p>
+              <p class="mt-2 text-[14px] font-medium tracking-[-0.7px] text-purple">{{ texts.tasksCompleted }}</p>
+            </div>
+            <div>
+              <div class="h-2.5 w-[100px] rounded-[10px] bg-yellow mb-3" />
+              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ weeksLeftLabel }}</p>
+              <p class="mt-2 text-[14px] font-medium tracking-[-0.7px] text-purple">{{ texts.leftInStage }}</p>
+            </div>
+            <div>
+              <div class="h-2.5 w-[100px] rounded-[10px] bg-grey mb-3 overflow-hidden">
+                <div class="h-full bg-red rounded-[10px]" :style="{ width: `${Math.min(progressPercent, 100)}%` }" />
+              </div>
+              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ pendingTasksCount }}</p>
+              <p class="mt-2 text-[14px] font-medium tracking-[-0.7px] text-purple">{{ texts.pendingTasks }}</p>
+            </div>
           </div>
+        </section>
 
-          <div
-            v-if="selectedTask?.description"
-            class="prose max-w-none text-[#3F4369] leading-relaxed instruction-content"
-          >
-            <div v-html="instructionPage.html" />
-          </div>
-
-          <div v-if="selectedTask?.description && parsedInstruction.hasPages && totalInstructionPages > 1" class="mt-6 flex items-center justify-between gap-3">
+        <section class="bg-white rounded-[30px] shadow-card p-4 md:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4 px-1">
+            <div class="flex flex-wrap items-center gap-3">
+              <h3 class="text-[24px] font-bold tracking-[-1.2px] text-black">{{ texts.actionSteps }}</h3>
+              <span class="text-[14px] text-purple/70 tracking-[-0.7px]">{{ currentMonthRange }}</span>
+            </div>
             <button
               type="button"
-              class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-[#DCDCDC] text-[#3F4369] hover:bg-gray-50 disabled:opacity-50"
-              :disabled="!instructionPage.canBack"
-              @click="instructionPageIndex = Math.max(0, instructionPageIndex - 1)"
+              class="inline-flex items-center gap-1 text-[16px] text-purple tracking-[-0.8px] hover:text-red"
+              @click="showAllTasks = !showAllTasks"
             >
-              Back
+              {{ showAllTasks ? texts.hideTasks : texts.allTasks }}
+              <img :src="iconArrowLink" alt="" class="w-4 h-4">
             </button>
+          </div>
 
-            <div class="text-sm font-medium text-[#3F4369] opacity-70">
-              {{ instructionPage.label }}
+          <div class="space-y-3">
+            <div
+              v-for="item in visibleActionTasks"
+              :key="item.task.pivot?.id || item.task.id"
+              class="bg-light-grey rounded-[20px] px-4 py-3 flex items-center gap-3 md:gap-4"
+            >
+              <button
+                type="button"
+                class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
+                :class="item.task.pivot?.completed
+                  ? 'bg-green border-green'
+                  : 'border-grey hover:border-red'"
+                @click="toggleTask(item.task.pivot.id, !item.task.pivot.completed)"
+              >
+                <svg v-if="item.task.pivot?.completed" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <div class="w-8 h-8 rounded-[12px] bg-yellow flex items-center justify-center shrink-0">
+                <img :src="iconActionSteps" alt="" class="w-4 h-4">
+              </div>
+
+              <router-link
+                v-if="item.task.pivot?.id"
+                :to="taskDetailRoute(item.task)"
+                class="min-w-0 flex-1"
+              >
+                <div class="flex flex-wrap items-center gap-2">
+                  <h4
+                    class="text-[18px] md:text-[20px] font-bold tracking-[-1px] text-black truncate"
+                    :class="item.task.pivot?.completed ? 'line-through opacity-60' : ''"
+                  >
+                    {{ item.task.title }}
+                  </h4>
+                  <span
+                    class="inline-flex items-center px-[5px] py-1 rounded-[7px] text-[14px] md:text-[16px] tracking-[-0.8px] shrink-0"
+                    :class="taskStatusClass(item.task)"
+                  >
+                    {{ taskStatusLabel(item.task) }}
+                  </span>
+                </div>
+                <p class="mt-1 text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70">
+                  {{ item.categoryName }} · {{ getTaskMinutes(item.task) }} MIN
+                </p>
+              </router-link>
+              <div v-else class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h4
+                    class="text-[18px] md:text-[20px] font-bold tracking-[-1px] text-black truncate"
+                    :class="item.task.pivot?.completed ? 'line-through opacity-60' : ''"
+                  >
+                    {{ item.task.title }}
+                  </h4>
+                  <span
+                    class="inline-flex items-center px-[5px] py-1 rounded-[7px] text-[14px] md:text-[16px] tracking-[-0.8px] shrink-0"
+                    :class="taskStatusClass(item.task)"
+                  >
+                    {{ taskStatusLabel(item.task) }}
+                  </span>
+                </div>
+                <p class="mt-1 text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70">
+                  {{ item.categoryName }} · {{ getTaskMinutes(item.task) }} MIN
+                </p>
+              </div>
+
+              <router-link
+                v-if="item.task.pivot?.id"
+                :to="taskDetailRoute(item.task)"
+                class="inline-flex items-center justify-center h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark shrink-0"
+              >
+                {{ texts.open }}
+              </router-link>
             </div>
 
-            <button
-              type="button"
-              class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-[#F34767] text-white hover:bg-[#d93b57] disabled:opacity-50"
-              :disabled="!instructionPage.canNext"
-              @click="instructionPageIndex = Math.min(totalInstructionPages - 1, instructionPageIndex + 1)"
-            >
-              Next
-            </button>
+            <div v-if="flatTasks.length === 0" class="py-10 text-center text-purple/70">
+              {{ texts.noTasks }}
+            </div>
           </div>
-        </div>
+        </section>
+
+        <section v-if="showAllTasks && categorisedTasks.length > 0" class="space-y-4">
+          <div
+            v-for="category in categorisedTasks"
+            :key="category.name"
+            class="bg-white rounded-[30px] shadow-card overflow-hidden"
+          >
+            <div class="px-5 py-4 flex items-center justify-between">
+              <div>
+                <h3 class="text-[20px] font-bold tracking-[-1px] text-black">{{ category.name }}</h3>
+                <p class="text-[14px] text-purple/70">
+                  {{ category.tasks.length }} tasks · {{ formatHoursAndMinutes(category.totalMinutes) }}
+                </p>
+              </div>
+              <p class="text-[20px] font-bold text-black">{{ category.progress }}%</p>
+            </div>
+            <div class="px-4 pb-4 space-y-2">
+              <router-link
+                v-for="task in category.tasks"
+                :key="task.id"
+                :to="task.pivot?.id ? taskDetailRoute(task) : ''"
+                class="w-full text-left bg-light-grey rounded-[20px] border-4 border-rose px-4 py-3 flex items-center justify-between gap-3 hover:bg-rose"
+              >
+                <span class="font-medium text-black" :class="task.pivot?.completed ? 'line-through opacity-60' : ''">
+                  {{ task.title }}
+                </span>
+                <span
+                  class="inline-flex items-center px-[5px] py-1 rounded-[7px] text-[14px] shrink-0"
+                  :class="taskStatusClass(task)"
+                >
+                  {{ taskStatusLabel(task) }}
+                </span>
+              </router-link>
+            </div>
+          </div>
+        </section>
       </div>
+
+      <aside class="space-y-5">
+        <section class="bg-white rounded-[30px] shadow-card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-[20px] font-bold tracking-[-1px] text-black">{{ texts.progress }} {{ monthName }}</h3>
+          </div>
+          <div class="relative w-[180px] h-[180px] mx-auto">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 180 180">
+              <circle cx="90" cy="90" r="72" fill="none" stroke="rgb(var(--color-cream))" stroke-width="16" />
+              <circle
+                cx="90"
+                cy="90"
+                r="72"
+                fill="none"
+                stroke="rgb(var(--color-red))"
+                stroke-width="16"
+                stroke-linecap="round"
+                :stroke-dasharray="largeCircumference"
+                :stroke-dashoffset="largeProgressOffset"
+              />
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ progressPercent }}%</p>
+              <p class="mt-2 text-[14px] text-purple/70 tracking-[-0.7px]">
+                {{ stats.completedTasks }} {{ texts.of }} {{ stats.totalTasks }} {{ texts.tasks }}
+              </p>
+            </div>
+          </div>
+          <div class="mt-5 space-y-2 text-[14px] tracking-[-0.7px]">
+            <div class="flex items-center justify-between text-black">
+              <span>{{ texts.completed }}</span>
+              <span class="font-bold">{{ stats.completedTasks }}</span>
+            </div>
+            <div class="flex items-center justify-between text-black">
+              <span>{{ texts.pending }}</span>
+              <span class="font-bold">{{ stats.inProgressTasks }}</span>
+            </div>
+            <div class="flex items-center justify-between text-black">
+              <span>{{ texts.total }}</span>
+              <span class="font-bold">{{ stats.totalTasks }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-[30px] shadow-card p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-[20px] font-bold tracking-[-1px] text-black">{{ texts.quickLinks }}</h3>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <router-link
+              to="/dashboard/content-ideas"
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
+            >
+              <img :src="iconContentCalendar" alt="" class="w-4 h-4 mb-2">
+              <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.contentIdeas }}</p>
+            </router-link>
+            <router-link
+              to="/dashboard/image-generator"
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
+            >
+              <img :src="iconResourceLibrary" alt="" class="w-4 h-4 mb-2">
+              <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.imageLibrary }}</p>
+            </router-link>
+            <router-link
+              to="/dashboard/hashtags"
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
+            >
+              <img :src="iconActionSteps" alt="" class="w-4 h-4 mb-2">
+              <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.hashtags }}</p>
+            </router-link>
+            <router-link
+              to="/dashboard/documents"
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
+            >
+              <img :src="iconDocuments" alt="" class="w-[14px] h-[14px] mb-2">
+              <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.documents }}</p>
+            </router-link>
+          </div>
+        </section>
+      </aside>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
-import logoWhite from '@/assets/images/logos/logo-white.svg'
+import iconActionSteps from '@/assets/images/icons/dashboard/v2/action-steps.svg'
+import iconArrowLink from '@/assets/images/icons/dashboard/v2/arrow-link.svg'
+import iconContentCalendar from '@/assets/images/icons/dashboard/v2/content-calendar.svg'
+import iconResourceLibrary from '@/assets/images/icons/dashboard/v2/resource-library.svg'
+import iconDocuments from '@/assets/images/icons/dashboard/v2/documents.svg'
 
 const router = useRouter()
 const route = useRoute()
@@ -395,143 +396,23 @@ const stats = ref({
   inProgressTasks: 0,
   totalTasks: 0
 })
-const instructionModalOpen = ref(false)
-const selectedTask = ref(null)
 const showGenerateMonthModal = ref(false)
 const generateMonthYear = ref(new Date().getFullYear())
 const generateMonthMonth = ref(new Date().getMonth() + 1)
 const isGeneratingMonth = ref(false)
-const instructionPageIndex = ref(0)
+const showAllTasks = ref(false)
+const userName = ref('')
 
-const parsedInstruction = computed(() => {
-  const html = String(selectedTask.value?.description || '')
-  if (!html) {
-    return {
-      titleHtml: '',
-      introHtml: '',
-      steps: [],
-      hasPages: false,
-    }
-  }
-
-  try {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(html, 'text/html')
-
-    const titleEl = doc.body?.querySelector('h1')
-    if (titleEl) {
-      titleEl.setAttribute('class', 'text-2xl font-semibold text-[#3F4369] mb-4')
-    }
-    const titleHtml = titleEl ? titleEl.outerHTML : ''
-
-    const h2s = Array.from(doc.body?.querySelectorAll('h2') || [])
-    if (h2s.length === 0) {
-      return {
-        titleHtml,
-        introHtml: (doc.body?.innerHTML || html),
-        steps: [],
-        hasPages: false,
-      }
-    }
-
-    const sections = h2s.map((h2, idx) => {
-      const nodes = [h2]
-      let node = h2.nextSibling
-      const nextH2 = h2s[idx + 1] || null
-      while (node && node !== nextH2) {
-        nodes.push(node)
-        node = node.nextSibling
-      }
-      const wrapper = doc.createElement('div')
-      nodes.forEach(n => wrapper.appendChild(n.cloneNode(true)))
-      const headingText = String(h2.textContent || '').trim()
-      return {
-        headingText,
-        html: wrapper.innerHTML,
-        isStep: /^step\s*\d+/i.test(headingText),
-      }
-    })
-
-    const firstStepIndex = sections.findIndex(s => s.isStep)
-    const introSections = firstStepIndex >= 0 ? sections.slice(0, firstStepIndex) : sections
-    const stepSections = firstStepIndex >= 0 ? sections.slice(firstStepIndex).filter(s => s.isStep) : []
-
-    const introHtml = introSections.map(s => s.html).join('')
-    const steps = stepSections.map(s => ({
-      title: s.headingText,
-      html: s.html,
-    }))
-
-    return {
-      titleHtml,
-      introHtml,
-      steps,
-      hasPages: introHtml.trim().length > 0 || steps.length > 0,
-    }
-  } catch {
-    return {
-      titleHtml: '',
-      introHtml: html,
-      steps: [],
-      hasPages: false,
-    }
+const taskDetailRoute = (task) => ({
+  name: 'TaskDetail',
+  params: { planTaskId: String(task.pivot.id) },
+  query: {
+    from: 'marketing-plans',
+    year: selectedYear.value,
+    month: selectedMonth.value
   }
 })
 
-const totalInstructionPages = computed(() => {
-  const hasIntro = parsedInstruction.value.introHtml.trim().length > 0
-  const stepsCount = parsedInstruction.value.steps.length
-  return (hasIntro ? 1 : 0) + stepsCount
-})
-
-const instructionPage = computed(() => {
-  const html = String(selectedTask.value?.description || '')
-  const hasIntro = parsedInstruction.value.introHtml.trim().length > 0
-  const idx = Number(instructionPageIndex.value) || 0
-
-  if (!parsedInstruction.value.hasPages) {
-    return {
-      label: '',
-      html,
-      canBack: false,
-      canNext: false,
-    }
-  }
-
-  if (hasIntro && idx === 0) {
-    return {
-      label: 'Intro',
-      html: `${parsedInstruction.value.titleHtml}${parsedInstruction.value.introHtml}`,
-      canBack: false,
-      canNext: totalInstructionPages.value > 1,
-    }
-  }
-
-  const stepIndex = hasIntro ? idx - 1 : idx
-  const step = parsedInstruction.value.steps[stepIndex]
-  if (!step) {
-    return {
-      label: '',
-      html: `${parsedInstruction.value.titleHtml}${parsedInstruction.value.introHtml}`,
-      canBack: idx > 0,
-      canNext: false,
-    }
-  }
-
-  return {
-    label: `Step ${stepIndex + 1} of ${parsedInstruction.value.steps.length}`,
-    html: `${parsedInstruction.value.titleHtml}${step.html}`,
-    canBack: idx > 0,
-    canNext: idx < totalInstructionPages.value - 1,
-  }
-})
-
-watch(
-  () => selectedTask.value?.id,
-  () => {
-    instructionPageIndex.value = 0
-  }
-)
 const isDevelopment = computed(() => {
   if (import.meta.env.MODE === 'development') {
     return true
@@ -551,25 +432,163 @@ const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
       headerTitle: 'Dein Marketingplan',
-      headerSection: 'Erstellen',
-      headerCurrent: 'Dein Marketingplan',
-      title: 'Dein Marketingplan',
-      subtitle: 'Verfolge deine personalisierten Marketingaufgaben nach Kategorie',
+      subtitle: 'Verfolge deine Marketingaufgaben nach Kategorie',
+      welcome: 'Willkommen zurück',
+      planTitle: 'Dein Marketingplan für',
+      stageLabel: 'Monatlicher Plan',
+      tasksCompleted: 'Aufgaben erledigt',
+      leftInStage: 'noch in diesem Monat',
+      pendingTasks: 'offen',
+      actionSteps: 'Action Steps',
+      allTasks: 'Alle Aufgaben',
+      hideTasks: 'Weniger',
+      open: 'Öffnen',
+      noTasks: 'Keine Aufgaben für diesen Monat',
+      progress: 'Fortschritt',
+      of: 'von',
+      tasks: 'Aufgaben',
+      completed: 'Erledigt',
+      pending: 'Offen',
+      total: 'Gesamt',
+      quickLinks: 'Schnellzugriff',
+      contentIdeas: 'Content Ideen',
+      imageLibrary: 'Bildbibliothek',
+      hashtags: 'Hashtags',
+      documents: 'Dokumente',
       emptyTitle: 'Du hast noch keine Pläne',
-      emptyText: 'Dein Marketingplan wird nach dem Ausfüllen des Fragebogens automatisch erstellt'
+      emptyText: 'Dein Marketingplan wird nach dem Ausfüllen des Fragebogens automatisch erstellt',
+      done: 'Done',
+      notStarted: 'Not started'
     }
   }
 
   return {
-    headerTitle: 'My Marketing Plan',
-    headerSection: 'Create',
-    headerCurrent: 'My Marketing Plan',
-    title: 'My Marketing Plan',
-    subtitle: 'Track your personalized marketing tasks by category',
+    headerTitle: 'Marketing Plan',
+    subtitle: 'Track your marketing tasks by category',
+    welcome: 'Welcome back',
+    planTitle: 'Your marketing plan for',
+    stageLabel: 'Monthly plan',
+    tasksCompleted: 'tasks completed',
+    leftInStage: 'left in this stage',
+    pendingTasks: 'pending tasks',
+    actionSteps: "This week's action steps",
+    allTasks: 'All tasks',
+    hideTasks: 'Hide tasks',
+    open: 'Open',
+    noTasks: 'No tasks for this month',
+    progress: 'Progress',
+    of: 'of',
+    tasks: 'tasks',
+    completed: 'Completed',
+    pending: 'Pending',
+    total: 'Total',
+    quickLinks: 'Quick links',
+    contentIdeas: 'Content Ideas',
+    imageLibrary: 'Image Library',
+    hashtags: 'Hashtags',
+    documents: 'Documents',
     emptyTitle: "You don't have any plans yet",
-    emptyText: 'Your marketing plan will be created after completing the questionnaire'
+    emptyText: 'Your marketing plan will be created after completing the questionnaire',
+    done: 'Done',
+    notStarted: 'Not started'
   }
 })
+
+const welcomeName = computed(() => {
+  if (!userName.value) return 'there'
+  return userName.value.split(' ')[0]
+})
+
+const monthName = computed(() => {
+  const names = languageStore.language === 'de'
+    ? ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  return names[selectedMonth.value - 1] || ''
+})
+
+const todayLabel = computed(() => {
+  const now = new Date()
+  return now.toLocaleDateString(languageStore.language === 'de' ? 'de-DE' : 'en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  })
+})
+
+const progressPercent = computed(() => {
+  if (!plan.value) return 0
+  return getProgressPercentage(plan.value)
+})
+
+const circumference = 2 * Math.PI * 39
+const largeCircumference = 2 * Math.PI * 72
+
+const progressOffset = computed(() => {
+  return circumference - (progressPercent.value / 100) * circumference
+})
+
+const largeProgressOffset = computed(() => {
+  return largeCircumference - (progressPercent.value / 100) * largeCircumference
+})
+
+const pendingTasksCount = computed(() => stats.value.inProgressTasks)
+
+const weeksLeftLabel = computed(() => {
+  const now = new Date()
+  const end = new Date(selectedYear.value, selectedMonth.value, 0)
+  const daysLeft = Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)))
+  const weeks = Math.max(0, Math.ceil(daysLeft / 7))
+  return `${weeks} wks`
+})
+
+const planFocusLabel = computed(() => {
+  if (plan.value?.industries?.length) {
+    return plan.value.industries.slice(0, 2).join(' & ')
+  }
+  return plan.value?.country || 'Marketing'
+})
+
+const planSubtitle = computed(() => {
+  if (languageStore.language === 'de') {
+    return `Fokus diesen Monat: Sichtbarkeit und Content. Dein Plan aktualisiert sich automatisch am 1. des nächsten Monats.`
+  }
+  return `This month's focus: growing visibility and content. Your plan refreshes automatically next month.`
+})
+
+const currentMonthRange = computed(() => {
+  const start = new Date(selectedYear.value, selectedMonth.value - 1, 1)
+  const end = new Date(selectedYear.value, selectedMonth.value, 0)
+  const opts = { month: 'short', day: 'numeric' }
+  const locale = languageStore.language === 'de' ? 'de-DE' : 'en-US'
+  return `${start.toLocaleDateString(locale, opts)} – ${end.toLocaleDateString(locale, opts)}`
+})
+
+const flatTasks = computed(() => {
+  if (!categorisedTasks.value.length) return []
+  return categorisedTasks.value.flatMap(category =>
+    (category.tasks || []).map(task => ({
+      task,
+      categoryName: category.name
+    }))
+  )
+})
+
+const visibleActionTasks = computed(() => {
+  if (showAllTasks.value) return flatTasks.value
+  const pending = flatTasks.value.filter(item => !item.task.pivot?.completed)
+  const source = pending.length > 0 ? pending : flatTasks.value
+  return source.slice(0, 6)
+})
+
+const taskStatusLabel = (task) => {
+  return task.pivot?.completed ? texts.value.done : texts.value.notStarted
+}
+
+const taskStatusClass = (task) => {
+  return task.pivot?.completed
+    ? 'bg-green/20 text-green'
+    : 'bg-grey text-purple'
+}
 
 const fetchAvailableMonths = async () => {
   try {
@@ -821,90 +840,18 @@ const toggleTask = async (planTaskId, completed) => {
   }
 }
 
-const formatFrequency = (frequency) => {
-  const map = {
-    once: 'Once',
-    weekly: 'Weekly',
-    bi_weekly: 'Bi-weekly',
-    monthly: 'Monthly',
-    quarterly: 'Quarterly',
-    half_yearly: 'Half-yearly',
-    yearly: 'Yearly',
-  }
-
-  if (!frequency) {
-    return 'Once'
-  }
-
-  const key = frequency.toLowerCase()
-  return map[key] || key.charAt(0).toUpperCase() + key.slice(1)
-}
-
-const getInstructionPreview = (task) => {
-  if (task?.short_description) {
-    return task.short_description
-  }
-  
-  if (!task?.description) return ''
-  const text = task.description
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-
-  if (!text) return ''
-
-  if (text.length > 220) {
-    return text.slice(0, 220).trimEnd() + '…'
-  }
-  return text
-}
-
-const openTaskModal = (task) => {
-  selectedTask.value = task
-  instructionModalOpen.value = true
-}
-
-const closeTaskModal = () => {
-  instructionModalOpen.value = false
-  selectedTask.value = null
-}
-
-const closeOnEscape = (event) => {
-  if (event.key === 'Escape') {
-    closeTaskModal()
-  }
-}
-
 onMounted(async () => {
-  await fetchPlans()
-  window.addEventListener('keydown', closeOnEscape)
-})
+  try {
+    const savedUser = localStorage.getItem('user')
+    if (savedUser) {
+      const parsed = JSON.parse(savedUser)
+      userName.value = parsed?.name || ''
+    }
+  } catch (error) {
+    console.error('Failed to parse saved user:', error)
+  }
 
-onUnmounted(() => {
-  window.removeEventListener('keydown', closeOnEscape)
+  await fetchPlans()
 })
 </script>
 
-<style scoped>
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 150ms ease;
-}
-
-.instruction-content :deep(ul) {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-  margin-left: 0;
-}
-
-.instruction-content :deep(ol) {
-  list-style-type: decimal;
-  padding-left: 1.5rem;
-  margin-left: 0;
-}
-</style>

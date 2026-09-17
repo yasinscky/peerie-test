@@ -1,211 +1,187 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
-      <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
-          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
-        </div>
-        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
-      </div>
-      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
-        <span>{{ texts.headerSection }}</span>
-        <span class="opacity-40">|</span>
-        <span class="opacity-40">{{ texts.headerCurrent }}</span>
-      </div>
+  <div class="max-w-[1440px] mx-auto">
+    <div class="mb-6 md:mb-8">
+      <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70 mb-2">{{ texts.headerSection }}</p>
+      <h1 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">{{ texts.headerTitle }}</h1>
+      <p class="mt-3 text-[16px] text-purple/70 tracking-[-0.8px] max-w-[720px]">{{ texts.subtitle }}</p>
     </div>
 
-    <div class="mb-8">
-      <p class="text-gray-600 dark:text-gray-400 mt-2">{{ texts.subtitle }}</p>
-    </div>
-
-    <!-- Search Controls -->
-    <div class="bg-[#3F4369] rounded-[30px] p-6 mb-6">
+    <div class="bg-white rounded-[30px] shadow-card p-5 md:p-8 mb-5">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Search Input -->
-          <div>
-            <label class="block text-sm font-medium text-white mb-2">
+        <div>
+          <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
             {{ texts.searchLabel }}
           </label>
           <div class="relative">
-            <input 
+            <input
               v-model="searchQuery"
-              @keyup.enter="searchImages"
-              type="text" 
+              type="text"
               :placeholder="texts.searchPlaceholder"
-              class="w-full px-4 py-2 pl-10 border border-white rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 bg-white text-black"
+              class="w-full h-[48px] pl-11 pr-4 rounded-[16px] border border-grey bg-light-grey text-[16px] text-black tracking-[-0.8px] outline-none focus:border-red"
+              @keyup.enter="searchImages"
             >
-            <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-purple/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
         </div>
-
       </div>
 
-      <!-- Quick Categories -->
-      <div class="mt-4">
-        <label class="block text-sm font-medium text-white mb-2">
+      <div class="mt-5">
+        <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
           {{ texts.categoriesLabel }}
         </label>
         <div class="flex flex-wrap gap-2">
-          <button 
+          <button
             v-for="category in categories"
             :key="category"
+            type="button"
+            class="h-[34px] px-3 rounded-full bg-light-grey border-2 border-rose text-[13px] font-medium tracking-[-0.5px] text-purple hover:bg-rose hover:text-red"
             @click="searchByCategory(category)"
-            class="px-3 py-1 text-sm bg-white text-black rounded-full hover:bg-gray-200 transition-colors"
           >
             {{ category }}
           </button>
         </div>
       </div>
 
-      <!-- Search Button -->
-      <div class="mt-4 flex justify-end">
-        <button 
-          @click="searchImages"
+      <div class="mt-5 flex justify-end">
+        <button
+          type="button"
+          class="h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark disabled:opacity-50"
           :disabled="isLoading || !searchQuery.trim()"
-          class="px-6 py-2 bg-[#F34767] text-white rounded-lg hover:bg-[#F34767] focus:ring-2 focus:ring-[#F34767] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          @click="searchImages"
         >
           {{ isLoading ? texts.searching : texts.searchButton }}
         </button>
       </div>
     </div>
 
-    <!-- Results -->
     <div v-if="images.length > 0" class="mb-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div 
-          v-for="image in images" 
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div
+          v-for="image in images"
           :key="image.id"
-          class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+          class="bg-white rounded-[24px] shadow-card overflow-hidden"
         >
           <div class="relative group">
-            <img 
-              :src="image.previewUrl" 
+            <img
+              :src="image.previewUrl"
               :alt="image.alt || 'Image'"
-              class="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+              class="w-full h-48 object-cover cursor-pointer"
               @load="image.loaded = true"
               @error="image.error = true"
               @click="viewImage(image)"
             >
-            
-            <!-- Loading overlay -->
-            <div v-if="!image.loaded && !image.error" class="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <svg class="w-8 h-8 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+
+            <div v-if="!image.loaded && !image.error" class="absolute inset-0 bg-light-grey flex items-center justify-center">
+              <svg class="w-8 h-8 text-red animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
             </div>
 
-            <!-- Error overlay -->
-            <div v-if="image.error" class="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-              <div class="text-center text-gray-500">
+            <div v-if="image.error" class="absolute inset-0 bg-light-grey flex items-center justify-center">
+              <div class="text-center text-purple/70">
                 <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
                 <p class="text-sm">{{ texts.loadingError }}</p>
               </div>
             </div>
 
-            <!-- Action buttons overlay -->
-            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/45 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
               <div class="flex space-x-2">
-                <button 
-                  @click="downloadImage(image)"
+                <button
+                  type="button"
+                  class="h-[38px] px-4 rounded-[16px] bg-red text-white text-[13px] font-bold tracking-[-0.5px] hover:bg-red-dark disabled:opacity-50"
                   :disabled="downloadingImages.has(image.id || `${image.title}_${Date.now()}`)"
-                  class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="downloadImage(image)"
                 >
                   <svg v-if="!downloadingImages.has(image.id || `${image.title}_${Date.now()}`)" class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   <svg v-else class="w-4 h-4 mr-1 inline animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                   {{ downloadingImages.has(image.id || `${image.title}_${Date.now()}`) ? texts.downloading : texts.download }}
                 </button>
-                <button 
+                <button
+                  type="button"
+                  class="h-[38px] px-4 rounded-[16px] bg-white text-black text-[13px] font-bold tracking-[-0.5px] hover:bg-rose"
                   @click="viewImage(image)"
-                  class="px-3 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
                 >
-                  <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                  </svg>
                   View
                 </button>
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
-      <!-- Load More Button / Indicator -->
       <div class="flex justify-center py-8">
         <button
           v-if="hasMoreImages && !isLoadingMore"
+          type="button"
+          class="h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark"
           @click="loadMoreImages"
-          class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Load more images
         </button>
 
-        <div v-else-if="isLoadingMore" class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#F34767]"></div>
+        <div v-else-if="isLoadingMore" class="flex items-center space-x-2 text-purple/70">
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-red"></div>
           <span>Loading more images...</span>
         </div>
       </div>
-
     </div>
 
-    <!-- No Results -->
-    <div v-else-if="hasSearched && !isLoading" class="text-center py-12">
-      <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    <div v-else-if="hasSearched && !isLoading" class="bg-white rounded-[30px] shadow-card p-10 text-center">
+      <svg class="w-12 h-12 text-purple/30 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ texts.noImagesTitle }}</h3>
-      <p class="text-gray-600 dark:text-gray-400">{{ texts.noImagesText }}</p>
+      <h3 class="text-[20px] font-bold tracking-[-1px] text-black mb-2">{{ texts.noImagesTitle }}</h3>
+      <p class="text-[16px] text-purple/70 tracking-[-0.8px]">{{ texts.noImagesText }}</p>
     </div>
 
-    <!-- Loading State -->
     <div v-if="isLoading" class="text-center py-12">
-      <svg class="w-16 h-16 text-blue-600 mx-auto mb-4 animate-spin" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      <svg class="w-12 h-12 text-red mx-auto mb-4 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
       </svg>
-      <p class="text-gray-600 dark:text-gray-400">{{ texts.searchingFull }}</p>
+      <p class="text-purple/70">{{ texts.searchingFull }}</p>
     </div>
 
-    <!-- Image Modal -->
-    <div v-if="selectedImage" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" @click="selectedImage = null">
+    <div v-if="selectedImage" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70" @click="selectedImage = null">
       <div class="relative max-w-4xl max-h-full p-4" @click.stop>
-        <button 
+        <button
+          type="button"
+          class="absolute top-2 right-2 z-10 w-10 h-10 bg-black/50 text-white rounded-full hover:bg-black/70 flex items-center justify-center"
           @click="selectedImage = null"
-          class="absolute top-2 right-2 z-10 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-75"
         >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <img 
-          :src="selectedImage.fullUrl" 
+        <img
+          :src="selectedImage.fullUrl"
           :alt="selectedImage.alt"
-          class="max-w-full max-h-full rounded-lg"
+          class="max-w-full max-h-full rounded-[20px]"
         >
-        <div class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 text-white p-4 rounded-lg">
+        <div class="absolute bottom-4 left-4 right-4 bg-black/50 text-white p-4 rounded-[16px]">
           <div class="flex justify-between items-center">
-            <button 
-              @click="downloadImage(selectedImage)"
+            <button
+              type="button"
+              class="h-[38px] px-4 rounded-[16px] bg-red text-white text-[13px] font-bold tracking-[-0.5px] hover:bg-red-dark disabled:opacity-50"
               :disabled="downloadingImages.has(selectedImage.id || `${selectedImage.title}_${Date.now()}`)"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="downloadImage(selectedImage)"
             >
               <svg v-if="!downloadingImages.has(selectedImage.id || `${selectedImage.title}_${Date.now()}`)" class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <svg v-else class="w-4 h-4 mr-1 inline animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
               {{ downloadingImages.has(selectedImage.id || `${selectedImage.title}_${Date.now()}`) ? 'Downloading...' : 'Download' }}
             </button>
@@ -220,7 +196,6 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
-import logoWhite from '@/assets/images/logos/logo-white.svg'
 
 const languageStore = useLanguageStore()
 

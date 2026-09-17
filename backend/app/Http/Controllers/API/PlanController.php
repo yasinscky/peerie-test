@@ -206,11 +206,55 @@ class PlanController extends Controller
         ]);
     }
 
+    public function showPlanTask(int $planTaskId): JsonResponse
+    {
+        $planTask = PlanTask::with(['task', 'plan'])->find($planTaskId);
+
+        if (!$planTask || !$planTask->plan || $planTask->plan->user_id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found'
+            ], 404);
+        }
+
+        $task = $planTask->task;
+
+        if (!$task) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Task not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'plan_id' => $planTask->plan_id,
+            'plan_task' => [
+                'id' => $planTask->id,
+                'week' => $planTask->week,
+                'year' => $planTask->year,
+                'month' => $planTask->month,
+                'completed' => $planTask->completed,
+                'notes' => $planTask->notes,
+            ],
+            'task' => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'short_description' => $task->short_description,
+                'description' => $task->description,
+                'duration_minutes' => $task->duration_minutes,
+                'frequency' => $task->frequency,
+                'category' => $task->category,
+                'language' => $task->language,
+            ],
+        ]);
+    }
+
     public function updateTaskStatus(Request $request, int $planId, int $planTaskId): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'completed' => 'required|boolean',
-            'notes' => 'nullable|string|max:1000',
+            'completed' => 'sometimes|boolean',
+            'notes' => 'nullable|string|max:50000',
         ]);
 
         if ($validator->fails()) {
@@ -241,20 +285,34 @@ class PlanController extends Controller
             ], 404);
         }
 
-        $updateData = [
-            'completed' => $request->completed,
-            'notes' => $request->notes,
-        ];
+        $updateData = [];
 
-        if ($request->completed && !$planTask->completed) {
-            $updateData['last_completed_at'] = now();
+        if ($request->exists('completed')) {
+            $completed = $request->boolean('completed');
+            $updateData['completed'] = $completed;
+
+            if ($completed && !$planTask->completed) {
+                $updateData['last_completed_at'] = now();
+            }
         }
 
-        $planTask->update($updateData);
+        if ($request->exists('notes')) {
+            $updateData['notes'] = $request->notes;
+        }
+
+        if (!empty($updateData)) {
+            $planTask->update($updateData);
+            $planTask->refresh();
+        }
 
         return response()->json([
-                'success' => true,
-                'message' => 'Task status updated'
+            'success' => true,
+            'message' => 'Task status updated',
+            'plan_task' => [
+                'id' => $planTask->id,
+                'completed' => $planTask->completed,
+                'notes' => $planTask->notes,
+            ],
         ]);
     }
 

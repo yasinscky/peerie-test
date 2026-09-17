@@ -1,265 +1,255 @@
 <template>
-  <div class="max-w-[400px] md:max-w-7xl mx-auto">
-    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
-      <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
-          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
-        </div>
-        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
-      </div>
-      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
-        <span>{{ texts.headerSection }}</span>
-        <span class="opacity-40">|</span>
-        <span class="opacity-40">{{ texts.headerCurrent }}</span>
-      </div>
+  <div class="max-w-[1440px] mx-auto">
+    <div class="mb-6 md:mb-8">
+      <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70 mb-2">{{ texts.headerSection }}</p>
+      <h1 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">{{ texts.headerTitle }}</h1>
     </div>
 
-    <div class="md:mt-0">
-      <div class="md:px-4">
-            <div>
-              <h2 class="text-[#1c1a1b] text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2 px-4 md:px-0 pt-4 md:pt-0">{{ texts.personalInfoTitle }}</h2>
-              <p class="text-[#1c1a1b] text-sm md:text-base lg:text-xl mb-6 px-4 md:px-0">
-                {{ texts.personalInfoDescription }}
-                <span class="text-red-500">*</span>
-              </p>
-              
-              <form @submit.prevent="updateProfile" class="space-y-4 md:space-y-6 px-4 md:px-0 pb-6 md:pb-0">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4">
-                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.firstNameLabel }}
-                      <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                      v-model="profileForm.firstName"
-                      type="text" 
-                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                      :placeholder="texts.firstNamePlaceholder"
-                      required
-                    >
-                  </div>
-                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4">
-                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.lastNameLabel }}
-                      <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                      v-model="profileForm.lastName"
-                      type="text" 
-                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                      :placeholder="texts.lastNamePlaceholder"
-                      required
-                    >
-                  </div>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4">
-                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.emailLabel }}
-                      <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                      v-model="profileForm.email"
-                      type="email" 
-                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                      :placeholder="texts.emailPlaceholder"
-                      required
-                      :disabled="emailVerificationPending"
-                    >
-                  </div>
-                  <div class="border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:2xl:p-6 md:xl:p-4 relative">
-                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.languageLabel }}
-                      <span class="text-red-500">*</span>
-                    </label>
-                    <select 
-                      v-model="profileForm.language"
-                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base appearance-none pr-10"
-                    >
-                      <option value="en">{{ texts.languageEn }}</option>
-                      <option value="de">{{ texts.languageDe }}</option>
-                    </select>
-                    <div class="absolute right-4 md:right-6 top-1/2 transform -translate-y-1/2 pointer-events-none w-[40px] h-[40px] md:w-[60px] md:h-[60px] rounded-[12px] md:rounded-[16px] bg-[#3F4369] flex items-center justify-center">
-                      <img :src="arrowDown" alt="" class="w-5 h-5 md:w-7 md:h-7">
-                    </div>
-                  </div>
-                </div>
+    <div class="space-y-5">
+      <section class="bg-white rounded-[30px] shadow-card p-5 md:p-8">
+        <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none mb-2">{{ texts.personalInfoTitle }}</h2>
+        <p class="text-[16px] text-purple/70 tracking-[-0.8px] mb-6">
+          {{ texts.personalInfoDescription }}
+          <span class="text-red">*</span>
+        </p>
 
-                <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-end pt-4">
-                  <button 
-                    type="button"
-                    @click="resetForm"
-                    class="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[#1c1a1b] text-sm md:text-xl font-bold uppercase hover:opacity-80 transition-opacity"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    {{ texts.resetButton }}
-                  </button>
-                  <button 
-                    type="submit" 
-                    :disabled="isUpdating"
-                    class="px-6 md:px-8 py-2 md:py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[20px] md:rounded-[30px] text-sm md:text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
-                  >
-                    {{ isUpdating ? texts.saving : texts.saveChanges }}
-                  </button>
-                </div>
-              </form>
+        <form class="space-y-4" @submit.prevent="updateProfile">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                {{ texts.firstNameLabel }}
+                <span class="text-red">*</span>
+              </label>
+              <input
+                v-model="profileForm.firstName"
+                type="text"
+                class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] placeholder:text-purple/40"
+                :placeholder="texts.firstNamePlaceholder"
+                required
+              >
+            </div>
+            <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                {{ texts.lastNameLabel }}
+                <span class="text-red">*</span>
+              </label>
+              <input
+                v-model="profileForm.lastName"
+                type="text"
+                class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] placeholder:text-purple/40"
+                :placeholder="texts.lastNamePlaceholder"
+                required
+              >
+            </div>
+          </div>
 
-              <div v-if="emailVerificationPending" class="mt-6 px-4 md:px-0">
-                <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
-                  <p class="text-[#1c1a1b] text-base md:text-lg mb-4">{{ texts.emailVerificationMessage }}</p>
-                  <div class="flex flex-col sm:flex-row gap-3 md:gap-4 items-stretch sm:items-center">
-                    <div class="flex-1">
-                      <input
-                        v-model="emailVerificationCode"
-                        type="text"
-                        inputmode="numeric"
-                        maxlength="6"
-                        class="w-full bg-transparent border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6 text-[#1c1a1b] text-base md:text-lg font-bold placeholder:text-gray-400 outline-none"
-                        :placeholder="texts.emailVerificationCodePlaceholder"
-                      >
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                      <button
-                        type="button"
-                        @click="confirmEmailChange"
-                        :disabled="isUpdating || !emailVerificationCode"
-                        class="px-6 py-3 bg-[#f34767] text-white rounded-[20px] md:rounded-[30px] text-base md:text-lg font-bold uppercase hover:bg-[#d93d5a] transition-colors disabled:opacity-50"
-                      >
-                        {{ texts.confirmEmailButton }}
-                      </button>
-                      <button
-                        type="button"
-                        @click="cancelEmailChange"
-                        class="px-6 py-3 border-2 border-[#f34767] text-[#f34767] rounded-[20px] md:rounded-[30px] text-base md:text-lg font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors"
-                      >
-                        {{ texts.cancelButton }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                {{ texts.emailLabel }}
+                <span class="text-red">*</span>
+              </label>
+              <input
+                v-model="profileForm.email"
+                type="email"
+                class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] placeholder:text-purple/40 disabled:opacity-60"
+                :placeholder="texts.emailPlaceholder"
+                required
+                :disabled="emailVerificationPending"
+              >
+            </div>
+            <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4 relative">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                {{ texts.languageLabel }}
+                <span class="text-red">*</span>
+              </label>
+              <select
+                v-model="profileForm.language"
+                class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] appearance-none pr-10"
+              >
+                <option value="en">{{ texts.languageEn }}</option>
+                <option value="de">{{ texts.languageDe }}</option>
+              </select>
+              <div class="absolute right-3 bottom-3 pointer-events-none w-8 h-8 rounded-[10px] bg-rose flex items-center justify-center">
+                <img :src="arrowDown" alt="" class="w-4 h-4">
               </div>
             </div>
-        </div>
+          </div>
 
-          <div class="bg-white rounded-[20px] md:rounded-[36px] p-4 md:p-6 lg:p-8 mt-6 md:mt-0">
-            <div>
-              <h2 class="text-[#1c1a1b] text-2xl md:text-3xl lg:text-4xl font-extrabold mb-2 px-4 md:px-0 pt-4 md:pt-0">{{ texts.securityTitle }}</h2>
-              <p class="text-[#1c1a1b] text-sm md:text-base lg:text-xl mb-6 px-4 md:px-0">{{ texts.securityDescription }}</p>
-              
-              <form @submit.prevent="passwordCodeRequested ? updatePassword() : requestPasswordCode()" class="space-y-4 md:space-y-6 px-4 md:px-0 pb-6 md:pb-0">
-                <div v-if="!passwordCodeRequested" class="grid grid-cols-1 gap-4 md:gap-6">
-                  <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
-                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.currentPasswordLabel }}
-                      <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                      v-model="passwordForm.currentPassword"
-                      type="password" 
-                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                      :placeholder="texts.currentPasswordPlaceholder"
-                      required
-                    >
-                  </div>
-                </div>
+          <div class="flex flex-col sm:flex-row gap-3 justify-end pt-2">
+            <button
+              type="button"
+              class="h-[42px] px-5 rounded-[20px] text-[16px] font-bold tracking-[-0.8px] text-purple hover:bg-rose flex items-center justify-center gap-2"
+              @click="resetForm"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              {{ texts.resetButton }}
+            </button>
+            <button
+              type="submit"
+              class="h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark disabled:opacity-50"
+              :disabled="isUpdating"
+            >
+              {{ isUpdating ? texts.saving : texts.saveChanges }}
+            </button>
+          </div>
+        </form>
 
-                <div v-if="passwordCodeRequested" class="space-y-4 md:space-y-6">
-                  <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
-                    <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                      {{ texts.passwordCodeLabel }}
-                      <span class="text-red-500">*</span>
-                    </label>
-                    <input 
-                      v-model="passwordForm.code"
-                      type="text"
-                      inputmode="numeric"
-                      maxlength="6"
-                      class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                      :placeholder="texts.passwordCodePlaceholder"
-                      required
-                    >
-                    <p class="text-[#1c1a1b] text-sm mt-2">{{ texts.passwordCodeSent }}</p>
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
-                      <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                        {{ texts.passwordLabel }}
-                        <span class="text-red-500">*</span>
-                      </label>
-                      <input 
-                        v-model="passwordForm.password"
-                        type="password" 
-                        class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                        :placeholder="texts.passwordPlaceholder"
-                        required
-                        minlength="8"
-                      >
-                    </div>
-                    <div class="bg-white border-2 border-[#3f4369] rounded-[20px] md:rounded-[30px] p-4 md:p-6">
-                      <label class="block text-[#1c1a1b] text-base md:text-lg font-bold mb-2">
-                        {{ texts.confirmPasswordLabel }}
-                        <span class="text-red-500">*</span>
-                      </label>
-                      <input 
-                        v-model="passwordForm.confirmPassword"
-                        type="password" 
-                        class="w-full bg-transparent border-none outline-none text-[#1c1a1b] text-sm md:text-base placeholder:text-gray-400"
-                        :placeholder="texts.confirmPasswordPlaceholder"
-                        required
-                        minlength="8"
-                      >
-                    </div>
-                  </div>
-                </div>
-
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4">
-                  <button 
-                    type="button"
-                    @click="deleteAccount"
-                    class="text-[#f34767] text-base md:text-xl underline hover:opacity-80 transition-opacity text-left md:text-left"
-                  >
-                    {{ texts.deleteAccount }}
-                  </button>
-                  <div class="flex flex-col sm:flex-row gap-3 md:gap-4">
-                    <button 
-                      type="button"
-                      @click="resetPasswordForm"
-                      class="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[#1c1a1b] text-sm md:text-xl font-bold uppercase hover:opacity-80 transition-opacity"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                      {{ texts.resetButton }}
-                    </button>
-                    <button 
-                      v-if="passwordCodeRequested"
-                      type="button"
-                      @click="cancelPasswordChange"
-                      class="flex items-center justify-center gap-2 px-4 md:px-6 py-2 md:py-3 text-[#1c1a1b] text-sm md:text-xl font-bold uppercase hover:opacity-80 transition-opacity"
-                    >
-                      {{ texts.cancelButton }}
-                    </button>
-                    <button 
-                      type="submit" 
-                      :disabled="isUpdating"
-                      class="px-6 md:px-8 py-2 md:py-3 bg-white border-2 border-[#f34767] text-[#f34767] rounded-[20px] md:rounded-[30px] text-sm md:text-xl font-bold uppercase hover:bg-[#f34767] hover:text-white transition-colors disabled:opacity-50"
-                    >
-                      {{ isUpdating ? texts.updating : (passwordCodeRequested ? texts.saveChanges : texts.requestCodeButton) }}
-                    </button>
-                  </div>
-                </div>
-              </form>
+        <div v-if="emailVerificationPending" class="mt-6">
+          <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4 md:p-5">
+            <p class="text-[16px] text-purple tracking-[-0.8px] mb-4">{{ texts.emailVerificationMessage }}</p>
+            <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <div class="flex-1">
+                <input
+                  v-model="emailVerificationCode"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="6"
+                  class="w-full rounded-[16px] border border-grey bg-white px-4 py-3 text-[16px] text-black tracking-[-0.8px] outline-none focus:border-red"
+                  :placeholder="texts.emailVerificationCodePlaceholder"
+                >
+              </div>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  class="h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark disabled:opacity-50"
+                  :disabled="isUpdating || !emailVerificationCode"
+                  @click="confirmEmailChange"
+                >
+                  {{ texts.confirmEmailButton }}
+                </button>
+                <button
+                  type="button"
+                  class="h-[42px] px-5 rounded-[20px] text-[16px] font-bold tracking-[-0.8px] text-purple hover:bg-white"
+                  @click="cancelEmailChange"
+                >
+                  {{ texts.cancelButton }}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-  </div>
+      </section>
+
+      <section class="bg-white rounded-[30px] shadow-card p-5 md:p-8">
+        <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none mb-2">{{ texts.securityTitle }}</h2>
+        <p class="text-[16px] text-purple/70 tracking-[-0.8px] mb-6">{{ texts.securityDescription }}</p>
+
+        <form class="space-y-4" @submit.prevent="passwordCodeRequested ? updatePassword() : requestPasswordCode()">
+          <div v-if="!passwordCodeRequested" class="grid grid-cols-1 gap-4">
+            <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                {{ texts.currentPasswordLabel }}
+                <span class="text-red">*</span>
+              </label>
+              <input
+                v-model="passwordForm.currentPassword"
+                type="password"
+                class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] placeholder:text-purple/40"
+                :placeholder="texts.currentPasswordPlaceholder"
+                required
+              >
+            </div>
+          </div>
+
+          <div v-if="passwordCodeRequested" class="space-y-4">
+            <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                {{ texts.passwordCodeLabel }}
+                <span class="text-red">*</span>
+              </label>
+              <input
+                v-model="passwordForm.code"
+                type="text"
+                inputmode="numeric"
+                maxlength="6"
+                class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] placeholder:text-purple/40"
+                :placeholder="texts.passwordCodePlaceholder"
+                required
+              >
+              <p class="text-[13px] text-purple/70 mt-2">{{ texts.passwordCodeSent }}</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+                <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                  {{ texts.passwordLabel }}
+                  <span class="text-red">*</span>
+                </label>
+                <input
+                  v-model="passwordForm.password"
+                  type="password"
+                  class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] placeholder:text-purple/40"
+                  :placeholder="texts.passwordPlaceholder"
+                  required
+                  minlength="8"
+                >
+              </div>
+              <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+                <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-2">
+                  {{ texts.confirmPasswordLabel }}
+                  <span class="text-red">*</span>
+                </label>
+                <input
+                  v-model="passwordForm.confirmPassword"
+                  type="password"
+                  class="w-full bg-transparent border-none outline-none text-[16px] text-black tracking-[-0.8px] placeholder:text-purple/40"
+                  :placeholder="texts.confirmPasswordPlaceholder"
+                  required
+                  minlength="8"
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-2">
+            <button
+              type="button"
+              class="text-red text-[16px] tracking-[-0.8px] underline hover:opacity-80 text-left"
+              @click="deleteAccount"
+            >
+              {{ texts.deleteAccount }}
+            </button>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                class="h-[42px] px-5 rounded-[20px] text-[16px] font-bold tracking-[-0.8px] text-purple hover:bg-rose flex items-center justify-center gap-2"
+                @click="resetPasswordForm"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                {{ texts.resetButton }}
+              </button>
+              <button
+                v-if="passwordCodeRequested"
+                type="button"
+                class="h-[42px] px-5 rounded-[20px] text-[16px] font-bold tracking-[-0.8px] text-purple hover:bg-rose"
+                @click="cancelPasswordChange"
+              >
+                {{ texts.cancelButton }}
+              </button>
+              <button
+                type="submit"
+                class="h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark disabled:opacity-50"
+                :disabled="isUpdating"
+              >
+                {{ isUpdating ? texts.updating : (passwordCodeRequested ? texts.saveChanges : texts.requestCodeButton) }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </div>
 
     <div v-if="message" class="fixed top-4 right-4 z-50">
-      <div class="p-4 rounded-lg shadow-lg" :class="message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+      <div
+        class="px-4 py-3 rounded-[16px] shadow-[0_8px_24px_rgba(28,26,27,0.16)] text-[14px]"
+        :class="message.type === 'success' ? 'bg-black text-white' : 'bg-rose text-red'"
+      >
         {{ message.text }}
+      </div>
     </div>
   </div>
 </template>
@@ -269,7 +259,6 @@ import { ref, onMounted, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
-import logoWhite from '@/assets/images/logos/logo-white.svg'
 import arrowDown from '@/assets/images/icons/account/arrow-down.svg'
 
 const router = useRouter()

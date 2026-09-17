@@ -1,70 +1,58 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
-      <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
-          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
-        </div>
-        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
-      </div>
-      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
-        <span>{{ texts.headerSection }}</span>
-        <span class="opacity-40">|</span>
-        <span class="opacity-40">{{ texts.headerCurrent }}</span>
-      </div>
-    </div>
-
-    <div class="mb-8">
-      <p class="text-[#3F4369] opacity-70 mt-2">
+  <div class="max-w-[1440px] mx-auto">
+    <div class="mb-6 md:mb-8">
+      <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70 mb-2">{{ texts.headerSection }}</p>
+      <h1 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">{{ texts.headerTitle }}</h1>
+      <p class="mt-3 text-[16px] text-purple/70 tracking-[-0.8px] max-w-[720px]">
         {{ texts.subtitle }}
       </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[2fr,1.2fr] gap-6">
-      <div class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] p-6">
-        <h2 class="text-2xl font-bold text-[#3F4369] mb-3">
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-5">
+      <section class="bg-white rounded-[30px] shadow-card p-5 md:p-8">
+        <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none mb-3">
           {{ texts.mainTitle }}
         </h2>
-        <p class="text-sm text-[#3F4369] opacity-80 mb-6">
+        <p class="text-[16px] text-purple/70 tracking-[-0.8px] mb-6">
           {{ texts.mainText }}
         </p>
 
-        <div class="space-y-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-[#FFEBD0] flex items-center justify-center">
-              <span class="text-[#3F4369] text-base font-semibold">1</span>
+        <div class="space-y-3">
+          <div class="bg-light-grey rounded-[20px] border-4 border-rose px-4 py-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-[12px] bg-yellow flex items-center justify-center shrink-0 text-[14px] font-bold text-black">
+              1
             </div>
-            <p class="text-sm text-[#3F4369] opacity-80">
+            <p class="text-[16px] text-purple tracking-[-0.8px]">
               {{ texts.stepOne }}
             </p>
           </div>
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-[#FFEBD0] flex items-center justify-center">
-              <span class="text-[#3F4369] text-base font-semibold">2</span>
+          <div class="bg-light-grey rounded-[20px] border-4 border-rose px-4 py-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-[12px] bg-yellow flex items-center justify-center shrink-0 text-[14px] font-bold text-black">
+              2
             </div>
-            <p class="text-sm text-[#3F4369] opacity-80">
+            <p class="text-[16px] text-purple tracking-[-0.8px]">
               {{ texts.stepTwo }}
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="bg-[#5865F2] rounded-2xl p-6 flex flex-col justify-between min-h-[220px]">
+      <section class="bg-white rounded-[30px] shadow-card p-5 md:p-8 flex flex-col justify-between min-h-[220px]">
         <div>
-          <p class="text-white text-sm font-semibold uppercase tracking-wide mb-2">
+          <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70 mb-2">
             Discord
           </p>
-          <h2 class="text-white text-2xl font-bold mb-2">
+          <h2 class="text-[24px] font-bold tracking-[-1.2px] text-black mb-2">
             {{ texts.discordTitle }}
           </h2>
-          <p class="text-white text-sm opacity-80 mb-4">
+          <p class="text-[16px] text-purple/70 tracking-[-0.8px] mb-6">
             {{ texts.discordText }}
           </p>
         </div>
-        <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-3">
           <button
             type="button"
-            class="px-4 py-2 bg-white text-[#5865F2] font-semibold rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            class="h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark disabled:opacity-60"
             :disabled="!discordInviteUrl || isLoading"
             @click="goToDiscord"
           >
@@ -72,18 +60,18 @@
           </button>
           <span
             v-if="isLoading"
-            class="text-xs text-white opacity-80"
+            class="text-[13px] text-purple/70"
           >
             {{ texts.loading }}
           </span>
           <span
             v-else-if="!discordInviteUrl"
-            class="text-xs text-white opacity-80"
+            class="text-[13px] text-red"
           >
             {{ texts.error }}
           </span>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
@@ -92,7 +80,6 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
-import logoWhite from '@/assets/images/logos/logo-white.svg'
 
 const languageStore = useLanguageStore()
 

@@ -102,7 +102,7 @@ class EditTask extends EditRecord
             $data['prerequisites'] = [];
         }
 
-        return $data;
+        return \App\Models\Task::normalizeDocumentPayload($data);
     }
 
     protected function getRedirectUrl(): string

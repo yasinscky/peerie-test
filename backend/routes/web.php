@@ -359,6 +359,7 @@ Route::prefix('api')->group(function () {
             Route::get('/plan/{id}', [PlanController::class, 'show']);
             Route::get('/plans/available-months', [PlanController::class, 'getAvailableMonths']);
             Route::post('/plans/generate-month', [PlanController::class, 'generateMonth']);
+            Route::get('/plan-tasks/{planTaskId}', [PlanController::class, 'showPlanTask']);
             Route::put('/plan/{planId}/plan-task/{planTaskId}', [PlanController::class, 'updateTaskStatus']);
             
             Route::get('/tasks', [TaskController::class, 'index']);
@@ -391,6 +392,19 @@ Route::prefix('api')->group(function () {
                 Route::get('/', [App\Http\Controllers\API\ResourceController::class, 'index']);
                 Route::get('/download', [App\Http\Controllers\API\ResourceController::class, 'download']);
                 Route::get('/download/{id}', [App\Http\Controllers\API\ResourceController::class, 'downloadById']);
+            });
+
+            Route::prefix('buyer-persona')->group(function () {
+                Route::get('/', [App\Http\Controllers\API\BuyerPersonaController::class, 'show']);
+                Route::put('/', [App\Http\Controllers\API\BuyerPersonaController::class, 'update']);
+                Route::get('/export', [App\Http\Controllers\API\BuyerPersonaController::class, 'export']);
+            });
+
+            Route::prefix('worksheets')->group(function () {
+                Route::get('/', [App\Http\Controllers\API\WorksheetController::class, 'index']);
+                Route::get('/{kind}', [App\Http\Controllers\API\WorksheetController::class, 'show']);
+                Route::put('/{kind}', [App\Http\Controllers\API\WorksheetController::class, 'update']);
+                Route::get('/{kind}/export', [App\Http\Controllers\API\WorksheetController::class, 'export']);
             });
         });
     });

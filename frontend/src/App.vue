@@ -30,13 +30,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.nav-link {
-  @apply text-gray-700 hover:text-primary-600 px-3 py-2 text-sm font-medium transition-colors duration-200;
-}
-
-.nav-link-mobile {
-  @apply text-gray-700 hover:text-primary-600 px-3 py-2 text-base font-medium transition-colors duration-200;
-}
-</style>

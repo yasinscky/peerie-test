@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResourceFile;
+use App\Services\WorksheetRegistry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -47,12 +48,16 @@ class ResourceController extends Controller
                 'title' => $latestResourceFile->title,
                 'language' => $latestResourceFile->language,
                 'filename' => $latestResourceFile->original_filename,
+                'kind' => $this->resourceKind($latestResourceFile->title),
+                'slug' => $this->resourceSlug($latestResourceFile->title),
             ],
             'resources' => $resourceFiles->map(fn (ResourceFile $resourceFile) => [
                 'id' => $resourceFile->id,
                 'title' => $resourceFile->title,
                 'language' => $resourceFile->language,
                 'filename' => $resourceFile->original_filename,
+                'kind' => $this->resourceKind($resourceFile->title),
+                'slug' => $this->resourceSlug($resourceFile->title),
             ])->values(),
         ]);
     }
@@ -80,6 +85,14 @@ class ResourceController extends Controller
                 'success' => false,
                 'message' => 'Resource file not found for your language'
             ], 404);
+        }
+
+        if (WorksheetRegistry::kindFromTitle($resourceFile->title)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Open this template in your workspace instead of downloading a blank file',
+                'kind' => WorksheetRegistry::kindFromTitle($resourceFile->title),
+            ], 409);
         }
 
         if (!Storage::disk('local')->exists($resourceFile->file_path)) {
@@ -129,6 +142,14 @@ class ResourceController extends Controller
             ], 404);
         }
 
+        if (WorksheetRegistry::kindFromTitle($resourceFile->title)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Open this template in your workspace instead of downloading a blank file',
+                'kind' => WorksheetRegistry::kindFromTitle($resourceFile->title),
+            ], 409);
+        }
+
         if (!Storage::disk('local')->exists($resourceFile->file_path)) {
             return response()->json([
                 'success' => false,
@@ -150,5 +171,17 @@ class ResourceController extends Controller
             Storage::disk('local')->path($resourceFile->file_path),
             $downloadName
         );
+    }
+
+    private function resourceKind(?string $title): string
+    {
+        return WorksheetRegistry::kindFromTitle($title) ?? 'file';
+    }
+
+    private function resourceSlug(?string $title): ?string
+    {
+        $kind = WorksheetRegistry::kindFromTitle($title);
+
+        return $kind ? WorksheetRegistry::kindToSlug($kind) : null;
     }
 }
