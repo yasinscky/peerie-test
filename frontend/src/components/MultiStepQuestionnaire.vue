@@ -1,676 +1,639 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="card p-8">
-        <!-- Header -->
-        <div class="text-center mb-8">
-          <img :src="logoImage" alt="Peerie Logo" class="w-40 h-40 mx-auto">
-          <h1 class="text-3xl font-bold text-gray-900 mb-4">Onboarding questionnaire</h1>
-          <p class="text-gray-600 text-lg">
+  <div class="min-h-screen bg-light-grey">
+    <div class="max-w-[800px] mx-auto px-3 sm:px-4 py-6 sm:py-12">
+      <div class="bg-white rounded-[20px] sm:rounded-[30px] shadow-card p-4 sm:p-6 md:p-10">
+        <div class="text-center mb-6 sm:mb-8">
+          <img :src="logoImage" alt="Peerie Logo" class="w-20 h-20 sm:w-32 sm:h-32 mx-auto">
+          <h1 class="text-[24px] sm:text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black mb-2 sm:mb-3">Onboarding questionnaire</h1>
+          <p class="text-[16px] text-purple/70 tracking-[-0.8px] max-w-[560px] mx-auto">
             Tell us a bit about your business so we can build your customised marketing plan.
           </p>
         </div>
 
-        <!-- Progress Bar -->
         <div class="mb-8">
-          <div class="flex justify-between text-sm text-gray-600 mb-2">
+          <div class="flex justify-between text-[13px] tracking-[-0.6px] text-purple/70 mb-2">
             <span>Step {{ displayStep }} of {{ totalSteps }}</span>
             <span>{{ Math.round(progress) }}%</span>
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+          <div class="w-full bg-muted rounded-full h-2">
+            <div
+              class="h-2 rounded-full transition-all duration-300"
+              :style="{ width: progress + '%', background: 'linear-gradient(90deg, rgb(var(--color-red)), rgb(var(--color-red-lighter)))' }"
+            ></div>
           </div>
           <div class="mt-2 text-center">
-            <span class="text-sm font-medium text-gray-700">{{ currentStepTitle }}</span>
+            <span class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ currentStepTitle }}</span>
           </div>
         </div>
 
-        <!-- Form Steps -->
         <form @submit.prevent="nextStep" v-if="!isSubmitted" class="space-y-6">
-          
-          <!-- Step 1: Business Profile -->
+
           <div v-if="currentStep === 1" class="space-y-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">About your business</h2>
-            
-            <!-- Country -->
+            <h2 class="text-[20px] sm:text-[24px] font-bold tracking-[-1.2px] text-black mb-4">About your business</h2>
+
             <div>
-              <label class="form-label">What country are you operating in?</label>
-              <div class="grid grid-cols-3 gap-3">
-                <label v-for="country in countries" :key="country.value" class="relative flex flex-col items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.country === country.value }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">What country are you operating in?</label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label
+                  v-for="country in countries"
+                  :key="country.value"
+                  class="relative flex flex-col items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.country === country.value ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.country" type="radio" :value="country.value" class="sr-only" @change="updateProgress">
                   <span class="text-2xl mb-2">{{ country.flag }}</span>
-                  <div class="font-medium text-center">{{ country.label }}</div>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black text-center">{{ country.label }}</div>
                 </label>
               </div>
             </div>
 
-            <!-- Industry -->
             <div>
-              <label class="form-label">What industry are you in?</label>
-              <div class="grid grid-cols-3 gap-3">
-                <label v-for="industry in industries" :key="industry.value" class="relative flex flex-col items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.industry === industry.value }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">What industry are you in?</label>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label
+                  v-for="industry in industries"
+                  :key="industry.value"
+                  class="relative flex flex-col items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.industry === industry.value ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.industry" type="radio" :value="industry.value" class="sr-only" @change="updateProgress">
                   <span class="text-2xl mb-2">{{ industry.icon }}</span>
-                  <div class="font-medium">{{ industry.label }}</div>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">{{ industry.label }}</div>
                 </label>
               </div>
             </div>
 
-            <!-- Primary Language -->
             <div>
-              <label class="form-label">What language do you want to use for your marketing plan?</label>
-              <div class="grid grid-cols-2 gap-4">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">What language do you want to use for your marketing plan?</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label
-                  class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
                   :class="[
-                    form.language === 'de' ? 'border-primary-500 bg-primary-50' : '',
+                    form.language === 'de' ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted',
                     form.country === 'uk' || form.country === 'ie' ? 'opacity-40 pointer-events-none' : ''
                   ]"
                 >
-                  <input
-                    v-model="form.language"
-                    type="radio"
-                    value="de"
-                    class="sr-only"
-                    :disabled="form.country === 'uk' || form.country === 'ie'"
-                    @change="updateProgress"
-                  >
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">🇩🇪</span>
-                    <div>
-                      <div class="font-medium">Deutsch</div>
-                    </div>
-                  </div>
+                  <input v-model="form.language" type="radio" value="de" class="sr-only" :disabled="form.country === 'uk' || form.country === 'ie'" @change="updateProgress">
+                  <span class="text-2xl mr-3">🇩🇪</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Deutsch</div>
                 </label>
                 <label
-                  class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
                   :class="[
-                    form.language === 'en' ? 'border-primary-500 bg-primary-50' : '',
+                    form.language === 'en' ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted',
                     form.country === 'de' ? 'opacity-40 pointer-events-none' : ''
                   ]"
                 >
-                  <input
-                    v-model="form.language"
-                    type="radio"
-                    value="en"
-                    class="sr-only"
-                    :disabled="form.country === 'de'"
-                    @change="updateProgress"
-                  >
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">🇬🇧</span>
-                    <div>
-                      <div class="font-medium">English</div>
-                    </div>
-                  </div>
+                  <input v-model="form.language" type="radio" value="en" class="sr-only" :disabled="form.country === 'de'" @change="updateProgress">
+                  <span class="text-2xl mr-3">🇬🇧</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">English</div>
                 </label>
               </div>
             </div>
 
-            <!-- Local Presence -->
             <div>
-              <label class="form-label">Do you serve customers in person?</label>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.is_local_business === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">Do you serve customers in person?</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.is_local_business === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.is_local_business" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div>
-                      <div class="font-medium">Yes</div>
-                    </div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.is_local_business === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.is_local_business === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.is_local_business" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div>
-                      <div class="font-medium">No, online only</div>
-                    </div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No, online only</div>
                 </label>
               </div>
             </div>
 
-            <!-- Weekly Capacity -->
             <div>
-              <label class="form-label">How much time can you realistically spend on marketing each week?</label>
-              <p class="text-sm text-gray-500 mb-3">We’ll tailor your plan to match your capacity.</p>
-              <div class="grid grid-cols-2 gap-3">
-                <label v-for="option in timeOptions" :key="option.value" class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.marketing_time_per_week === option.value }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">How much time can you realistically spend on marketing each week?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">We'll tailor your plan to match your capacity.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  v-for="option in timeOptions"
+                  :key="option.value"
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.marketing_time_per_week === option.value ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.marketing_time_per_week" type="radio" :value="option.value" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">{{ option.icon }}</span>
-                    <div>
-                      <div class="font-medium">{{ option.label }}</div>
-                      <div v-if="option.description" class="text-sm text-gray-500">{{ option.description }}</div>
-                    </div>
+                  <span class="text-2xl mr-3">{{ option.icon }}</span>
+                  <div>
+                    <div class="font-bold text-[14px] tracking-[-0.7px] text-black">{{ option.label }}</div>
+                    <div v-if="option.description" class="text-[13px] text-purple/60 tracking-[-0.6px]">{{ option.description }}</div>
                   </div>
                 </label>
               </div>
             </div>
           </div>
 
-          <!-- Step 2: Goals & Tactics -->
           <div v-if="currentStep === 2" class="space-y-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Goals</h2>
-            
-            <!-- Business Goals -->
+            <h2 class="text-[20px] sm:text-[24px] font-bold tracking-[-1.2px] text-black mb-4">Goals</h2>
+
             <div>
-              <label class="form-label">Do you have your main business goals defined?</label>
-              <p class="text-sm text-gray-500 mb-3">Choose “No” if you haven’t defined them yet or want to refine them.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.business_goals_defined === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Do you have your main business goals defined?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">Choose "No" if you haven't defined them yet or want to refine them.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.business_goals_defined === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.business_goals_defined" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div>
-                      <div class="font-medium">Yes</div>
-                    </div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.business_goals_defined === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.business_goals_defined === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.business_goals_defined" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div>
-                      <div class="font-medium">No</div>
-                    </div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
 
-            <!-- Marketing Goals -->
             <div>
-              <label class="form-label">Do you have your marketing goals defined?</label>
-              <p class="text-sm text-gray-500 mb-3">Choose “No” if you haven’t defined them yet or want to refine them.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.marketing_goals_defined === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Do you have your marketing goals defined?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">Choose "No" if you haven't defined them yet or want to refine them.</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.marketing_goals_defined === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.marketing_goals_defined" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div>
-                      <div class="font-medium">Yes</div>
-                    </div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.marketing_goals_defined === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.marketing_goals_defined === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.marketing_goals_defined" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div>
-                      <div class="font-medium">No</div>
-                    </div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
           </div>
 
-          <!-- Step 3: Local Presence Details -->
           <div v-if="currentStep === 3 && form.is_local_business" class="space-y-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Local SEO & directories</h2>
-            
-            <!-- Google Business Profile -->
+            <h2 class="text-[20px] sm:text-[24px] font-bold tracking-[-1.2px] text-black mb-4">Local SEO & directories</h2>
+
             <div>
-              <label class="form-label">Have you claimed and verified your Google Business Profile?</label>
-              <p class="text-sm text-gray-500 mb-3">If it’s claimed/verified but not fully filled out, choose “Yes”.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.google_business_claimed === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Have you claimed and verified your Google Business Profile?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">If it's claimed/verified but not fully filled out, choose "Yes".</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.google_business_claimed === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.google_business_claimed" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.google_business_claimed === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.google_business_claimed === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.google_business_claimed" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
 
-            <!-- Core Directories -->
             <div>
-              <label class="form-label">Have you claimed your business on Apple Business Connect and Bing Places for Business?</label>
-              <p class="text-sm text-gray-500 mb-3">If you only have one of them, choose “No”.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.core_directories_claimed === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Have you claimed your business on Apple Business Connect and Bing Places for Business?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">If you only have one of them, choose "No".</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.core_directories_claimed === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.core_directories_claimed" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.core_directories_claimed === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.core_directories_claimed === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.core_directories_claimed" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
 
-            <!-- Industry Directories -->
             <div>
-              <label class="form-label">Are you listed on industry-specific directories?</label>
-              <p class="text-sm text-gray-500 mb-3">If you’re listed on 3–4 directories specific to your industry, choose “Yes”.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.industry_directories_claimed === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Are you listed on industry-specific directories?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">If you're listed on 3–4 directories specific to your industry, choose "Yes".</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.industry_directories_claimed === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.industry_directories_claimed" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.industry_directories_claimed === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.industry_directories_claimed === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.industry_directories_claimed" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
 
-            <!-- Business Directories -->
             <div>
-              <label class="form-label">Are you listed on general business directories?</label>
-              <p class="text-sm text-gray-500 mb-3">If you’re listed on 3–4 general directories, choose “Yes” (e.g., Yelp, Yellow Pages, Gelbe Seiten).</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.business_directories_claimed === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Are you listed on general business directories?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">If you're listed on 3–4 general directories, choose "Yes" (e.g., Yelp, Yellow Pages, Gelbe Seiten).</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.business_directories_claimed === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.business_directories_claimed" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.business_directories_claimed === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.business_directories_claimed === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.business_directories_claimed" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
           </div>
 
-          <!-- Step 4: Tools -->
           <div v-if="currentStep === 4" class="space-y-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Tools & channels</h2>
-            
-            <!-- Website -->
+            <h2 class="text-[20px] sm:text-[24px] font-bold tracking-[-1.2px] text-black mb-4">Tools & channels</h2>
+
             <div>
-              <label class="form-label">Do you have at least a basic website?</label>
-              <p class="text-sm text-gray-500 mb-3">If you have at least a simple one-page website, choose “Yes”.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_website === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Do you have at least a basic website?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">If you have at least a simple one-page website, choose "Yes".</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.has_website === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.has_website" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_website === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.has_website === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.has_website" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
 
-            <!-- Email Marketing Tool -->
             <div>
-              <label class="form-label">Do you use an email marketing platform to email customers?</label>
-              <p class="text-sm text-gray-500 mb-3">If you don’t email customers or only email manually from your regular inbox (Gmail/Outlook), choose “No”.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.email_marketing_tool === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Do you use an email marketing platform to email customers?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">If you don't email customers or only email manually from your regular inbox (Gmail/Outlook), choose "No".</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.email_marketing_tool === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.email_marketing_tool" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.email_marketing_tool === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.email_marketing_tool === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.email_marketing_tool" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
 
-            <!-- CRM Pipeline -->
             <div>
-              <label class="form-label">Do you use any CRM (or other system) to track leads?</label>
-              <p class="text-sm text-gray-500 mb-3">If you use any method to track and manage leads/customers (including a spreadsheet), choose “Yes”.</p>
-              <div class="grid grid-cols-2 gap-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.crm_pipeline === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">Do you use any CRM (or other system) to track leads?</label>
+              <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">If you use any method to track and manage leads/customers (including a spreadsheet), choose "Yes".</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.crm_pipeline === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.crm_pipeline" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.crm_pipeline === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.crm_pipeline === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.crm_pipeline" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
             </div>
 
-            <!-- Running Ads -->
             <div>
-              <label class="form-label">Are you currently running paid ads? <span class="font-normal">(choose all that apply)</span></label>
-              <div class="grid grid-cols-2 gap-3">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">Are you currently running paid ads? <span class="font-normal text-purple/60">(choose all that apply)</span></label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label
                   v-for="option in adsChannelOptions"
                   :key="option.value"
-                  class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
-                  :class="{
-                    'border-primary-500 bg-primary-50': Array.isArray(form.running_ads) && form.running_ads.includes(option.value)
-                  }"
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="Array.isArray(form.running_ads) && form.running_ads.includes(option.value) ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
                 >
-                  <input
-                    v-model="form.running_ads"
-                    type="checkbox"
-                    :value="option.value"
-                    class="sr-only"
-                    @change="() => { onRunningAdsChange(); updateProgress() }"
-                  >
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">{{ option.icon }}</span>
-                    <div>
-                      <div class="font-medium">{{ option.label }}</div>
-                      <div class="text-sm text-gray-500">{{ option.description }}</div>
-                    </div>
+                  <input v-model="form.running_ads" type="checkbox" :value="option.value" class="sr-only" @change="() => { onRunningAdsChange(); updateProgress() }">
+                  <span class="text-2xl mr-3">{{ option.icon }}</span>
+                  <div>
+                    <div class="font-bold text-[14px] tracking-[-0.7px] text-black">{{ option.label }}</div>
+                    <div class="text-[13px] text-purple/60 tracking-[-0.6px]">{{ option.description }}</div>
                   </div>
                 </label>
 
                 <label
                   v-if="noAdsOption"
-                  class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50"
-                  :class="{
-                    'border-primary-500 bg-primary-50': form.running_ads_none === true
-                  }"
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.running_ads_none === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
                 >
-                  <input
-                    v-model="form.running_ads_none"
-                    type="checkbox"
-                    class="sr-only"
-                    @change="() => { onRunningAdsNoneChange(); updateProgress() }"
-                  >
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">{{ noAdsOption.icon }}</span>
-                    <div>
-                      <div class="font-medium">{{ noAdsOption.label }}</div>
-                      <div class="text-sm text-gray-500">{{ noAdsOption.description }}</div>
-                    </div>
+                  <input v-model="form.running_ads_none" type="checkbox" class="sr-only" @change="() => { onRunningAdsNoneChange(); updateProgress() }">
+                  <span class="text-2xl mr-3">{{ noAdsOption.icon }}</span>
+                  <div>
+                    <div class="font-bold text-[14px] tracking-[-0.7px] text-black">{{ noAdsOption.label }}</div>
+                    <div class="text-[13px] text-purple/60 tracking-[-0.6px]">{{ noAdsOption.description }}</div>
                   </div>
                 </label>
               </div>
             </div>
           </div>
 
-          <!-- Step 5: Social Media Channels -->
           <div v-if="currentStep === 5" class="space-y-6">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Social Media</h2>
-            
-            <!-- Primary Social Channel -->
+            <h2 class="text-[20px] sm:text-[24px] font-bold tracking-[-1.2px] text-black mb-4">Social Media</h2>
+
             <div>
-              <label class="form-label">Do you have a social media account for your business?</label>
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_primary_social_channel === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">Do you have a social media account for your business?</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.has_primary_social_channel === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.has_primary_social_channel" type="radio" :value="true" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_primary_social_channel === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.has_primary_social_channel === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.has_primary_social_channel" type="radio" :value="false" class="sr-only" @change="updateProgress">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
 
-              <!-- Primary Social Channel Type -->
               <div v-if="form.has_primary_social_channel === true">
-                <label class="form-label">What is your primary social media platform? <span class="font-normal">(choose one)</span></label>
-                <div class="grid grid-cols-3 gap-3">
-                  <label v-for="channel in availablePrimaryChannels" :key="channel.value" class="relative flex flex-col items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.primary_social_channel === channel.value }">
+                <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">What is your primary social media platform? <span class="font-normal text-purple/60">(choose one)</span></label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <label
+                    v-for="channel in availablePrimaryChannels"
+                    :key="channel.value"
+                    class="relative flex flex-col items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                    :class="form.primary_social_channel === channel.value ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                  >
                     <input v-model="form.primary_social_channel" type="radio" :value="channel.value" class="sr-only" @change="updateProgress">
                     <span class="text-2xl mb-2">{{ channel.icon }}</span>
-                    <div class="font-medium text-sm text-center">{{ channel.label }}</div>
+                    <div class="font-bold text-[13px] tracking-[-0.6px] text-black text-center">{{ channel.label }}</div>
                   </label>
                 </div>
               </div>
             </div>
 
-            <!-- Secondary Social Channel -->
             <div>
-              <label class="form-label">Do you use more than one social media platform?</label>
-              <div class="grid grid-cols-2 gap-4 mb-4">
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_secondary_social_channel === true }">
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">Do you use more than one social media platform?</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.has_secondary_social_channel === true ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.has_secondary_social_channel" type="radio" :value="true" class="sr-only" @change="updateProgress" :disabled="form.has_primary_social_channel === false">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">✅</span>
-                    <div class="font-medium">Yes</div>
-                  </div>
+                  <span class="text-2xl mr-3">✅</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">Yes</div>
                 </label>
-                <label class="relative flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.has_secondary_social_channel === false }">
+                <label
+                  class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                  :class="form.has_secondary_social_channel === false ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                >
                   <input v-model="form.has_secondary_social_channel" type="radio" :value="false" class="sr-only" @change="updateProgress" :disabled="form.has_primary_social_channel === false">
-                  <div class="flex items-center">
-                    <span class="text-2xl mr-3">❌</span>
-                    <div class="font-medium">No</div>
-                  </div>
+                  <span class="text-2xl mr-3">❌</span>
+                  <div class="font-bold text-[14px] tracking-[-0.7px] text-black">No</div>
                 </label>
               </div>
 
-              <!-- Secondary Social Channel Type -->
               <div v-if="form.has_secondary_social_channel === true">
-                <label class="form-label">Which other platform do you use? <span class="font-normal">(choose one)</span></label>
-                <div class="grid grid-cols-3 gap-3">
-                  <label v-for="channel in availableSecondaryChannels" :key="channel.value" class="relative flex flex-col items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50" :class="{ 'border-primary-500 bg-primary-50': form.secondary_social_channel === channel.value }">
+                <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">Which other platform do you use? <span class="font-normal text-purple/60">(choose one)</span></label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <label
+                    v-for="channel in availableSecondaryChannels"
+                    :key="channel.value"
+                    class="relative flex flex-col items-center p-4 rounded-[16px] border cursor-pointer transition-all"
+                    :class="form.secondary_social_channel === channel.value ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
+                  >
                     <input v-model="form.secondary_social_channel" type="radio" :value="channel.value" class="sr-only" @change="updateProgress">
                     <span class="text-2xl mb-2">{{ channel.icon }}</span>
-                    <div class="font-medium text-sm text-center">{{ channel.label }}</div>
+                    <div class="font-bold text-[13px] tracking-[-0.6px] text-black text-center">{{ channel.label }}</div>
                   </label>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Step 6: Review -->
-          <div v-if="currentStep === 6" class="space-y-6">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <h2 class="text-2xl font-bold text-gray-900 mb-2">Your answers</h2>
-                <p class="text-gray-600">
-                  Here’s a quick summary of what you told us. If anything looks off, you can edit it now — it only takes a second.
-                </p>
-                <p class="text-gray-600 mt-2">
-                  When you’re happy, continue — we’ll generate your marketing plan using these answers.
-                </p>
-              </div>
+          <div v-if="currentStep === 6" class="space-y-5">
+            <div>
+              <h2 class="text-[24px] font-bold tracking-[-1.2px] text-black mb-2">Your answers</h2>
+              <p class="text-[14px] text-purple/70 tracking-[-0.7px]">
+                Here's a quick summary of what you told us. If anything looks off, you can edit it now — it only takes a second.
+              </p>
+              <p class="text-[14px] text-purple/70 tracking-[-0.7px] mt-1">
+                When you're happy, continue — we'll generate your marketing plan using these answers.
+              </p>
             </div>
 
-            <div class="space-y-6">
-              <div class="border rounded-lg p-5">
+            <div class="space-y-4">
+              <div class="rounded-[16px] border border-grey bg-light-grey p-5">
                 <div class="flex items-center justify-between gap-3 mb-4">
-                  <h3 class="text-lg font-semibold text-gray-900">About your business</h3>
-                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(1)">Edit</button>
+                  <h3 class="text-[16px] font-bold tracking-[-0.8px] text-black">About your business</h3>
+                  <button type="button" class="h-[36px] px-4 rounded-[16px] border border-grey bg-white text-[13px] font-bold tracking-[-0.6px] text-black hover:bg-muted transition-colors" @click="goToStep(1)">Edit</button>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <div class="text-sm text-gray-500">Country</div>
-                    <div class="font-medium text-gray-900">{{ countryLabel }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Country</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ countryLabel }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Industry</div>
-                    <div class="font-medium text-gray-900">{{ industryLabel }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Industry</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ industryLabel }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Language</div>
-                    <div class="font-medium text-gray-900">{{ languageLabel }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Language</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ languageLabel }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Do you serve customers in person?</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.is_local_business) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Serve customers in person?</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.is_local_business) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Weekly marketing capacity</div>
-                    <div class="font-medium text-gray-900">{{ marketingTimeLabel }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Weekly marketing capacity</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ marketingTimeLabel }}</div>
                   </div>
                 </div>
               </div>
 
-              <div class="border rounded-lg p-5">
+              <div class="rounded-[16px] border border-grey bg-light-grey p-5">
                 <div class="flex items-center justify-between gap-3 mb-4">
-                  <h3 class="text-lg font-semibold text-gray-900">Goals</h3>
-                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(2)">Edit</button>
+                  <h3 class="text-[16px] font-bold tracking-[-0.8px] text-black">Goals</h3>
+                  <button type="button" class="h-[36px] px-4 rounded-[16px] border border-grey bg-white text-[13px] font-bold tracking-[-0.6px] text-black hover:bg-muted transition-colors" @click="goToStep(2)">Edit</button>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <div class="text-sm text-gray-500">Main business goals defined</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.business_goals_defined) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Main business goals defined</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.business_goals_defined) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Marketing goals defined</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.marketing_goals_defined) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Marketing goals defined</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.marketing_goals_defined) }}</div>
                   </div>
                 </div>
               </div>
 
-              <div v-if="form.is_local_business" class="border rounded-lg p-5">
+              <div v-if="form.is_local_business" class="rounded-[16px] border border-grey bg-light-grey p-5">
                 <div class="flex items-center justify-between gap-3 mb-4">
-                  <h3 class="text-lg font-semibold text-gray-900">Local SEO & directories</h3>
-                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(3)">Edit</button>
+                  <h3 class="text-[16px] font-bold tracking-[-0.8px] text-black">Local SEO & directories</h3>
+                  <button type="button" class="h-[36px] px-4 rounded-[16px] border border-grey bg-white text-[13px] font-bold tracking-[-0.6px] text-black hover:bg-muted transition-colors" @click="goToStep(3)">Edit</button>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <div class="text-sm text-gray-500">Google Business Profile claimed & verified</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.google_business_claimed) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Google Business Profile</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.google_business_claimed) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Apple Business Connect & Bing Places claimed</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.core_directories_claimed) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Apple & Bing Places</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.core_directories_claimed) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Listed on industry-specific directories</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.industry_directories_claimed) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Industry directories</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.industry_directories_claimed) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Listed on general business directories</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.business_directories_claimed) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">General business directories</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.business_directories_claimed) }}</div>
                   </div>
                 </div>
               </div>
 
-              <div class="border rounded-lg p-5">
+              <div class="rounded-[16px] border border-grey bg-light-grey p-5">
                 <div class="flex items-center justify-between gap-3 mb-4">
-                  <h3 class="text-lg font-semibold text-gray-900">Tools & channels</h3>
-                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(4)">Edit</button>
+                  <h3 class="text-[16px] font-bold tracking-[-0.8px] text-black">Tools & channels</h3>
+                  <button type="button" class="h-[36px] px-4 rounded-[16px] border border-grey bg-white text-[13px] font-bold tracking-[-0.6px] text-black hover:bg-muted transition-colors" @click="goToStep(4)">Edit</button>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <div class="text-sm text-gray-500">Basic website</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.has_website) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Basic website</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.has_website) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Email marketing platform</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.email_marketing_tool) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Email marketing platform</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.email_marketing_tool) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">CRM / lead tracking</div>
-                    <div class="font-medium text-gray-900">{{ yesNo(form.crm_pipeline) }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">CRM / lead tracking</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ yesNo(form.crm_pipeline) }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Paid ads</div>
-                    <div class="font-medium text-gray-900">{{ runningAdsLabel }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Paid ads</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ runningAdsLabel }}</div>
                   </div>
                 </div>
               </div>
 
-              <div class="border rounded-lg p-5">
+              <div class="rounded-[16px] border border-grey bg-light-grey p-5">
                 <div class="flex items-center justify-between gap-3 mb-4">
-                  <h3 class="text-lg font-semibold text-gray-900">Social Media</h3>
-                  <button type="button" class="btn btn-outline px-4 py-2" @click="goToStep(5)">Edit</button>
+                  <h3 class="text-[16px] font-bold tracking-[-0.8px] text-black">Social Media</h3>
+                  <button type="button" class="h-[36px] px-4 rounded-[16px] border border-grey bg-white text-[13px] font-bold tracking-[-0.6px] text-black hover:bg-muted transition-colors" @click="goToStep(5)">Edit</button>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <div class="text-sm text-gray-500">Primary platform</div>
-                    <div class="font-medium text-gray-900">{{ primarySocialLabel }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Primary platform</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ primarySocialLabel }}</div>
                   </div>
                   <div>
-                    <div class="text-sm text-gray-500">Second platform</div>
-                    <div class="font-medium text-gray-900">{{ secondarySocialLabel }}</div>
+                    <div class="text-[12px] text-purple/60 tracking-[-0.6px]">Second platform</div>
+                    <div class="text-[14px] font-bold tracking-[-0.7px] text-black">{{ secondarySocialLabel }}</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Navigation Buttons -->
           <div class="flex justify-between pt-6">
-            <button 
-              type="button" 
-              @click="prevStep" 
+            <button
+              type="button"
+              @click="prevStep"
               v-if="currentStep > 1"
-              class="btn btn-outline px-6 py-3"
+              class="h-[42px] px-5 rounded-[20px] bg-light-grey border-4 border-rose text-[14px] font-bold tracking-[-0.7px] text-black hover:bg-rose transition-colors"
             >
               ← Back
             </button>
             <div v-else></div>
 
-            <button 
-              type="submit" 
-              class="btn px-6 py-3" 
+            <button
+              type="submit"
+              class="h-[42px] px-6 rounded-[20px] bg-red shadow-red-sm text-[14px] font-bold tracking-[-0.7px] text-white hover:bg-red-dark transition-colors disabled:opacity-50"
               :disabled="isLoading || !canProceed"
             >
-              <span v-if="isLoading" class="spinner mr-2"></span>
+              <span v-if="isLoading" class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 align-middle"></span>
               {{ primaryCtaLabel }}
             </button>
           </div>
         </form>
 
-        <!-- Success Message -->
-        <div v-if="isSubmitted && planId" class="text-center">
-          <div class="alert alert-success">
-            <div class="text-6xl mb-4">🎉</div>
-            <h3 class="text-2xl font-bold text-green-800 mb-2">Your marketing plan is ready 🎉</h3>
-            <p class="text-green-700 mb-6">
-              Head to your dashboard to see your personalised plan and this month’s tasks.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-              <router-link to="/dashboard" class="btn btn-success px-8 py-3">
-                Go to dashboard
-              </router-link>
-            </div>
-          </div>
+        <div v-if="isSubmitted && planId" class="text-center py-8">
+          <div class="text-6xl mb-4">🎉</div>
+          <h3 class="text-[24px] font-bold tracking-[-1.2px] text-black mb-2">Your marketing plan is ready 🎉</h3>
+          <p class="text-[16px] text-purple/70 tracking-[-0.8px] mb-6">
+            Head to your dashboard to see your personalised plan and this month's tasks.
+          </p>
+          <router-link
+            to="/dashboard"
+            class="inline-flex h-[42px] px-8 items-center rounded-[20px] bg-red shadow-red text-[14px] font-bold tracking-[-0.7px] text-white hover:bg-red-dark transition-colors"
+          >
+            Go to dashboard
+          </router-link>
         </div>
 
-        <!-- Error Message -->
-        <div v-if="error" class="alert alert-error">
+        <div v-if="error" class="mt-6 rounded-[16px] bg-rose border border-red/20 px-5 py-4">
           <div class="flex items-center">
-            <span class="text-xl mr-2">⚠️</span>
+            <span class="text-xl mr-3">⚠️</span>
             <div>
-              <div class="font-medium">Error</div>
-              <div>{{ error }}</div>
+              <div class="text-[14px] font-bold tracking-[-0.7px] text-red">Error</div>
+              <div class="text-[14px] text-black tracking-[-0.7px]">{{ error }}</div>
             </div>
           </div>
         </div>
@@ -748,7 +711,7 @@ export default {
       { value: 'retargeting', label: 'Retargeting', description: 'Ads shown to people who already visited your website or engaged with you (to bring them back and convert).', icon: '🎯' },
       { value: 'paid_search', label: 'Paid Search', description: 'Ads in search results when someone searches for relevant keywords.', icon: '🔍' },
       { value: 'prospecting_social', label: 'Prospecting (Social)', description: 'Social ads shown to new audiences based on targeting (to find new customers).', icon: '📱' },
-      { value: 'none', label: 'None', description: 'You’re not currently running paid ads.', icon: '❌' }
+      { value: 'none', label: 'None', description: 'You\u2019re not currently running paid ads.', icon: '❌' }
     ]
 
     const adsChannelOptions = computed(() => {
@@ -1090,13 +1053,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.progress-bar {
-  @apply w-full bg-gray-200 rounded-full h-2;
-}
-
-.progress-fill {
-  @apply bg-gradient-to-r from-primary-500 to-secondary-500 h-2 rounded-full transition-all duration-300;
-}
-</style>

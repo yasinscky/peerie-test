@@ -42,6 +42,53 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Manrope';
+  src: url('/src/assets/fonts/Manrope-Regular.woff2') format('woff2'),
+       url('/src/assets/fonts/Manrope-Regular.woff') format('woff'),
+       url('/src/assets/fonts/Manrope-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/src/assets/fonts/Manrope-Medium.woff2') format('woff2'),
+       url('/src/assets/fonts/Manrope-Medium.woff') format('woff'),
+       url('/src/assets/fonts/Manrope-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('/src/assets/fonts/Manrope-Bold.woff2') format('woff2'),
+       url('/src/assets/fonts/Manrope-Bold.woff') format('woff'),
+       url('/src/assets/fonts/Manrope-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --color-red: 243 71 103;
+  --color-red-light: 255 83 115;
+  --color-red-dark: 223 58 89;
+  --color-red-lighter: 255 97 126;
+  --color-yellow: 255 235 136;
+  --color-purple: 63 67 105;
+  --color-green: 28 142 158;
+  --color-mint: 127 181 181;
+  --color-black: 28 26 27;
+  --color-grey: 220 220 220;
+  --color-light-grey: 249 249 249;
+  --color-muted: 240 240 240;
+  --color-rose: 255 243 245;
+  --color-cream: 255 235 208;
+}
+
 @layer base {
   *,
   *::before,
@@ -64,6 +111,10 @@
     scrollbar-width: none;
   }
 
+  p {
+    font-family: 'Manrope', system-ui, sans-serif;
+  }
+
   html::-webkit-scrollbar,
   body::-webkit-scrollbar {
     display: none;
@@ -83,23 +134,92 @@
     width: 0;
     height: 0;
   }
+
+  .bg-red { background-color: rgb(var(--color-red)); }
+  .hover\:bg-red:hover { background-color: rgb(var(--color-red)); }
+  .text-red { color: rgb(var(--color-red)); }
+  .hover\:text-red:hover { color: rgb(var(--color-red)); }
+  .border-red { border-color: rgb(var(--color-red)); }
+  .hover\:border-red:hover { border-color: rgb(var(--color-red)); }
+  .focus\:border-red:focus { border-color: rgb(var(--color-red)); }
+  .bg-red-dark { background-color: rgb(var(--color-red-dark)); }
+  .hover\:bg-red-dark:hover { background-color: rgb(var(--color-red-dark)); }
+  .text-red-dark { color: rgb(var(--color-red-dark)); }
+  .hover\:text-red-dark:hover { color: rgb(var(--color-red-dark)); }
+  .bg-red-light { background-color: rgb(var(--color-red-light)); }
+  .bg-red-lighter { background-color: rgb(var(--color-red-lighter)); }
+  .bg-green { background-color: rgb(var(--color-green)); }
+  .hover\:bg-green:hover { background-color: rgb(var(--color-green)); }
+  .text-green { color: rgb(var(--color-green)); }
+  .border-green { border-color: rgb(var(--color-green)); }
+  .bg-rose { background-color: rgb(var(--color-rose)); }
+  .hover\:bg-rose:hover { background-color: rgb(var(--color-rose)); }
+  .border-rose { border-color: rgb(var(--color-rose)); }
+  .bg-purple { background-color: rgb(var(--color-purple)); }
+  .text-purple { color: rgb(var(--color-purple)); }
+  .hover\:text-purple:hover { color: rgb(var(--color-purple)); }
+  .border-purple { border-color: rgb(var(--color-purple)); }
+  .bg-yellow { background-color: rgb(var(--color-yellow)); }
+  .text-yellow { color: rgb(var(--color-yellow)); }
+  .bg-mint { background-color: rgb(var(--color-mint)); }
+  .hover\:bg-mint:hover { background-color: rgb(var(--color-mint)); }
+  .text-mint { color: rgb(var(--color-mint)); }
+  .bg-cream { background-color: rgb(var(--color-cream)); }
+  .bg-grey { background-color: rgb(var(--color-grey)); }
+  .hover\:bg-grey:hover { background-color: rgb(var(--color-grey)); }
+  .border-grey { border-color: rgb(var(--color-grey)); }
+  .text-grey { color: rgb(var(--color-grey)); }
+  .bg-light-grey { background-color: rgb(var(--color-light-grey)); }
+  .bg-muted { background-color: rgb(var(--color-muted)); }
+  .hover\:bg-muted:hover { background-color: rgb(var(--color-muted)); }
+  .bg-black { background-color: rgb(var(--color-black)); }
+  .text-black { color: rgb(var(--color-black)); }
+  .shadow-red { box-shadow: 0 10px 24px rgb(var(--color-red) / 0.28); }
+  .shadow-red-sm { box-shadow: 0 4px 12px rgb(var(--color-red) / 0.25); }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: rgb(var(--color-red));
+  }
+  .btn:hover:not(:disabled) {
+    background-color: rgb(var(--color-red-dark));
+  }
+  .btn:focus {
+    --tw-ring-color: rgb(var(--color-red));
   }
   
   .btn-secondary {
-    @apply bg-secondary-600 hover:bg-secondary-700 focus:ring-secondary-500;
+    background-color: rgb(var(--color-mint));
+  }
+  .btn-secondary:hover {
+    background-color: rgb(var(--color-green));
+  }
+  .btn-secondary:focus {
+    --tw-ring-color: rgb(var(--color-mint));
   }
   
   .btn-success {
-    @apply bg-green-600 hover:bg-green-700 focus:ring-green-500;
+    background-color: rgb(var(--color-green));
+  }
+  .btn-success:hover {
+    background-color: rgb(var(--color-green) / 0.8);
+  }
+  .btn-success:focus {
+    --tw-ring-color: rgb(var(--color-green));
   }
   
   .btn-outline {
-    @apply border-primary-600 text-primary-600 bg-white hover:bg-primary-50 focus:ring-primary-500;
+    @apply bg-white;
+    border-color: rgb(var(--color-red));
+    color: rgb(var(--color-red));
+  }
+  .btn-outline:hover {
+    background-color: rgb(var(--color-rose));
+  }
+  .btn-outline:focus {
+    --tw-ring-color: rgb(var(--color-red));
   }
   
   .card {
@@ -107,11 +227,19 @@
   }
   
   .form-input {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm;
+  }
+  .form-input:focus {
+    border-color: rgb(var(--color-red));
+    --tw-ring-color: rgb(var(--color-red));
   }
   
   .form-select {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white;
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none sm:text-sm bg-white;
+  }
+  .form-select:focus {
+    border-color: rgb(var(--color-red));
+    --tw-ring-color: rgb(var(--color-red));
   }
   
   .form-label {
@@ -119,7 +247,11 @@
   }
   
   .form-checkbox {
-    @apply h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded;
+    @apply h-4 w-4 border-gray-300 rounded;
+    color: rgb(var(--color-red));
+  }
+  .form-checkbox:focus {
+    --tw-ring-color: rgb(var(--color-red));
   }
   
   .alert {
@@ -127,23 +259,33 @@
   }
   
   .alert-success {
-    @apply bg-green-50 border border-green-200 text-green-800;
+    @apply border;
+    background-color: rgb(var(--color-mint) / 0.4);
+    border-color: rgb(var(--color-green));
+    color: rgb(var(--color-green));
   }
   
   .alert-error {
-    @apply bg-red-50 border border-red-200 text-red-800;
+    @apply border;
+    background-color: rgb(var(--color-rose));
+    border-color: rgb(var(--color-red));
+    color: rgb(var(--color-red));
   }
   
   .spinner {
-    @apply animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600;
+    @apply animate-spin rounded-full h-8 w-8 border-b-2;
+    border-color: rgb(var(--color-red));
   }
   
   .task-item {
-    @apply bg-gray-50 border-l-4 border-green-500 rounded-lg p-4 mb-3 transition-all duration-200 hover:shadow-md;
+    @apply bg-gray-50 border-l-4 rounded-lg p-4 mb-3 transition-all duration-200 hover:shadow-md;
+    border-left-color: rgb(var(--color-green));
   }
   
   .task-item.completed {
-    @apply bg-green-50 border-green-600 opacity-75;
+    @apply opacity-75;
+    background-color: rgb(var(--color-mint) / 0.4);
+    border-left-color: rgb(var(--color-green));
   }
   
   .progress-bar {
@@ -151,7 +293,8 @@
   }
   
   .progress-fill {
-    @apply bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-300;
+    @apply h-2 rounded-full transition-all duration-300;
+    background-color: rgb(var(--color-green));
   }
 
 

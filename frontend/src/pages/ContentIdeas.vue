@@ -1,122 +1,118 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
-      <div class="flex items-center">
-        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
-          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
-        </div>
-        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
+  <div class="max-w-[1440px] mx-auto">
+    <div class="mb-6 md:mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70 mb-2">{{ texts.headerSection }}</p>
+        <h1 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">{{ texts.headerTitle }}</h1>
+        <p class="mt-3 text-[16px] text-purple/70 tracking-[-0.8px] max-w-[720px]">{{ texts.subtitle }}</p>
       </div>
-      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
-        <span>{{ texts.headerSection }}</span>
-        <span class="opacity-40">|</span>
-        <span class="opacity-40">{{ texts.headerCurrent }}</span>
-      </div>
-    </div>
 
-    <div class="flex items-center justify-between mb-8">
-      <p class="text-[#3F4369] opacity-70 mt-2">{{ texts.subtitle }}</p>
-      
-      <div class="flex items-center gap-2 bg-white rounded-lg border-2 border-[#DCDCDC] p-1">
+      <div class="flex items-center gap-1 bg-white rounded-[20px] shadow-card p-1">
         <button
-          @click="viewMode = 'calendar'"
-          :class="viewMode === 'calendar' 
-            ? 'bg-[#3F4369] text-white' 
-            : 'bg-white text-[#3F4369] hover:bg-[#FFEBD0]'"
-          class="p-2 rounded transition-colors"
+          type="button"
+          class="w-10 h-10 rounded-[16px] flex items-center justify-center transition-colors"
+          :class="viewMode === 'calendar' ? 'bg-red text-white' : 'text-purple hover:bg-rose'"
           :title="texts.calendarView"
+          @click="viewMode = 'calendar'"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </button>
         <button
-          @click="viewMode = 'list'"
-          :class="viewMode === 'list' 
-            ? 'bg-[#3F4369] text-white' 
-            : 'bg-white text-[#3F4369] hover:bg-[#FFEBD0]'"
-          class="p-2 rounded transition-colors"
+          type="button"
+          class="w-10 h-10 rounded-[16px] flex items-center justify-center transition-colors"
+          :class="viewMode === 'list' ? 'bg-red text-white' : 'text-purple hover:bg-rose'"
           :title="texts.listView"
+          @click="viewMode = 'list'"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
           </svg>
         </button>
       </div>
     </div>
 
-    <div v-if="availableMonths.length > 0" class="mb-8">
-      <div class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] p-6">
-        <h3 class="text-xl font-bold text-[#3F4369] mb-4">{{ texts.monthSelector }}</h3>
-        <div class="space-y-2">
-          <button
-            v-for="monthOption in availableMonths"
-            :key="`${monthOption.year}-${monthOption.month}`"
-            type="button"
-            class="block w-full text-left px-4 py-2 rounded-lg border transition-colors"
-            :class="isMonthSelected(monthOption.year, monthOption.month)
-              ? 'bg-[#f34767] text-white border-[#f34767]'
-              : 'border-[#DCDCDC] bg-white text-[#3F4369] hover:border-[#f34767] hover:bg-[#FFEBD0]'"
-            @click="selectMonth(monthOption.year, monthOption.month)"
-          >
-            {{ formatMonth(monthOption.year, monthOption.month) }}
-          </button>
-        </div>
+    <div v-if="selectedYear && selectedMonth" class="bg-white rounded-[30px] shadow-card p-5 md:p-8">
+      <div v-if="availableMonths.length > 0" class="flex flex-wrap gap-2 mb-6">
+        <button
+          v-for="monthOption in availableMonths"
+          :key="`${monthOption.year}-${monthOption.month}`"
+          type="button"
+          class="h-[34px] px-3 rounded-full text-[13px] font-medium tracking-[-0.5px] transition-colors"
+          :class="isMonthSelected(monthOption.year, monthOption.month)
+            ? 'bg-red text-white shadow-[0_8px_18px_rgba(243,71,103,0.28)]'
+            : 'bg-light-grey border-2 border-rose text-purple hover:bg-rose'"
+          @click="selectMonth(monthOption.year, monthOption.month)"
+        >
+          {{ formatMonth(monthOption.year, monthOption.month) }}
+        </button>
       </div>
-    </div>
 
-    <div v-if="selectedYear && selectedMonth" class="bg-white rounded-2xl shadow-lg border border-[#DCDCDC] p-6">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold text-[#3F4369]">{{ formatMonthFull(selectedYear, selectedMonth) }}</h2>
-        <div class="flex items-center space-x-2">
+        <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none">{{ formatMonthFull(selectedYear, selectedMonth) }}</h2>
+        <div class="flex items-center gap-2">
           <button
-            @click="previousMonth"
-            class="p-2 rounded-lg border border-[#DCDCDC] hover:bg-[#FFEBD0] transition-colors"
+            type="button"
+            class="w-10 h-10 rounded-[16px] bg-light-grey border-4 border-rose flex items-center justify-center hover:bg-rose disabled:opacity-40"
             :disabled="!canGoPrevious"
+            @click="previousMonth"
           >
-            <svg class="w-5 h-5 text-[#3F4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <svg class="w-5 h-5 text-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <button
-            @click="nextMonth"
-            class="p-2 rounded-lg border border-[#DCDCDC] hover:bg-[#FFEBD0] transition-colors"
+            type="button"
+            class="w-10 h-10 rounded-[16px] bg-light-grey border-4 border-rose flex items-center justify-center hover:bg-rose disabled:opacity-40"
             :disabled="!canGoNext"
+            @click="nextMonth"
           >
-            <svg class="w-5 h-5 text-[#3F4369]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            <svg class="w-5 h-5 text-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
       </div>
 
-      <div v-if="viewMode === 'calendar'" class="calendar">
-        <div class="grid grid-cols-7 gap-3 mb-3">
+      <div v-if="viewMode === 'calendar'" class="calendar overflow-x-auto">
+        <div class="grid grid-cols-7 gap-2 md:gap-3 mb-3 min-w-[720px]">
           <div
             v-for="day in dayNames"
             :key="day"
-            class="text-center text-sm font-medium text-[#3F4369] opacity-70 py-2"
+            class="text-center text-[13px] font-bold tracking-[-0.6px] text-purple/70 py-2"
           >
             {{ day }}
           </div>
         </div>
 
-        <div class="grid grid-cols-7 gap-3">
+        <div class="grid grid-cols-7 gap-2 md:gap-3 min-w-[720px]">
           <div
             v-for="(day, index) in calendarDays"
             :key="index"
-            class="min-h-[140px] p-3 flex flex-col transition-colors cursor-pointer rounded-lg border"
+            class="min-h-[140px] flex flex-col rounded-[16px] overflow-hidden transition-colors"
             :class="getDayClasses(day)"
             @click="selectDate(day)"
           >
             <div v-if="day" class="flex flex-col h-full">
-              <div class="text-right text-sm font-medium mb-2" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
+              <div
+                class="px-2.5 py-2 text-right text-[13px] font-bold tracking-[-0.6px]"
+                :class="day.isToday ? 'bg-red text-white' : 'text-purple'"
+              >
                 {{ day.date }}
               </div>
-              <div v-if="getIdeaForDate(day.fullDate)" class="flex-1 flex items-start">
-                <p class="text-sm leading-tight line-clamp-4" :class="day.isToday ? 'text-white' : 'text-[#3F4369]'">
-                  {{ getIdeaForDate(day.fullDate).title }}
-                </p>
+              <div class="flex-1 p-2">
+                <div v-if="getIdeaForDate(day.fullDate)" class="rounded-[12px] bg-white px-2.5 py-2 shadow-[0_2px_8px_rgba(28,26,27,0.06)]">
+                  <span
+                    class="inline-block text-[10px] font-bold uppercase tracking-[-0.4px] px-1.5 py-0.5 rounded-[6px] mb-1.5"
+                    :class="ideaTypeClass(getIdeaForDate(day.fullDate).title)"
+                  >
+                    {{ ideaTypeLabel(getIdeaForDate(day.fullDate).title) }}
+                  </span>
+                  <p class="text-[12px] md:text-[13px] font-medium tracking-[-0.5px] text-black leading-snug line-clamp-3">
+                    {{ ideaBodyTitle(getIdeaForDate(day.fullDate).title) }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -127,27 +123,27 @@
         <div
           v-for="day in calendarDaysWithIdeas"
           :key="day.date"
-          class="flex items-center px-4 py-3 border border-[#DCDCDC] rounded-lg hover:bg-[#FFEBD0] hover:border-[#f34767] transition-colors cursor-pointer"
+          class="flex items-center px-4 py-3 bg-light-grey rounded-[20px] border-4 border-rose hover:bg-rose cursor-pointer"
           @click="selectDate(day)"
         >
           <div class="flex items-center gap-4 flex-1">
             <div class="text-center min-w-[60px]">
-              <div class="text-lg font-bold text-[#3F4369]">{{ day.date }}</div>
-              <div class="text-xs text-[#3F4369] opacity-70">{{ formatDayName(day.fullDate) }}</div>
+              <div class="text-[18px] font-bold tracking-[-0.9px] text-black">{{ day.date }}</div>
+              <div class="text-[12px] text-purple/70 tracking-[-0.5px]">{{ formatDayName(day.fullDate) }}</div>
             </div>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 text-sm text-[#3F4369] opacity-50 mb-1">
-                <span>12:00 AM</span>
-                <span v-if="getIdeaForDate(day.fullDate)" class="inline-flex items-center">
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"></path>
-                  </svg>
+            <div class="flex-1 min-w-0">
+              <template v-if="getIdeaForDate(day.fullDate)">
+                <span
+                  class="inline-block text-[10px] font-bold uppercase tracking-[-0.4px] px-1.5 py-0.5 rounded-[6px] mb-1"
+                  :class="ideaTypeClass(getIdeaForDate(day.fullDate).title)"
+                >
+                  {{ ideaTypeLabel(getIdeaForDate(day.fullDate).title) }}
                 </span>
-              </div>
-              <p v-if="getIdeaForDate(day.fullDate)" class="font-medium text-[#3F4369]">
-                {{ getIdeaForDate(day.fullDate).title }}
-              </p>
-              <p v-else class="text-[#3F4369] opacity-50 italic">{{ texts.noIdea }}</p>
+                <p class="font-medium tracking-[-0.7px] text-black">
+                  {{ ideaBodyTitle(getIdeaForDate(day.fullDate).title) }}
+                </p>
+              </template>
+              <p v-else class="text-purple/40 italic">{{ texts.noIdea }}</p>
             </div>
           </div>
         </div>
@@ -155,11 +151,11 @@
     </div>
 
     <div v-if="isLoading" class="text-center py-12">
-      <svg class="w-16 h-16 text-blue-600 mx-auto mb-4 animate-spin" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      <svg class="w-12 h-12 text-red mx-auto mb-4 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
       </svg>
-      <p class="text-gray-600 dark:text-gray-400">{{ texts.loading }}</p>
+      <p class="text-purple/70">{{ texts.loading }}</p>
     </div>
 
     <transition name="fade">
@@ -168,62 +164,65 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
         @click.self="closeModal"
       >
-        <div class="relative max-w-2xl w-full bg-white rounded-2xl shadow-2xl border border-[#DCDCDC] max-h-[90vh] overflow-hidden">
+        <div class="relative max-w-2xl w-full bg-white rounded-[30px] shadow-[0_16px_40px_rgba(28,26,27,0.16)] max-h-[90vh] overflow-hidden">
           <button
-            class="absolute top-4 right-4 flex items-center justify-center w-8 h-8 rounded-full bg-[#FFEBD0] text-[#F34767] hover:bg-[#F34767] hover:text-white transition-colors z-10"
+            type="button"
+            class="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-rose text-red hover:bg-red hover:text-white z-10"
             @click="closeModal"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
           <div class="p-6 sm:p-8 overflow-y-auto no-scrollbar max-h-[90vh]">
-            <h2 class="text-2xl font-bold text-[#3F4369] mb-2">
+            <h2 class="text-[24px] md:text-[28px] font-bold tracking-[-1.4px] text-black mb-2 pr-10">
               {{ formatDateTitle(contentIdea.date) }}: {{ contentIdea.title }}
             </h2>
 
-            <div class="space-y-6 mt-6">
+            <div class="space-y-5 mt-6">
               <div>
                 <div class="flex items-center justify-between mb-2">
-                  <label class="text-sm font-medium text-[#3F4369]">Caption</label>
+                  <label class="text-[14px] font-bold tracking-[-0.7px] text-black">Caption</label>
                   <button
+                    type="button"
+                    class="h-[32px] px-3 rounded-[12px] bg-red text-white text-[12px] font-bold tracking-[-0.5px] hover:bg-red-dark flex items-center gap-1"
                     @click="copyToClipboard(contentIdea.caption)"
-                    class="px-3 py-1 text-xs font-medium rounded-lg border border-[#F34767] text-[#F34767] hover:bg-[#F34767] hover:text-white transition-colors flex items-center space-x-1"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                     <span>{{ copyCaptionText }}</span>
                   </button>
                 </div>
-                <div class="bg-[#F9FAFB] border border-[#DCDCDC] rounded-lg p-4">
-                  <p class="text-[#3F4369] whitespace-pre-wrap">{{ contentIdea.caption }}</p>
+                <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+                  <p class="text-black whitespace-pre-wrap tracking-[-0.6px]">{{ contentIdea.caption }}</p>
                 </div>
               </div>
 
               <div v-if="contentIdea.hashtags">
                 <div class="flex items-center justify-between mb-2">
-                  <label class="text-sm font-medium text-[#3F4369]">Hashtags</label>
+                  <label class="text-[14px] font-bold tracking-[-0.7px] text-black">Hashtags</label>
                   <button
+                    type="button"
+                    class="h-[32px] px-3 rounded-[12px] bg-red text-white text-[12px] font-bold tracking-[-0.5px] hover:bg-red-dark flex items-center gap-1"
                     @click="copyToClipboard(contentIdea.hashtags)"
-                    class="px-3 py-1 text-xs font-medium rounded-lg border border-[#F34767] text-[#F34767] hover:bg-[#F34767] hover:text-white transition-colors flex items-center space-x-1"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                     <span>{{ copyHashtagsText }}</span>
                   </button>
                 </div>
-                <div class="bg-[#F9FAFB] border border-[#DCDCDC] rounded-lg p-4">
-                  <p class="text-[#3F4369] whitespace-pre-wrap">{{ contentIdea.hashtags }}</p>
+                <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+                  <p class="text-black whitespace-pre-wrap tracking-[-0.6px]">{{ contentIdea.hashtags }}</p>
                 </div>
               </div>
 
               <div v-if="contentIdea.tips">
-                <label class="text-sm font-medium text-[#3F4369] mb-2 block">Tips</label>
-                <div class="bg-[#F9FAFB] border border-[#DCDCDC] rounded-lg p-4">
-                  <p class="text-[#3F4369] whitespace-pre-wrap">{{ contentIdea.tips }}</p>
+                <label class="text-[14px] font-bold tracking-[-0.7px] text-black mb-2 block">Tips</label>
+                <div class="bg-light-grey rounded-[20px] border-4 border-rose p-4">
+                  <p class="text-black whitespace-pre-wrap tracking-[-0.6px]">{{ contentIdea.tips }}</p>
                 </div>
               </div>
             </div>
@@ -239,7 +238,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
-import logoWhite from '@/assets/images/logos/logo-white.svg'
 
 const router = useRouter()
 const route = useRoute()
@@ -463,20 +461,44 @@ const isDateToday = (date) => {
 }
 
 const getDayClasses = (day) => {
-  if (!day) return 'bg-transparent border-transparent'
+  if (!day) return 'bg-transparent'
   
   const hasIdea = getIdeaForDate(day.fullDate)
-  const classes = []
+  const classes = ['cursor-pointer']
   
   if (day.isToday) {
-    classes.push('bg-[#1C8E9E] text-white border-[#1C8E9E]')
+    classes.push('bg-rose')
   } else if (hasIdea) {
-    classes.push('bg-white border-[#DCDCDC] hover:bg-[#FFEBD0] hover:border-[#f34767]')
+    classes.push('bg-light-grey')
   } else {
-    classes.push('bg-gray-50 border-gray-200 text-[#3F4369] opacity-40 cursor-default')
+    classes.push('bg-light-grey opacity-40 cursor-default')
   }
   
   return classes.join(' ')
+}
+
+const ideaTypeLabel = (title) => {
+  const raw = String(title || '').trim()
+  if (!raw) return 'POST'
+  const match = raw.match(/^([A-Za-zÄÖÜäöüß\s/]+):/)
+  if (match) return match[1].trim().toUpperCase()
+  const first = raw.split(/\s+/)[0]
+  return first.length <= 12 ? first.toUpperCase() : 'POST'
+}
+
+const ideaBodyTitle = (title) => {
+  const raw = String(title || '').trim()
+  const match = raw.match(/^[^:]+:\s*(.+)$/)
+  return match ? match[1].trim() : raw
+}
+
+const ideaTypeClass = (title) => {
+  const type = ideaTypeLabel(title)
+  if (/REEL|VIDEO|CLIP/i.test(type)) return 'bg-rose text-red'
+  if (/PROMO|ADS|OFFER/i.test(type)) return 'bg-green/15 text-green'
+  if (/STORY|STORIES/i.test(type)) return 'bg-yellow/40 text-black/70'
+  if (/CAROUSEL|POST/i.test(type)) return 'bg-mint/20 text-purple'
+  return 'bg-muted text-purple'
 }
 
 const selectDate = async (day) => {

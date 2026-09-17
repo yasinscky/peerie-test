@@ -7,11 +7,11 @@
         </router-link>
 
         <div class="hidden md:flex items-center space-x-4">
-          <div class="h-[40px] rounded-[10px] border-2 border-[#DCDCDC] overflow-hidden inline-flex">
+          <div class="h-[40px] rounded-[10px] border-2 border-grey overflow-hidden inline-flex">
             <button
               type="button"
               class="px-3 font-bold uppercase text-[12px] transition-colors"
-              :class="languageStore.language === 'en' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              :class="languageStore.language === 'en' ? 'bg-purple text-white' : 'bg-white text-purple'"
               @click="languageStore.setLanguage('en')"
             >
               EN
@@ -19,7 +19,7 @@
             <button
               type="button"
               class="px-3 font-bold uppercase text-[12px] transition-colors"
-              :class="languageStore.language === 'de' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              :class="languageStore.language === 'de' ? 'bg-purple text-white' : 'bg-white text-purple'"
               @click="languageStore.setLanguage('de')"
             >
               DE
@@ -27,24 +27,24 @@
           </div>
           <router-link 
             to="/login"
-            class="px-6 py-3 text-[#3F4369] border-2 border-[#3F4369] rounded-[15px] hover:bg-[#3F4369] hover:text-white transition-all duration-200 font-bold uppercase text-sm"
+            class="px-6 py-3 text-purple border-2 border-purple rounded-[15px] hover:bg-purple hover:text-white transition-all duration-200 font-bold uppercase text-sm"
           >
             {{ texts.navLogin }}
           </router-link>
           <router-link 
             to="/register"
-            class="px-6 py-3 bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-sm shadow-lg"
+            class="px-6 py-3 bg-red text-white rounded-[15px] hover:bg-red-dark transition-all duration-200 font-bold uppercase text-sm shadow-lg"
           >
             {{ texts.navGetStarted }}
           </router-link>
         </div>
 
         <div class="md:hidden flex items-center gap-3">
-          <div class="h-[36px] rounded-[10px] border-2 border-[#DCDCDC] overflow-hidden inline-flex">
+          <div class="h-[36px] rounded-[10px] border-2 border-grey overflow-hidden inline-flex">
             <button
               type="button"
               class="px-3 font-bold uppercase text-[12px] transition-colors"
-              :class="languageStore.language === 'en' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              :class="languageStore.language === 'en' ? 'bg-purple text-white' : 'bg-white text-purple'"
               @click="languageStore.setLanguage('en')"
             >
               EN
@@ -52,7 +52,7 @@
             <button
               type="button"
               class="px-3 font-bold uppercase text-[12px] transition-colors"
-              :class="languageStore.language === 'de' ? 'bg-[#3F4369] text-white' : 'bg-white text-[#3F4369]'"
+              :class="languageStore.language === 'de' ? 'bg-purple text-white' : 'bg-white text-purple'"
               @click="languageStore.setLanguage('de')"
             >
               DE
@@ -61,7 +61,7 @@
           <button 
             type="button"
             @click="mobileMenuOpen = !mobileMenuOpen"
-            class="p-2 text-[#1c1a1b]"
+            class="p-2 text-black"
             :aria-label="texts.navMenuLabel"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,20 +74,20 @@
 
       <div 
         v-if="mobileMenuOpen"
-        class="md:hidden absolute top-full left-0 right-0 bg-white border-t border-[#DCDCDC] shadow-lg z-50"
+        class="md:hidden absolute top-full left-0 right-0 bg-white border-t border-grey shadow-lg z-50"
       >
         <div class="px-6 py-4 space-y-3">
           <router-link 
             to="/login"
             @click="mobileMenuOpen = false"
-            class="block w-full px-4 py-3 text-center text-[#3F4369] border-2 border-[#3F4369] rounded-[15px] hover:bg-[#3F4369] hover:text-white transition-all duration-200 font-bold uppercase text-sm"
+            class="block w-full px-4 py-3 text-center text-purple border-2 border-purple rounded-[15px] hover:bg-purple hover:text-white transition-all duration-200 font-bold uppercase text-sm"
           >
             {{ texts.navLogin }}
           </router-link>
           <router-link 
             to="/register"
             @click="mobileMenuOpen = false"
-            class="block w-full px-4 py-3 text-center bg-[#F34767] text-white rounded-[15px] hover:bg-[#d93d5a] transition-all duration-200 font-bold uppercase text-sm shadow-lg"
+            class="block w-full px-4 py-3 text-center bg-red text-white rounded-[15px] hover:bg-red-dark transition-all duration-200 font-bold uppercase text-sm shadow-lg"
           >
             {{ texts.navGetStarted }}
           </router-link>
@@ -99,21 +99,21 @@
       <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div class="relative z-10">
-            <h1 class="text-6xl md:text-7xl lg:text-[96px] font-bold text-[#1C1A1B] mb-6 leading-[0.95]">
+            <h1 class="text-6xl md:text-7xl lg:text-[96px] font-bold text-black mb-6 leading-[0.95]">
               {{ texts.title }}
             </h1>
-            <p class="text-3xl md:text-4xl lg:text-[48px] font-bold text-[#1C1A1B] mb-12 tracking-[-1.92px]">
+            <p class="text-3xl md:text-4xl lg:text-[48px] font-bold text-black mb-12 tracking-[-1.92px]">
               {{ stepText }}
             </p>
 
             <div v-if="step === 1" class="space-y-6">
               <form @submit.prevent="requestReset" class="space-y-6">
                 <div class="relative">
-                  <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-24 flex items-center px-6">
+                  <div class="bg-white border-2 border-purple rounded-[30px] h-24 flex items-center px-6">
                     <input
                       v-model="form.email"
                       type="email"
-                      class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
+                      class="w-full bg-transparent border-0 outline-none text-black text-xl font-bold placeholder-black"
                       :placeholder="texts.emailPlaceholder"
                       autocomplete="email"
                       required
@@ -128,10 +128,10 @@
                 <div class="relative">
                   <button
                     type="submit"
-                    class="w-full bg-white border-2 border-[#F34767] rounded-[30px] h-24 flex items-center justify-center text-[#F34767] text-2xl font-bold uppercase transition-all duration-200 hover:bg-[#F34767] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full bg-white border-2 border-red rounded-[30px] h-24 flex items-center justify-center text-red text-2xl font-bold uppercase transition-all duration-200 hover:bg-red hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="isLoading"
                   >
-                    <span v-if="isLoading" class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#F34767] mr-3 inline-block"></span>
+                    <span v-if="isLoading" class="animate-spin rounded-full h-6 w-6 border-b-2 border-red mr-3 inline-block"></span>
                     {{ isLoading ? texts.sending : texts.sendResetCode }}
                   </button>
                 </div>
@@ -141,11 +141,11 @@
             <div v-if="step === 2" class="space-y-6">
               <form @submit.prevent="goToPasswordStep" class="space-y-6">
                 <div class="relative">
-                  <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-24 flex items-center px-6">
+                  <div class="bg-white border-2 border-purple rounded-[30px] h-24 flex items-center px-6">
                     <input
                       v-model="form.code"
                       type="text"
-                      class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder:text-gray-400"
+                      class="w-full bg-transparent border-0 outline-none text-black text-xl font-bold placeholder:text-gray-400"
                       :placeholder="texts.verificationCodePlaceholder"
                       required
                       maxlength="6"
@@ -157,7 +157,7 @@
                   <div class="flex-1">
                     <button
                       type="submit"
-                      class="w-full bg-white border-2 border-[#F34767] rounded-[30px] h-20 flex items-center justify-center text-[#F34767] text-xl font-bold uppercase transition-all duration-200 hover:bg-[#F34767] hover:text-white"
+                      class="w-full bg-white border-2 border-red rounded-[30px] h-20 flex items-center justify-center text-red text-xl font-bold uppercase transition-all duration-200 hover:bg-red hover:text-white"
                     >
                       {{ texts.continue }}
                     </button>
@@ -165,7 +165,7 @@
                   <button
                     type="button"
                     @click="resendCode"
-                    class="px-6 py-3 text-[#F34767] text-lg font-medium underline underline-offset-[25%] hover:text-[#d93d5a] transition-colors disabled:opacity-50"
+                    class="px-6 py-3 text-red text-lg font-medium underline underline-offset-[25%] hover:text-red-dark transition-colors disabled:opacity-50"
                     :disabled="isResending"
                   >
                     {{ isResending ? texts.resending : texts.resendCode }}
@@ -177,11 +177,11 @@
             <div v-if="step === 3" class="space-y-6">
               <form @submit.prevent="resetPassword" class="space-y-6">
                 <div class="relative">
-                  <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-24 flex items-center px-6">
+                  <div class="bg-white border-2 border-purple rounded-[30px] h-24 flex items-center px-6">
                     <input
                       v-model="form.password"
                       type="password"
-                      class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
+                      class="w-full bg-transparent border-0 outline-none text-black text-xl font-bold placeholder-black"
                       :placeholder="texts.newPasswordPlaceholder"
                       autocomplete="new-password"
                       required
@@ -190,11 +190,11 @@
                 </div>
 
                 <div class="relative">
-                  <div class="bg-white border-2 border-[#3F4369] rounded-[30px] h-24 flex items-center px-6">
+                  <div class="bg-white border-2 border-purple rounded-[30px] h-24 flex items-center px-6">
                     <input
                       v-model="form.password_confirmation"
                       type="password"
-                      class="w-full bg-transparent border-0 outline-none text-[#1C1A1B] text-xl font-bold placeholder-[#1C1A1B]"
+                      class="w-full bg-transparent border-0 outline-none text-black text-xl font-bold placeholder-black"
                       :placeholder="texts.confirmNewPasswordPlaceholder"
                       autocomplete="new-password"
                       required
@@ -209,10 +209,10 @@
                 <div class="relative">
                   <button
                     type="submit"
-                    class="w-full bg-white border-2 border-[#F34767] rounded-[30px] h-24 flex items-center justify-center text-[#F34767] text-2xl font-bold uppercase transition-all duration-200 hover:bg-[#F34767] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="w-full bg-white border-2 border-red rounded-[30px] h-24 flex items-center justify-center text-red text-2xl font-bold uppercase transition-all duration-200 hover:bg-red hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     :disabled="isLoading"
                   >
-                    <span v-if="isLoading" class="animate-spin rounded-full h-6 w-6 border-b-2 border-[#F34767] mr-3 inline-block"></span>
+                    <span v-if="isLoading" class="animate-spin rounded-full h-6 w-6 border-b-2 border-red mr-3 inline-block"></span>
                     {{ isLoading ? texts.resetting : texts.resetPassword }}
                   </button>
                 </div>
@@ -225,14 +225,14 @@
               </div>
               <router-link 
                 to="/login"
-                class="block w-full bg-white border-2 border-[#F34767] rounded-[30px] h-24 flex items-center justify-center text-[#F34767] text-2xl font-bold uppercase transition-all duration-200 hover:bg-[#F34767] hover:text-white"
+                class="block w-full bg-white border-2 border-red rounded-[30px] h-24 flex items-center justify-center text-red text-2xl font-bold uppercase transition-all duration-200 hover:bg-red hover:text-white"
               >
                 {{ texts.goToLogin }}
               </router-link>
             </div>
 
             <div class="mt-6">
-              <router-link to="/login" class="text-[#F34767] text-xl font-medium underline underline-offset-[25%] hover:text-[#d93d5a] transition-colors">
+              <router-link to="/login" class="text-red text-xl font-medium underline underline-offset-[25%] hover:text-red-dark transition-colors">
                 {{ texts.backToLogin }}
               </router-link>
             </div>

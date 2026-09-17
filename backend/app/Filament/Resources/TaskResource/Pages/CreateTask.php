@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\TaskResource\Pages;
 
 use App\Filament\Resources\TaskResource;
+use App\Models\Task;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateTask extends CreateRecord
@@ -50,6 +51,6 @@ class CreateTask extends CreateRecord
             $data['prerequisites'] = [];
         }
 
-        return $data;
+        return Task::normalizeDocumentPayload($data);
     }
 }

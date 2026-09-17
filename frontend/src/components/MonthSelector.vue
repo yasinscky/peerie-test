@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white rounded-[17px] border border-[#DCDCDC] p-3">
+  <div class="bg-white rounded-[17px] border border-grey p-3">
     <div class="space-y-1.5">
       <button
         v-for="monthOption in availableMonths"
@@ -7,15 +7,15 @@
         type="button"
         class="w-full flex items-center space-x-2 p-2 rounded-lg border transition-all"
         :class="isSelected(monthOption.year, monthOption.month)
-          ? 'border-[#f34767] bg-[#f34767] text-white'
-          : 'border-[#DCDCDC] bg-white text-[#3F4369] hover:bg-[#FFEBD0]'"
+          ? 'border-red bg-red text-white'
+          : 'border-grey bg-white text-purple hover:bg-cream'"
         @click="selectMonth(monthOption.year, monthOption.month)"
       >
         <div class="w-3 h-3 rounded border-2 flex items-center justify-center flex-shrink-0"
           :class="isSelected(monthOption.year, monthOption.month)
             ? 'bg-white border-white'
-            : 'border-[#3F4369]'">
-          <svg v-if="isSelected(monthOption.year, monthOption.month)" class="w-2 h-2 text-[#f34767]" fill="currentColor" viewBox="0 0 20 20">
+            : 'border-purple'">
+          <svg v-if="isSelected(monthOption.year, monthOption.month)" class="w-2 h-2 text-red" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
           </svg>
         </div>

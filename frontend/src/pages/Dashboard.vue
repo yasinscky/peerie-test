@@ -1,459 +1,426 @@
 <template>
-  <div class="min-h-screen relative">
-    <div class="dashboard-logo-bg hidden xl:block"></div>
-      <!-- Logo -->
-      <div class="absolute top-[137px] left-[6.3rem] 2xl:block hidden">
-        <img :src="logoImage" alt="Peerie Logo" class="w-full max-w-[205px]">
-      </div>
-      <div class="page-container flex md:gap-10 gap-6 md:items-stretch md:overflow-hidden md:h-dvh md:min-h-0">
-      <!-- Desktop Sidebar -->
-      <div 
-        class="hidden md:block shrink-0 md:min-h-0 relative z-20 transition-all duration-300"
-        :class="sidebarCollapsed ? 'md:w-20' : 'md:w-80 xl:w-[387px]'"
+  <div class="min-h-screen bg-light-grey">
+    <div class="flex md:h-dvh md:min-h-0 md:overflow-hidden">
+      <aside
+        class="group/sidebar relative hidden md:flex shrink-0 flex-col m-5 mr-0 transition-all duration-300"
+        :class="sidebarCollapsed ? 'w-[72px]' : 'w-[240px]'"
       >
-        <div class="h-full min-h-0 overflow-y-auto no-scrollbar md:py-[50px] xl:py-[80px] 2xl:py-[120px]">
-          <div class="flex flex-col max-w-[400px] md:max-w-none mx-auto md:mx-0 transition-all duration-300"
-               :class="sidebarCollapsed ? 'px-2 items-center' : 'px-4 md:px-0'">
-          
-          <button
-            @click="toggleSidebar"
-            class="mb-4 p-2 rounded-lg border-2 border-[#3f4369] bg-white hover:bg-[#FFEBD0] transition-colors self-start"
-            :class="sidebarCollapsed ? 'mx-auto' : ''"
-            :title="sidebarCollapsed ? texts.expandSidebar : texts.collapseSidebar"
-          >
-            <svg 
-              class="w-6 h-6 text-[#3f4369] transition-transform duration-300" 
-              :class="sidebarCollapsed ? 'rotate-180' : ''"
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
+        <div class="flex flex-col h-full min-h-0 bg-white rounded-[30px] shadow-card overflow-hidden">
+        <div class="flex flex-col h-full min-h-0 px-3 py-6">
+          <div class="mb-8 flex items-center" :class="sidebarCollapsed ? 'justify-center' : 'px-2'">
+            <router-link
+              to="/dashboard"
+              class="block overflow-hidden"
+              :class="sidebarCollapsed ? 'w-8 h-8' : 'w-[136px]'"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
-            </svg>
-          </button>
-
-          <div v-if="!sidebarCollapsed" class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-5 md:pb-5">
-            <div class="flex items-center gap-[30px] md:gap-2">
-              <div class="w-14 h-14 md:w-8 md:h-8 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
-                <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
-                <span v-else class="text-[#3f4369] text-lg font-bold">{{ userInitials }}</span>
-              </div>
-              <div class="">
-                <p class="text-[#1c1a1b] text-sm font-medium">{{ texts.myAccount }}</p>
-                <p class="text-[#3f4369] mt-[15px] text-xl font-bold">{{ user?.name || 'User' }}</p>
-                <div class="flex mt-[18px] items-center justify-between min-w-[160px] sm:min-w-[200px]">
-                  <button @click="navigateToSettings" class="flex items-center text-[#1c1a1b] text-xs font-bold uppercase hover:bg-[#FFEB88] hover:bg-opacity-20 rounded">
-                    <img :src="iconEdit" alt="" class="w-4 h-4 mr-1">
-                <span>{{ texts.edit }}</span>
-              </button>
-                  <button @click="handleLogout" class="flex items-center text-[#1c1a1b] text-xs font-bold uppercase hover:bg-[#FFEB88] hover:bg-opacity-20 rounded">
-                    <img :src="iconLogout" alt="" class="w-4 h-4 mr-1">
-                <span>{{ texts.exit }}</span>
-              </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div v-else class="mb-6 rounded-full border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-2 w-14 h-14 mx-auto">
-            <div class="w-full h-full rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden cursor-pointer" 
-                 @click="navigateToSettings"
-                 :title="user?.name || 'User'">
-              <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
-              <span v-else class="text-[#3f4369] text-sm font-bold">{{ userInitials }}</span>
-            </div>
+              <img
+                :src="logoImage"
+                alt="Peerie"
+                :class="sidebarCollapsed ? 'h-8 w-auto max-w-none' : 'w-full h-auto'"
+              >
+            </router-link>
           </div>
 
-          <nav class="space-y-6 flex-1">
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
-                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
-              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconNotebook" alt="" class="w-5 h-5">
-                </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.create }}</h3>
-              </div>
-              <div v-else class="flex items-center justify-center mb-2">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconNotebook" alt="" class="w-5 h-5">
-                </div>
-              </div>
-              <div class="space-y-2 flex flex-col"
-                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
-                <router-link 
+          <nav class="flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-6">
+            <div>
+              <p v-if="!sidebarCollapsed" class="px-2 mb-2 text-[12px] text-purple/70 tracking-[-0.6px]">
+                {{ texts.workspace }}
+              </p>
+              <div class="space-y-1">
+                <router-link
+                  to="/dashboard"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
+                  :class="navLinkClass('/dashboard')"
+                  :title="sidebarCollapsed ? texts.dashboard : ''"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                    <img :src="iconDashboard" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
+                    {{ texts.dashboard }}
+                  </span>
+                </router-link>
+
+                <router-link
                   to="/dashboard/marketing-plans"
-                  @click="closeSidebarOnMobile"
-                  :class="[
-                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
-                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
-                    currentRoute === '/dashboard/marketing-plans' 
-                      ? 'bg-[#f34767] text-white border-[#f34767]' 
-                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
-                  ]"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
+                  :class="navLinkClass('/dashboard/marketing-plans')"
                   :title="sidebarCollapsed ? texts.yourMarketingPlan : ''"
                 >
-                  <span v-if="!sidebarCollapsed">{{ texts.yourMarketingPlan }}</span>
-                  <span v-else class="text-xl">📋</span>
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                    <img :src="iconMarketingPlan" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
+                    {{ texts.yourMarketingPlan }}
+                  </span>
                 </router-link>
-                <div v-if="!sidebarCollapsed && currentRoute === '/dashboard/marketing-plans' && availableMonths.length > 0" class="ml-4 mt-1 space-y-1">
+
+                <div
+                  v-if="!sidebarCollapsed && isMarketingPlans && availableMonths.length > 0"
+                  class="ml-8 space-y-1 py-1"
+                >
                   <button
                     v-for="monthOption in availableMonths"
                     :key="`${monthOption.year}-${monthOption.month}`"
                     type="button"
-                    class="block w-full text-left text-sm font-medium transition-colors"
+                    class="flex items-center gap-2 w-full text-left text-[14px] tracking-[-0.7px] transition-colors"
                     :class="isMonthSelected(monthOption.year, monthOption.month)
-                      ? 'text-[#f34767]'
-                      : 'text-[#3F4369] hover:text-[#f34767]'"
+                      ? 'text-red font-medium'
+                      : 'text-purple hover:text-red'"
                     @click="handleMonthSelect({ year: monthOption.year, month: monthOption.month })"
                   >
-                    • {{ formatMonth(monthOption.year, monthOption.month) }}
+                    <span class="w-1.5 h-1.5 rounded-full bg-red shrink-0" />
+                    {{ formatMonth(monthOption.year, monthOption.month) }}
                   </button>
                 </div>
-                <router-link 
-                  to="/dashboard/image-generator"
-                  @click="closeSidebarOnMobile"
-                  :class="[
-                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
-                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
-                    currentRoute === '/dashboard/image-generator' 
-                      ? 'bg-[#f34767] text-white border-[#f34767]' 
-                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
-                  ]"
-                  :title="sidebarCollapsed ? texts.imageLibrary : ''"
-                >
-                  <span v-if="!sidebarCollapsed">{{ texts.imageLibrary }}</span>
-                  <span v-else class="text-xl">🖼️</span>
-                </router-link>
-                <router-link 
+
+                <router-link
                   to="/dashboard/content-ideas"
-                  @click="closeSidebarOnMobile"
-                  :class="[
-                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
-                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
-                    currentRoute === '/dashboard/content-ideas' 
-                      ? 'bg-[#f34767] text-white border-[#f34767]' 
-                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
-                  ]"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
+                  :class="navLinkClass('/dashboard/content-ideas')"
                   :title="sidebarCollapsed ? texts.contentIdeas : ''"
                 >
-                  <span v-if="!sidebarCollapsed">{{ texts.contentIdeas }}</span>
-                  <span v-else class="text-xl">💡</span>
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                    <img :src="iconContentCalendar" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
+                    {{ texts.contentIdeas }}
+                  </span>
                 </router-link>
-                <router-link 
-                  to="/dashboard/hashtags"
-                  @click="closeSidebarOnMobile"
-                  :class="[
-                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
-                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
-                    currentRoute === '/dashboard/hashtags' 
-                      ? 'bg-[#f34767] text-white border-[#f34767]' 
-                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
-                  ]"
-                  :title="sidebarCollapsed ? texts.hashtags : ''"
-                >
-                  <span v-if="!sidebarCollapsed">{{ texts.hashtags }}</span>
-                  <span v-else class="text-xl">#️⃣</span>
-                </router-link>
-              </div>
-            </div>
 
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
-                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
-              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconStar" alt="" class="w-5 h-5">
+                <div>
+                  <button
+                    type="button"
+                    class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 w-full transition-colors hover:bg-rose"
+                    :class="[resourceLibraryActive ? 'bg-rose' : '', sidebarCollapsed ? 'justify-center' : '']"
+                    :title="sidebarCollapsed ? texts.resourceLibrary : ''"
+                    @click="toggleResourceLibrary"
+                  >
+                    <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                      <img :src="iconResourceLibrary" alt="" class="w-3.5 h-3.5">
+                    </span>
+                    <span v-if="!sidebarCollapsed" class="flex-1 text-left text-[18px] font-bold tracking-[-0.9px]">
+                      {{ texts.resourceLibrary }}
+                    </span>
+                    <img
+                      v-if="!sidebarCollapsed"
+                      :src="iconChevron"
+                      alt=""
+                      class="w-3 h-3 transition-transform"
+                      :class="resourceLibraryOpen ? 'rotate-90' : ''"
+                    >
+                  </button>
+
+                  <div v-if="!sidebarCollapsed && resourceLibraryOpen" class="ml-8 space-y-1 py-1">
+                    <router-link
+                      to="/dashboard/image-generator"
+                      class="flex items-center gap-2 text-[14px] tracking-[-0.7px] transition-colors"
+                      :class="currentRoute === '/dashboard/image-generator' ? 'text-red font-medium' : 'text-purple hover:text-red'"
+                      @click="closeSidebarOnMobile"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-red shrink-0" />
+                      {{ texts.imageLibrary }}
+                    </router-link>
+                    <router-link
+                      to="/dashboard/hashtags"
+                      class="flex items-center gap-2 text-[14px] tracking-[-0.7px] transition-colors"
+                      :class="currentRoute === '/dashboard/hashtags' ? 'text-red font-medium' : 'text-purple hover:text-red'"
+                      @click="closeSidebarOnMobile"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-red shrink-0" />
+                      {{ texts.hashtags }}
+                    </router-link>
+                    <router-link
+                      to="/dashboard/learn"
+                      class="flex items-center gap-2 text-[14px] tracking-[-0.7px] transition-colors"
+                      :class="currentRoute.startsWith('/dashboard/learn') ? 'text-red font-medium' : 'text-purple hover:text-red'"
+                      @click="closeSidebarOnMobile"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-red shrink-0" />
+                      {{ texts.resources }}
+                    </router-link>
+                  </div>
                 </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.engage }}</h3>
-              </div>
-              <div v-else class="flex items-center justify-center mb-2">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconStar" alt="" class="w-5 h-5">
-                </div>
-              </div>
-              <div class="space-y-2 flex flex-col"
-                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
+
+                <router-link
+                  to="/dashboard/documents"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
+                  :class="navLinkClass('/dashboard/documents')"
+                  :title="sidebarCollapsed ? texts.documents : ''"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                    <img :src="iconDocuments" alt="" class="w-[14px] h-[14px]">
+                  </span>
+                  <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
+                    {{ texts.documents }}
+                  </span>
+                </router-link>
+
                 <router-link
                   to="/dashboard/community"
-                  @click="closeSidebarOnMobile"
-                  :class="[
-                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
-                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
-                    currentRoute === '/dashboard/community' 
-                      ? 'bg-[#f34767] text-white border-[#f34767]' 
-                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
-                  ]"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
+                  :class="navLinkClass('/dashboard/community')"
                   :title="sidebarCollapsed ? texts.community : ''"
                 >
-                  <span v-if="!sidebarCollapsed">{{ texts.community }}</span>
-                  <span v-else class="text-xl">⭐</span>
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                    <img :src="iconCommunity" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
+                    {{ texts.community }}
+                  </span>
                 </router-link>
               </div>
             </div>
 
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
-                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
-              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconHat" alt="" class="w-5 h-5">
-                </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.learn }}</h3>
-              </div>
-              <div v-else class="flex items-center justify-center mb-2">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconHat" alt="" class="w-5 h-5">
-                </div>
-              </div>
-              <div class="space-y-2 flex flex-col"
-                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
-                <router-link 
-                  to="/dashboard/learn"
-                  @click="closeSidebarOnMobile"
-                  :class="[
-                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
-                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
-                    currentRoute === '/dashboard/learn' 
-                      ? 'bg-[#f34767] text-white border-[#f34767]' 
-                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
-                  ]"
-                  :title="sidebarCollapsed ? texts.resources : ''"
-                >
-                  <span v-if="!sidebarCollapsed">{{ texts.resources }}</span>
-                  <span v-else class="text-xl">🎓</span>
-                </router-link>
-              </div>
-            </div>
-
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] transition-all duration-300"
-                 :class="sidebarCollapsed ? 'p-2' : 'p-4'">
-              <div v-if="!sidebarCollapsed" class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconUser" alt="" class="w-5 h-5">
-                </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.account }}</h3>
-              </div>
-              <div v-else class="flex items-center justify-center mb-2">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconUser" alt="" class="w-5 h-5">
-                </div>
-              </div>
-              <div class="space-y-2 flex flex-col"
-                   :class="sidebarCollapsed ? 'items-center' : 'ml-10'">
-                <router-link 
-                  to="/dashboard/settings" 
-                  @click="closeSidebarOnMobile"
-                  :class="[
-                    'block rounded-[17px] border px-3 py-2 font-medium transition-colors cursor-pointer',
-                    sidebarCollapsed ? 'w-10 h-10 p-2 flex items-center justify-center' : 'w-fit text-lg',
-                    currentRoute === '/dashboard/settings' 
-                      ? 'bg-[#f34767] text-white border-[#f34767]' 
-                      : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'
-                  ]"
-                  :title="sidebarCollapsed ? texts.profile : ''"
-                >
-                  <span v-if="!sidebarCollapsed">{{ texts.profile }}</span>
-                  <span v-else class="text-xl">👤</span>
-                </router-link>
-              </div>
+            <div>
+              <p v-if="!sidebarCollapsed" class="px-2 mb-2 text-[12px] text-purple/70 tracking-[-0.6px]">
+                {{ texts.account }}
+              </p>
+              <router-link
+                to="/dashboard/settings"
+                class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
+                :class="navLinkClass('/dashboard/settings')"
+                :title="sidebarCollapsed ? texts.profile : ''"
+              >
+                <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                  <img :src="iconSettings" alt="" class="w-3.5 h-3.5">
+                </span>
+                <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
+                  {{ texts.profile }}
+                </span>
+              </router-link>
             </div>
           </nav>
 
-        </div>
-      </div>
-      </div>
+          <div class="mt-4 space-y-3 shrink-0">
+            <div v-if="!sidebarCollapsed" class="space-y-2 px-1">
+              <a
+                href="https://peerie.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-center gap-2 text-[14px] text-purple hover:text-red tracking-[-0.7px]"
+              >
+                <img :src="iconBlog" alt="" class="w-3.5 h-3.5">
+                {{ texts.blog }}
+              </a>
+              <a
+                href="mailto:hello@peerie.com"
+                class="flex items-center gap-2 text-[14px] text-purple hover:text-red tracking-[-0.7px]"
+              >
+                <img :src="iconHelp" alt="" class="w-3.5 h-3.5">
+                {{ texts.help }}
+              </a>
+            </div>
 
-      <!-- Mobile Sidebar -->
-      <div class="fixed top-0 bottom-0 z-40 w-full md:hidden h-dvh overflow-y-auto no-scrollbar overscroll-contain transition-all duration-300 sidebar" 
-          :class="sidebarOpen ? 'translate-x-0 left-0' : 'sidebar-hidden'">
-        <div class="flex flex-col min-h-full max-w-[400px] mx-auto px-4 relative pt-[40px] pb-[40px]">
-          <button 
-            @click="sidebarOpen = false" 
-            class="absolute top-0 right-0 z-50 p-2 text-[#3f4369] hover:bg-[#FFEB88] hover:bg-opacity-20 rounded-lg transition-colors"
+            <div
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-2 flex items-center gap-2"
+              :class="sidebarCollapsed ? 'justify-center' : ''"
+            >
+              <div class="w-[30px] h-[30px] rounded-[20px] bg-yellow border-4 border-rose flex items-center justify-center overflow-hidden shrink-0">
+                <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
+                <img v-else :src="iconUser" alt="" class="w-3.5 h-3.5">
+              </div>
+              <div v-if="!sidebarCollapsed" class="min-w-0 flex-1">
+                <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-black truncate">
+                  {{ user?.name || 'User' }}
+                </p>
+                <p class="text-[12px] text-purple/70 tracking-[-0.6px] truncate">
+                  {{ texts.businessAccount }}
+                </p>
+              </div>
+              <button
+                v-if="!sidebarCollapsed"
+                type="button"
+                class="text-[11px] font-bold uppercase tracking-[-0.5px] text-purple hover:text-red shrink-0"
+                @click="handleLogout"
+              >
+                {{ texts.exit }}
+              </button>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <button
+          type="button"
+          class="absolute top-8 -right-3 z-30 flex items-center justify-center w-7 h-7 rounded-full bg-white border border-grey shadow-card text-purple opacity-0 pointer-events-none transition-all duration-150 group-hover/sidebar:opacity-100 group-hover/sidebar:pointer-events-auto hover:text-green hover:border-green"
+          :title="sidebarCollapsed ? texts.expandSidebar : texts.collapseSidebar"
+          @click="toggleSidebar"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+            <path d="M9.5 4.5v15" />
+          </svg>
+        </button>
+      </aside>
+
+      <div
+        class="fixed top-0 bottom-0 z-40 w-full md:hidden h-dvh overflow-y-auto no-scrollbar overscroll-contain transition-all duration-300 sidebar bg-white"
+        :class="sidebarOpen ? 'translate-x-0 left-0' : 'sidebar-hidden'"
+      >
+        <div class="flex flex-col min-h-full px-4 pt-10 pb-10">
+          <button
+            type="button"
+            class="absolute top-3 right-3 p-2 text-black hover:bg-rose rounded-lg"
+            @click="sidebarOpen = false"
           >
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          <div class="mb-6 rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] pl-[26px] pb-10 pt-10 xl:pl-[20px] xl:pb-[20px] xl:pt-[20px] md:pt-5 md:pb-5">
-            <div class="flex items-center gap-[30px] md:gap-2">
-              <div class="w-14 h-14 md:w-8 md:h-8 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
-                <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
-                <span v-else class="text-[#3f4369] text-lg font-bold">{{ userInitials }}</span>
-              </div>
-              <div class="">
-                <p class="text-[#1c1a1b] text-sm font-medium">{{ texts.myAccount }}</p>
-                <p class="text-[#3f4369] mt-[15px] text-xl font-bold">{{ user?.name || 'User' }}</p>
-                <div class="flex mt-[18px] items-center justify-between min-w-[160px] sm:min-w-[200px]">
-                  <button @click="navigateToSettings" class="flex items-center text-[#1c1a1b] text-xs font-bold uppercase hover:bg-[#FFEB88] hover:bg-opacity-20 rounded">
-                    <img :src="iconEdit" alt="" class="w-4 h-4 mr-1">
-                    <span>{{ texts.edit }}</span>
-                  </button>
-                  <button @click="handleLogout" class="flex items-center text-[#1c1a1b] text-xs font-bold uppercase hover:bg-[#FFEB88] hover:bg-opacity-20 rounded">
-                    <img :src="iconLogout" alt="" class="w-4 h-4 mr-1">
-                    <span>{{ texts.exit }}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <router-link to="/dashboard" class="block w-[140px] mb-8" @click="closeSidebarOnMobile">
+            <img :src="logoImage" alt="Peerie" class="w-full h-auto">
+          </router-link>
 
           <nav class="space-y-6 flex-1">
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconNotebook" alt="" class="w-5 h-5">
-                </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.create }}</h3>
-              </div>
-              <div class="ml-10 space-y-2 flex flex-col">
-                <router-link 
+            <div>
+              <p class="mb-2 text-[12px] text-purple/70">{{ texts.workspace }}</p>
+              <div class="space-y-1">
+                <router-link
+                  to="/dashboard"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard')"
+                  @click="closeSidebarOnMobile"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconDashboard" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.dashboard }}</span>
+                </router-link>
+                <router-link
                   to="/dashboard/marketing-plans"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/marketing-plans')"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/marketing-plans' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
                 >
-                  {{ texts.yourMarketingPlan }}
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconMarketingPlan" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.yourMarketingPlan }}</span>
                 </router-link>
-                <div v-if="currentRoute === '/dashboard/marketing-plans' && availableMonths.length > 0" class="ml-4 mt-1 space-y-1">
-                  <button
-                    v-for="monthOption in availableMonths"
-                    :key="`${monthOption.year}-${monthOption.month}`"
-                    type="button"
-                    class="block w-full text-left text-sm font-medium transition-colors"
-                    :class="isMonthSelected(monthOption.year, monthOption.month)
-                      ? 'text-[#f34767]'
-                      : 'text-[#3F4369] hover:text-[#f34767]'"
-                    @click="handleMonthSelect({ year: monthOption.year, month: monthOption.month })"
-                  >
-                    • {{ formatMonth(monthOption.year, monthOption.month) }}
-                  </button>
-                </div>
-                <router-link 
-                  to="/dashboard/image-generator"
-                  @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/image-generator' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
-                >
-                  {{ texts.imageLibrary }}
-                </router-link>
-                <router-link 
+                <router-link
                   to="/dashboard/content-ideas"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/content-ideas')"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/content-ideas' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
                 >
-                  {{ texts.contentIdeas }}
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconContentCalendar" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.contentIdeas }}</span>
                 </router-link>
-                <router-link 
+                <router-link
+                  to="/dashboard/image-generator"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/image-generator')"
+                  @click="closeSidebarOnMobile"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconResourceLibrary" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.imageLibrary }}</span>
+                </router-link>
+                <router-link
                   to="/dashboard/hashtags"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/hashtags')"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/hashtags' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
                 >
-                  {{ texts.hashtags }}
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconActionSteps" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.hashtags }}</span>
                 </router-link>
-              </div>
-            </div>
-
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconStar" alt="" class="w-5 h-5">
-                </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.engage }}</h3>
-              </div>
-              <div class="ml-10 space-y-2 flex flex-col">
+                <router-link
+                  to="/dashboard/learn"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/learn')"
+                  @click="closeSidebarOnMobile"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconLearn" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.resources }}</span>
+                </router-link>
+                <router-link
+                  to="/dashboard/documents"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/documents')"
+                  @click="closeSidebarOnMobile"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconDocuments" alt="" class="w-[14px] h-[14px]">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.documents }}</span>
+                </router-link>
                 <router-link
                   to="/dashboard/community"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/community')"
                   @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/community' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
                 >
-                  {{ texts.community }}
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconCommunity" alt="" class="w-3.5 h-3.5">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.community }}</span>
                 </router-link>
               </div>
             </div>
-
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconHat" alt="" class="w-5 h-5">
-                </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.learn }}</h3>
-              </div>
-              <div class="ml-10 space-y-2 flex flex-col">
-                <router-link 
-                  to="/dashboard/learn"
-                  @click="closeSidebarOnMobile"
-                  class="block w-fit rounded-[17px] border px-3 py-2 text-lg font-medium transition-colors cursor-pointer"
-                  :class="currentRoute === '/dashboard/learn' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
-                >
-                  {{ texts.resources }}
-                </router-link>
-              </div>
-            </div>
-
-            <div class="rounded-[36px] border-2 border-[#3f4369] bg-white shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] p-4">
-              <div class="flex items-center space-x-2 mb-3">
-                <div class="w-8 h-8 rounded-lg border-2 border-[#3f4369] flex items-center justify-center">
-                  <img :src="iconUser" alt="" class="w-5 h-5">
-                </div>
-                <h3 class="text-[#3f4369] text-2xl font-bold">{{ texts.account }}</h3>
-              </div>
-              <div class="ml-10 space-y-2 flex flex-col">
-                <router-link 
-                  to="/dashboard/settings" 
-                  @click="closeSidebarOnMobile"
-                  class="block w-fit text-left px-3 py-2 rounded-[17px] border text-lg font-medium transition-colors"
-                  :class="currentRoute === '/dashboard/settings' 
-                    ? 'bg-[#f34767] text-white border-[#f34767]' 
-                    : 'border-[#DCDCDC] bg-white text-[#1c1a1b] hover:bg-[#f34767] hover:text-white'"
-                >
-                  {{ texts.profile }}
-                </router-link>
-              </div>
+            <div>
+              <p class="mb-2 text-[12px] text-purple/70">{{ texts.account }}</p>
+              <router-link
+                to="/dashboard/settings"
+                class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                :class="navLinkClass('/dashboard/settings')"
+                @click="closeSidebarOnMobile"
+              >
+                <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                  <img :src="iconSettings" alt="" class="w-3.5 h-3.5">
+                </span>
+                <span class="text-[18px] font-bold">{{ texts.profile }}</span>
+              </router-link>
             </div>
           </nav>
+
+          <button
+            type="button"
+            class="mt-6 w-full rounded-[20px] bg-red text-white px-3 py-3 text-[14px] font-bold uppercase tracking-[-0.7px]"
+            @click="handleLogout"
+          >
+            {{ texts.exit }}
+          </button>
         </div>
       </div>
 
-      <!-- Mobile sidebar overlay -->
-      <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-[#1C1A1B] bg-opacity-50 md:hidden"></div>
+      <div
+        v-if="sidebarOpen"
+        class="fixed inset-0 z-30 bg-black/50 md:hidden"
+        @click="sidebarOpen = false"
+      />
 
-      <!-- Main content area -->
-      <div class="flex-1 bg-white min-h-screen md:min-h-0 md:h-full md:overflow-y-auto no-scrollbar md:py-[50px] xl:py-[80px] 2xl:py-[120px] main__content">
-        <!-- Mobile header -->
-        <div class="md:hidden sticky top-0 z-20 bg-white border-[#DCDCDC] px-4 py-3 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <img :src="logoImage" alt="Peerie Logo" class="h-6">
+      <div class="flex-1 min-h-screen md:min-h-0 md:h-full md:overflow-y-auto no-scrollbar">
+        <div class="sticky top-0 z-20 bg-light-grey/95 backdrop-blur-sm px-4 md:px-8 py-4 flex items-center justify-between md:justify-end gap-3">
+          <div class="md:hidden flex items-center gap-2">
+            <img :src="logoImage" alt="Peerie" class="h-6">
           </div>
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-[#DCDCDC] flex items-center justify-center overflow-hidden">
+            <p class="hidden sm:block text-[12px] font-bold uppercase tracking-[-0.6px] text-black">
+              {{ firstName }}
+            </p>
+            <div class="w-10 h-10 rounded-[20px] bg-yellow border-4 border-rose flex items-center justify-center overflow-hidden">
               <img v-if="user?.avatar" :src="user.avatar" :alt="user?.name" class="w-full h-full object-cover">
-              <span v-else class="text-[#3f4369] text-xs font-bold">{{ userInitials }}</span>
+              <span v-else class="text-[14px] font-bold text-black">{{ userInitials }}</span>
             </div>
-            <button @click="sidebarOpen = true" class="p-2">
-              <svg class="w-6 h-6 text-[#1c1a1b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <button type="button" class="md:hidden p-2" @click="sidebarOpen = true">
+              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Page content -->
-        <div class="md:min-h-0">
+        <div class="px-4 md:px-8 pb-10">
           <router-view />
         </div>
       </div>
@@ -467,12 +434,19 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import logoImage from '@/assets/images/logos/logo.svg'
-import iconNotebook from '@/assets/images/icons/dashboard/notebook.svg'
-import iconStar from '@/assets/images/icons/dashboard/star.svg'
-import iconUser from '@/assets/images/icons/dashboard/user.svg'
-import iconHat from '@/assets/images/icons/dashboard/hat.svg'
-import iconEdit from '@/assets/images/icons/dashboard/edit.svg'
-import iconLogout from '@/assets/images/icons/dashboard/log-out.svg'
+import iconDashboard from '@/assets/images/icons/dashboard/v2/dashboard.svg'
+import iconMarketingPlan from '@/assets/images/icons/dashboard/v2/marketing-plan.svg'
+import iconContentCalendar from '@/assets/images/icons/dashboard/v2/content-calendar.svg'
+import iconResourceLibrary from '@/assets/images/icons/dashboard/v2/resource-library.svg'
+import iconActionSteps from '@/assets/images/icons/dashboard/v2/action-steps.svg'
+import iconCommunity from '@/assets/images/icons/dashboard/v2/community.svg'
+import iconSettings from '@/assets/images/icons/dashboard/v2/settings.svg'
+import iconLearn from '@/assets/images/icons/dashboard/v2/learn.svg'
+import iconDocuments from '@/assets/images/icons/dashboard/v2/documents.svg'
+import iconChevron from '@/assets/images/icons/dashboard/v2/chevron.svg'
+import iconBlog from '@/assets/images/icons/dashboard/v2/blog.svg'
+import iconHelp from '@/assets/images/icons/dashboard/v2/help.svg'
+import iconUser from '@/assets/images/icons/dashboard/v2/user.svg'
 import { useLanguageStore } from '@/stores/language'
 import TestEnvironmentBanner from '@/components/TestEnvironmentBanner.vue'
 
@@ -481,6 +455,10 @@ const route = useRoute()
 
 const sidebarOpen = ref(false)
 const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
+const resourceLibraryOpen = ref(
+  ['/dashboard/image-generator', '/dashboard/hashtags'].includes(route.path)
+  || route.path.startsWith('/dashboard/learn')
+)
 const user = ref(null)
 const availableMonths = ref([])
 const selectedYear = ref(parseInt(route.query.year) || new Date().getFullYear())
@@ -493,51 +471,87 @@ const toggleSidebar = () => {
   localStorage.setItem('sidebarCollapsed', sidebarCollapsed.value)
 }
 
+const toggleResourceLibrary = () => {
+  if (sidebarCollapsed.value) {
+    sidebarCollapsed.value = false
+    localStorage.setItem('sidebarCollapsed', 'false')
+    resourceLibraryOpen.value = true
+    return
+  }
+  resourceLibraryOpen.value = !resourceLibraryOpen.value
+}
+
 const currentRoute = computed(() => route.path)
+
+const isDashboardHome = computed(() => currentRoute.value === '/dashboard')
+const isMarketingPlans = computed(() => currentRoute.value === '/dashboard/marketing-plans')
+
+const resourceLibraryActive = computed(() =>
+  currentRoute.value === '/dashboard/image-generator'
+  || currentRoute.value === '/dashboard/hashtags'
+  || currentRoute.value.startsWith('/dashboard/learn')
+)
+
+const navLinkClass = (path) => {
+  const active = path === '/dashboard'
+    ? isDashboardHome.value
+    : path === '/dashboard/learn'
+      ? currentRoute.value.startsWith('/dashboard/learn')
+      : path === '/dashboard/documents'
+        ? currentRoute.value.startsWith('/dashboard/documents')
+        : currentRoute.value === path
+  const base = active
+    ? 'bg-red text-white'
+    : 'text-black hover:bg-rose'
+  return sidebarCollapsed.value ? `${base} justify-center` : base
+}
 
 const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
-      myAccount: 'Mein Konto',
-      edit: 'Bearbeiten',
-      exit: 'Abmelden',
-      create: 'Erstellen',
-      yourMarketingPlan: 'Dein Marketingplan',
+      workspace: 'Workspace',
+      dashboard: 'Dashboard',
+      yourMarketingPlan: 'Marketingplan',
       imageLibrary: 'Bildbibliothek',
       contentIdeas: 'Content Ideen',
       hashtags: 'Hashtags',
-      engage: 'Interaktion',
+      resourceLibrary: 'Ressourcen',
       community: 'Community',
-      learn: 'Lernen',
-      resources: 'Ressourcen',
+      resources: 'Guides & Checklisten',
+      documents: 'Dokumente',
       account: 'Konto',
       profile: 'Profil',
-      menu: 'Menü',
+      exit: 'Abmelden',
       collapseSidebar: 'Seitenleiste einklappen',
-      expandSidebar: 'Seitenleiste ausklappen'
+      expandSidebar: 'Seitenleiste ausklappen',
+      blog: 'Peerie Blog',
+      help: 'Hilfe & Support',
+      businessAccount: 'Business-Konto'
     }
   }
 
   return {
-    myAccount: 'My account',
-    edit: 'Edit',
-    exit: 'Log out',
-    create: 'Create',
-    yourMarketingPlan: 'My Marketing Plan',
+    workspace: 'Workspace',
+    dashboard: 'Dashboard',
+    yourMarketingPlan: 'Marketing Plan',
     imageLibrary: 'Image Library',
     contentIdeas: 'Content Ideas',
     hashtags: 'Hashtags',
-      engage: 'Engage',
-      community: 'Community',
-      learn: 'Learn',
-      resources: 'Resources',
-      account: 'Account',
-      profile: 'Profile',
-      menu: 'Menu',
-      collapseSidebar: 'Collapse sidebar',
-      expandSidebar: 'Expand sidebar'
+    resourceLibrary: 'Resource Library',
+    community: 'Community',
+    resources: 'Guides & Checklists',
+    documents: 'Documents',
+    account: 'Account',
+    profile: 'Profile',
+    exit: 'Log out',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
+    blog: 'Peerie blog',
+    help: 'Help & Support',
+    businessAccount: 'Business account'
   }
 })
+
 const userInitials = computed(() => {
   if (!user.value?.name) return 'U'
   const names = user.value.name.split(' ')
@@ -547,12 +561,16 @@ const userInitials = computed(() => {
   return names[0][0].toUpperCase()
 })
 
+const firstName = computed(() => {
+  if (!user.value?.name) return 'USER'
+  return user.value.name.split(' ')[0].toUpperCase()
+})
+
 const handleLogout = async () => {
   try {
     await axios.post('/api/logout')
     localStorage.removeItem('user')
     user.value = null
-    
     router.push('/login')
   } catch (error) {
     console.error('Logout error:', error)
@@ -560,11 +578,6 @@ const handleLogout = async () => {
     user.value = null
     router.push('/login')
   }
-}
-
-const navigateToSettings = () => {
-  router.push('/dashboard/settings')
-  closeSidebarOnMobile()
 }
 
 const closeSidebarOnMobile = () => {
@@ -579,15 +592,15 @@ const USER_FETCH_CACHE_TIME = 1000
 const fetchUser = async (force = false) => {
   const now = Date.now()
   const timeSinceLastFetch = now - lastUserFetchTime
-  
+
   if (!force && timeSinceLastFetch < USER_FETCH_CACHE_TIME) {
     return
   }
-  
+
   try {
     const response = await axios.get('/api/user')
     lastUserFetchTime = Date.now()
-    
+
     if (response.data.success) {
       const hasCompletedQuestionnaire = Boolean(
         (response.data?.user?.has_completed_questionnaire ?? response.data?.has_completed_questionnaire) === true
@@ -604,18 +617,18 @@ const fetchUser = async (force = false) => {
         email: response.data.email,
         avatar: response.data.avatar
       }
-      
+
       if (response.data.language) {
         languageStore.setLanguage(response.data.language)
       }
-    
+
       localStorage.setItem('user', JSON.stringify(user.value))
     } else {
       throw new Error('Failed to fetch user')
     }
   } catch (error) {
     console.error('Failed to fetch user:', error)
-    
+
     if (error.response?.status === 401) {
       localStorage.removeItem('user')
       user.value = null
@@ -650,16 +663,17 @@ const fetchAvailableMonths = async () => {
     const response = await axios.get('/api/plans/available-months')
     if (response.data.success && response.data.months) {
       availableMonths.value = response.data.months
-      
+
       const now = new Date()
       const currentYear = now.getFullYear()
       const currentMonth = now.getMonth() + 1
-      
+
       if (availableMonths.value.length > 0 && !route.query.year && !route.query.month) {
         const latest = availableMonths.value[0]
         selectedYear.value = latest.year
         selectedMonth.value = latest.month
         router.replace({
+          path: '/dashboard/marketing-plans',
           query: {
             ...route.query,
             year: latest.year,
@@ -670,6 +684,7 @@ const fetchAvailableMonths = async () => {
         selectedYear.value = currentYear
         selectedMonth.value = currentMonth
         router.replace({
+          path: '/dashboard/marketing-plans',
           query: {
             ...route.query,
             year: currentYear,
@@ -689,6 +704,7 @@ const fetchAvailableMonths = async () => {
         selectedYear.value = currentYear
         selectedMonth.value = currentMonth
         router.replace({
+          path: '/dashboard/marketing-plans',
           query: {
             ...route.query,
             year: currentYear,
@@ -714,11 +730,10 @@ const isMonthSelected = (year, month) => {
 }
 
 const formatMonth = (year, month) => {
-  const date = new Date(year, month - 1, 1)
   const monthNames = languageStore.language === 'de'
-    ? ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
-    : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  
+    ? ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
   return `${monthNames[month - 1]} ${year}`
 }
 
@@ -743,6 +758,12 @@ watch(() => route.path, async (newPath) => {
       selectedMonth.value = parseInt(route.query.month)
     }
   }
+  if (
+    ['/dashboard/image-generator', '/dashboard/hashtags'].includes(newPath)
+    || newPath.startsWith('/dashboard/learn')
+  ) {
+    resourceLibraryOpen.value = true
+  }
 }, { immediate: true })
 
 watch(() => route.query, (newQuery) => {
@@ -762,7 +783,7 @@ onMounted(async () => {
       localStorage.removeItem('user')
     }
   }
-  
+
   await fetchUser()
   window.addEventListener('profile-updated', handleProfileUpdated)
 })

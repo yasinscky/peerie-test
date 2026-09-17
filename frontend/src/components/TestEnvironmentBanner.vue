@@ -2,7 +2,7 @@
   <div>
     <div
       v-if="isModalVisible"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
     >
       <div class="relative max-w-xl w-full mx-4 bg-white rounded-3xl shadow-2xl p-8">
         <button
@@ -13,11 +13,11 @@
           <span class="text-lg leading-none">×</span>
         </button>
 
-        <h2 class="text-2xl font-bold text-[#3F4369] mb-4">
+        <h2 class="text-2xl font-bold text-purple mb-4">
           {{ texts.title }}
         </h2>
 
-        <div class="space-y-3 text-sm text-[#3F4369] opacity-90">
+        <div class="space-y-3 text-sm text-purple opacity-90">
           <p v-for="(paragraph, index) in texts.paragraphs" :key="index">
             {{ paragraph }}
           </p>
@@ -28,7 +28,7 @@
     <button
       v-if="isIconVisible"
       type="button"
-      class="fixed bottom-4 right-4 z-40 w-12 h-12 rounded-full bg-[#f34767] text-white flex items-center justify-center shadow-lg hover:bg-[#d93b57] transition-colors"
+      class="fixed bottom-4 right-4 z-40 w-12 h-12 rounded-full bg-red text-white flex items-center justify-center shadow-lg hover:bg-red-dark transition-colors"
       @click="openModalFromIcon"
     >
       <span class="text-xl font-bold">i</span>

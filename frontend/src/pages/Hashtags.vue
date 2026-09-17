@@ -1,164 +1,160 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <div class="bg-[#f34767] pt-[19px] pb-[19px] lg:h-28 lg:pt-0 lg:pb-0 px-4 lg:px-8 flex items-center justify-between rounded-[20px] lg:rounded-40 mb-8">
-      <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 rounded-lg bg-opacity-20 hidden md:flex items-center justify-center">
-          <img :src="logoWhite" alt="Peerie Logo" class="w-10 h-10">
-        </div>
-        <h1 class="text-white text-2xl lg:text-3xl font-bold">{{ texts.headerTitle }}</h1>
-      </div>
-      <div class="flex items-center space-x-2 text-white text-sm lg:text-xl font-medium">
-        <span>{{ texts.headerSection }}</span>
-        <span class="opacity-40">|</span>
-        <span class="opacity-40">{{ texts.headerCurrent }}</span>
-      </div>
+  <div class="max-w-[1440px] mx-auto">
+    <div class="mb-6 md:mb-8">
+      <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70 mb-2">{{ texts.headerSection }}</p>
+      <h1 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">{{ texts.headerTitle }}</h1>
     </div>
 
-  <div class="bg-white rounded-xl shadow-sm border border-[#DCDCDC] p-6">
-    <div class="mb-6 space-y-3">
-      <h2 class="text-xl font-semibold text-[#3F4369]">{{ headerTitle }}</h2>
-      <p class="text-sm text-[#3F4369] opacity-80 leading-relaxed">
-        {{ introDescription }}
-      </p>
-    </div>
-
-      <div v-if="loading" class="py-10 text-center text-[#3F4369] opacity-70">
-        {{ LOCALES[userLanguage]?.loading || LOCALES.en.loading }}
-      </div>
-    <div v-else>
-      <div v-if="!hashtagBlocks.length" class="py-6 text-[#3F4369] opacity-70">
-        {{ LOCALES[userLanguage]?.noHashtagsMessage || LOCALES.en.noHashtagsMessage }}
+    <div class="bg-white rounded-[30px] shadow-card p-5 md:p-8">
+      <div class="mb-6 space-y-3">
+        <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none">{{ headerTitle }}</h2>
+        <p class="text-[16px] text-purple/70 tracking-[-0.8px] leading-relaxed max-w-[820px]">
+          {{ introDescription }}
+        </p>
       </div>
 
-      <div v-else class="space-y-6">
-        <div v-if="topGuidelines.length" class="space-y-8">
-          <div
-            v-for="(section, sectionIndex) in topGuidelines"
-            :key="sectionIndex"
-            class="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-5"
-          >
-            <h3 class="text-lg font-semibold text-[#3F4369] mb-4">{{ section.title }}</h3>
-
-            <div class="space-y-4">
-              <div
-                v-for="(item, itemIndex) in section.items"
-                :key="itemIndex"
-                class="space-y-1"
-              >
-                <h4 v-if="item.subtitle" class="text-sm font-medium text-[#3F4369]">
-                  {{ item.subtitle }}
-                </h4>
-                <p class="text-sm text-[#3F4369] opacity-80 leading-relaxed">
-                  {{ item.text }}
-                </p>
-              </div>
-            </div>
-          </div>
+      <div v-if="loading" class="py-16 flex justify-center">
+        <svg class="w-12 h-12 text-red animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+      </div>
+      <div v-else>
+        <div v-if="!hashtagBlocks.length" class="py-6 text-purple/70">
+          {{ LOCALES[userLanguage]?.noHashtagsMessage || LOCALES.en.noHashtagsMessage }}
         </div>
 
-        <!-- Hashtag Blocks -->
-        <div v-for="(block, index) in hashtagBlocks" :key="index" class="space-y-4">
-          <div>
-            <h4 class="text-lg font-medium text-[#3F4369] mb-2">{{ block.title }}</h4>
-            <p class="text-sm text-[#3F4369] opacity-70 mb-3">{{ block.description }}</p>
-          </div>
-          
-          <!-- Hashtag Block with Copy Icon -->
-          <div class="relative bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <!-- Copy Icon in top-right corner -->
-            <button
-              @click="copyBlock(block.tags)"
-              class="absolute top-3 right-3 p-2 bg-black text-white rounded hover:bg-gray-800 transition-colors"
-              :disabled="copying"
+        <div v-else class="space-y-6">
+          <div v-if="topGuidelines.length" class="space-y-4">
+            <div
+              v-for="(section, sectionIndex) in topGuidelines"
+              :key="sectionIndex"
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-5"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2V8m-6 12H8a2 2 0 01-2-2v-6m6 8l6-6"></path>
-              </svg>
-            </button>
-            
-            <!-- Hashtags -->
-            <div class="text-[#3F4369] break-words pr-12">
-              <!-- Branded block: display with descriptions on separate lines -->
-              <template v-if="(block.title === '5 – Branded' || block.title === '5 – Marke') && isBrandedFormat(block.tags)">
-                <div v-for="(item, i) in block.tags" :key="i" class="mb-3 last:mb-0">
-                  <span class="font-medium">{{ item.tag || item }}</span>
-                  <span v-if="item.description" class="text-[#3F4369] opacity-70 ml-2">({{ item.description }})</span>
+              <h3 class="text-[18px] font-bold tracking-[-0.9px] text-black mb-4">{{ section.title }}</h3>
+              <div class="space-y-4">
+                <div
+                  v-for="(item, itemIndex) in section.items"
+                  :key="itemIndex"
+                  class="space-y-1"
+                >
+                  <h4 v-if="item.subtitle" class="text-[14px] font-bold tracking-[-0.7px] text-black">
+                    {{ item.subtitle }}
+                  </h4>
+                  <p class="text-[14px] text-purple/70 tracking-[-0.7px] leading-relaxed">
+                    {{ item.text }}
+                  </p>
                 </div>
-              </template>
-              <!-- Industry block with categories -->
-              <template v-else-if="(block.title === '3 – Industry & Expertise' || block.title === '3 – Branche & Expertise') && block.categories">
-                <div v-for="(tags, categoryName, index) in block.categories" :key="categoryName" :class="{'mt-4': index > 0}">
-                  <div class="mb-2 text-sm font-semibold text-[#3F4369]">{{ categoryName }}:</div>
-                  <div>
-                    <span v-for="(tag, i) in tags" :key="i" class="inline-block mr-2 mb-2">{{ tag }}</span>
-                  </div>
-                </div>
-              </template>
-              <!-- Niche block: display with example prefix -->
-              <template v-else-if="block.title === '4 – Niche' || block.title === '4 – Nische'">
-                <div class="mb-2 text-sm text-[#3F4369] opacity-70 italic">{{ LOCALES[userLanguage]?.nicheExamplePrefix || LOCALES.en.nicheExamplePrefix }}</div>
-                <div>
-                  <span v-for="(tag, i) in block.tags" :key="i" class="inline-block mr-2 mb-2 font-medium">{{ tag }}</span>
-                </div>
-              </template>
-              <!-- Other blocks: inline display -->
-              <template v-else>
-                <span v-for="(tag, i) in block.tags" :key="i" class="inline-block mr-2 mb-2">{{ tag }}</span>
-              </template>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div v-if="platformGuidelines.length" class="space-y-8">
-          <div
-            v-for="(section, sectionIndex) in platformGuidelines"
-            :key="sectionIndex"
-            class="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-5"
-          >
-            <h3 class="text-lg font-semibold text-[#3F4369] mb-4">{{ section.title }}</h3>
+          <div v-for="(block, index) in hashtagBlocks" :key="index" class="space-y-3">
+            <div>
+              <h4 class="text-[18px] font-bold tracking-[-0.9px] text-black mb-1">{{ block.title }}</h4>
+              <p class="text-[14px] text-purple/70 tracking-[-0.7px]">{{ block.description }}</p>
+            </div>
 
-            <div class="space-y-4">
-              <div
-                v-for="(item, itemIndex) in section.items"
-                :key="itemIndex"
-                class="space-y-1"
+            <div class="relative bg-light-grey rounded-[20px] border-4 border-rose p-4 pr-14">
+              <button
+                type="button"
+                class="absolute top-3 right-3 w-9 h-9 rounded-[12px] bg-red shadow-[0_8px_18px_rgba(243,71,103,0.28)] text-white flex items-center justify-center hover:bg-red-dark disabled:opacity-60"
+                :disabled="copying"
+                @click="copyBlock(block.tags)"
               >
-                <h4 v-if="item.subtitle" class="text-sm font-medium text-[#3F4369]">
-                  {{ item.subtitle }}
-                </h4>
-                <p class="text-sm text-[#3F4369] opacity-80 leading-relaxed">
-                  {{ item.text }}
-                </p>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2V8m-6 12H8a2 2 0 01-2-2v-6m6 8l6-6" />
+                </svg>
+              </button>
+
+              <div class="text-black break-words">
+                <template v-if="(block.title === '5 – Branded' || block.title === '5 – Marke') && isBrandedFormat(block.tags)">
+                  <div v-for="(item, i) in block.tags" :key="i" class="mb-3 last:mb-0">
+                    <span class="font-medium">{{ item.tag || item }}</span>
+                    <span v-if="item.description" class="text-purple/70 ml-2">({{ item.description }})</span>
+                  </div>
+                </template>
+                <template v-else-if="(block.title === '3 – Industry & Expertise' || block.title === '3 – Branche & Expertise') && block.categories">
+                  <div v-for="(tags, categoryName, index) in block.categories" :key="categoryName" :class="{'mt-4': index > 0}">
+                    <div class="mb-2 text-[14px] font-bold tracking-[-0.7px] text-black">{{ categoryName }}:</div>
+                    <div>
+                      <span
+                        v-for="(tag, i) in tags"
+                        :key="i"
+                        class="inline-flex items-center mr-2 mb-2 px-2.5 py-1 rounded-full bg-white text-[13px] tracking-[-0.5px] text-purple"
+                      >{{ tag }}</span>
+                    </div>
+                  </div>
+                </template>
+                <template v-else-if="block.title === '4 – Niche' || block.title === '4 – Nische'">
+                  <div class="mb-2 text-[13px] text-purple/70 italic">{{ LOCALES[userLanguage]?.nicheExamplePrefix || LOCALES.en.nicheExamplePrefix }}</div>
+                  <div>
+                    <span
+                      v-for="(tag, i) in block.tags"
+                      :key="i"
+                      class="inline-flex items-center mr-2 mb-2 px-2.5 py-1 rounded-full bg-white text-[13px] font-medium tracking-[-0.5px] text-black"
+                    >{{ tag }}</span>
+                  </div>
+                </template>
+                <template v-else>
+                  <span
+                    v-for="(tag, i) in block.tags"
+                    :key="i"
+                    class="inline-flex items-center mr-2 mb-2 px-2.5 py-1 rounded-full bg-white text-[13px] tracking-[-0.5px] text-purple"
+                  >{{ tag }}</span>
+                </template>
               </div>
+            </div>
+          </div>
+
+          <div v-if="platformGuidelines.length" class="space-y-4">
+            <div
+              v-for="(section, sectionIndex) in platformGuidelines"
+              :key="sectionIndex"
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-5"
+            >
+              <h3 class="text-[18px] font-bold tracking-[-0.9px] text-black mb-4">{{ section.title }}</h3>
+              <div class="space-y-4">
+                <div
+                  v-for="(item, itemIndex) in section.items"
+                  :key="itemIndex"
+                  class="space-y-1"
+                >
+                  <h4 v-if="item.subtitle" class="text-[14px] font-bold tracking-[-0.7px] text-black">
+                    {{ item.subtitle }}
+                  </h4>
+                  <p class="text-[14px] text-purple/70 tracking-[-0.7px] leading-relaxed">
+                    {{ item.text }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <teleport to="body">
-    <transition name="toast">
-      <div
-        v-if="copyMessage"
-        class="toast-container fixed bottom-6 left-6 z-50"
-      >
-        <div class="pointer-events-auto flex items-center gap-2 rounded-lg bg-green-100 px-4 py-3 text-sm text-green-800 shadow-lg border border-green-200">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <span>{{ copyMessage }}</span>
+    <teleport to="body">
+      <transition name="toast">
+        <div
+          v-if="copyMessage"
+          class="toast-container fixed bottom-6 left-6 z-50"
+        >
+          <div class="pointer-events-auto flex items-center gap-2 rounded-[16px] bg-black px-4 py-3 text-[14px] text-white shadow-[0_8px_24px_rgba(28,26,27,0.18)]">
+            <svg class="h-4 w-4 text-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>{{ copyMessage }}</span>
+          </div>
         </div>
-      </div>
-    </transition>
-  </teleport>
+      </transition>
+    </teleport>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
-import logoWhite from '@/assets/images/logos/logo-white.svg'
 import { useLanguageStore } from '@/stores/language'
 
 const languageStore = useLanguageStore()

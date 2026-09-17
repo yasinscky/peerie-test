@@ -5,8 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TaskResource\Pages;
 use App\Filament\Resources\TaskResource\RelationManagers;
 use App\Models\Task;
-use Filament\Forms\Components\ViewField;
 use Filament\Forms;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -182,6 +182,7 @@ class TaskResource extends Resource
                     ->options([
                         2 => '2 hours',
                         4 => '4 hours',
+                        6 => '6 hours',
                     ])
                     ->multiple()
                     ->native(false)
@@ -219,6 +220,74 @@ class TaskResource extends Resource
                     ->native(false)
                     ->required(),
 
+                Forms\Components\Section::make('16. Document')
+                    ->description('If this instruction has input fields, a document with the same fields appears in Documents. Use the same Document key on EN and DE tasks to share one document.')
+                    ->schema([
+                        Forms\Components\TextInput::make('document_key')
+                            ->label('Document key')
+                            ->maxLength(80)
+                            ->placeholder('buyer-persona')
+                            ->helperText('Slug, e.g. competitor-map. Leave empty to match an existing template by title.'),
+                        Forms\Components\Select::make('document_group')
+                            ->label('Documents group')
+                            ->options([
+                                'brand' => 'Brand',
+                                'planning' => 'Planning',
+                            ])
+                            ->native(false),
+                        Forms\Components\Select::make('document_layout')
+                            ->label('Layout')
+                            ->options([
+                                'fields' => 'Form fields',
+                                'rows' => 'Table rows',
+                                'categories' => 'Idea lists',
+                            ])
+                            ->default('fields')
+                            ->live()
+                            ->native(false),
+                        Forms\Components\TextInput::make('document_short_label')
+                            ->label('Short label')
+                            ->maxLength(120),
+                        Forms\Components\Textarea::make('document_description')
+                            ->label('Document description')
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Forms\Components\Repeater::make('document_fields')
+                            ->label('Input fields')
+                            ->schema([
+                                Forms\Components\TextInput::make('label')
+                                    ->label('Label')
+                                    ->required()
+                                    ->maxLength(120),
+                                Forms\Components\TextInput::make('key')
+                                    ->label('Key')
+                                    ->maxLength(80)
+                                    ->helperText('Optional. Auto-generated from the label.'),
+                                Forms\Components\Select::make('type')
+                                    ->label('Type')
+                                    ->options([
+                                        'text' => 'Short text',
+                                        'textarea' => 'Long text',
+                                    ])
+                                    ->default('text')
+                                    ->required()
+                                    ->native(false),
+                                Forms\Components\TextInput::make('step')
+                                    ->label('Step')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->default(1)
+                                    ->visible(fn (Get $get) => ($get('../../document_layout') ?? 'fields') === 'fields'),
+                            ])
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['label'] ?? $state['key'] ?? 'Field')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed(),
+
                 Forms\Components\RichEditor::make('description')
                     ->label('15. Instruction')
                     ->required()
@@ -239,7 +308,7 @@ class TaskResource extends Resource
                         'undo',
                     ])
                     ->columnSpanFull(),
-                ViewField::make('instruction_preview')
+                Forms\Components\ViewField::make('instruction_preview')
                     ->label('Instruction preview')
                     ->view('filament.forms.components.task-instruction-preview')
                     ->statePath('description')
@@ -555,6 +624,7 @@ class TaskResource extends Resource
                     ->options([
                         2 => '2 hours',
                         4 => '4 hours',
+                        6 => '6 hours',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if (!empty($data['values'])) {

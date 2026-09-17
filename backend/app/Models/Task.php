@@ -36,6 +36,12 @@ class Task extends Model
         'conditions',
         'prerequisites',
         'template',
+        'document_key',
+        'document_group',
+        'document_layout',
+        'document_short_label',
+        'document_description',
+        'document_fields',
     ];
 
     /**
@@ -53,7 +59,59 @@ class Task extends Model
         'allowed_capacities' => 'array',
         'conditions' => 'array',
         'prerequisites' => 'array',
+        'document_fields' => 'array',
     ];
+
+    public static function normalizeDocumentPayload(array $data): array
+    {
+        $fields = is_array($data['document_fields'] ?? null) ? $data['document_fields'] : [];
+        $normalized = [];
+        foreach ($fields as $field) {
+            if (!is_array($field)) {
+                continue;
+            }
+            $key = trim((string) ($field['key'] ?? ''));
+            $label = trim((string) ($field['label'] ?? ''));
+            if ($key === '' && $label !== '') {
+                $key = str_replace('-', '_', \Illuminate\Support\Str::slug($label, '_'));
+            }
+            $key = str_replace('-', '_', \Illuminate\Support\Str::slug($key, '_'));
+            if ($key === '') {
+                continue;
+            }
+            $type = ($field['type'] ?? 'text') === 'textarea' ? 'textarea' : 'text';
+            $normalized[] = [
+                'key' => $key,
+                'type' => $type,
+                'step' => max(1, (int) ($field['step'] ?? 1)),
+                'label' => $label !== '' ? $label : $key,
+            ];
+        }
+        $data['document_fields'] = $normalized;
+
+        $documentKey = trim((string) ($data['document_key'] ?? ''));
+        if ($documentKey === '' && $normalized !== []) {
+            $documentKey = (string) ($data['title'] ?? 'document');
+        }
+        $data['document_key'] = $documentKey !== ''
+            ? \Illuminate\Support\Str::slug($documentKey)
+            : null;
+
+        $layout = $data['document_layout'] ?? null;
+        $data['document_layout'] = in_array($layout, ['fields', 'rows', 'categories'], true) ? $layout : ($normalized !== [] ? 'fields' : null);
+
+        $group = $data['document_group'] ?? null;
+        $data['document_group'] = in_array($group, ['brand', 'planning'], true) ? $group : ($normalized !== [] ? 'planning' : null);
+
+        if ($normalized === [] && empty($data['document_key'])) {
+            $data['document_layout'] = null;
+            $data['document_group'] = null;
+            $data['document_short_label'] = null;
+            $data['document_description'] = null;
+        }
+
+        return $data;
+    }
 
     protected function getLocalPresenceOptionsAttribute($value)
     {
@@ -74,7 +132,7 @@ class Task extends Model
     public function plans()
     {
         return $this->belongsToMany(Plan::class, 'plan_tasks')
-                    ->withPivot(['week', 'completed', 'notes'])
+                    ->withPivot(['id', 'week', 'year', 'month', 'completed', 'notes'])
                     ->withTimestamps();
     }
 
