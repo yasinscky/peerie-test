@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class ContentIdeaResource extends Resource
 {
@@ -30,9 +31,15 @@ class ContentIdeaResource extends Resource
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
+
     protected static ?string $navigationLabel = 'Content Ideas';
+
     protected static ?string $modelLabel = 'Content Idea';
+
     protected static ?string $pluralModelLabel = 'Content Ideas';
+
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static ?string $navigationGroup = 'Content';
 
     public static function form(Form $form): Form
@@ -129,11 +136,11 @@ class ContentIdeaResource extends Resource
                 Tables\Columns\IconColumn::make('hashtags')
                     ->label('Has Hashtags')
                     ->boolean()
-                    ->getStateUsing(fn (ContentIdea $record): bool => !empty($record->hashtags)),
+                    ->getStateUsing(fn (ContentIdea $record): bool => ! empty($record->hashtags)),
                 Tables\Columns\IconColumn::make('tips')
                     ->label('Has Tips')
                     ->boolean()
-                    ->getStateUsing(fn (ContentIdea $record): bool => !empty($record->tips)),
+                    ->getStateUsing(fn (ContentIdea $record): bool => ! empty($record->tips)),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime()
@@ -196,6 +203,21 @@ class ContentIdeaResource extends Resource
             'index' => Pages\ListContentIdeas::route('/'),
             'create' => Pages\CreateContentIdea::route('/create'),
             'edit' => Pages\EditContentIdea::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'caption', 'hashtags'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        $date = $record->getAttribute('date');
+
+        return [
+            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
+            'Date' => $date?->format('d M Y') ?: '—',
         ];
     }
 }

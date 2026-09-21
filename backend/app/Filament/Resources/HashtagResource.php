@@ -3,24 +3,27 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\HashtagResource\Pages;
-use App\Filament\Resources\HashtagResource\RelationManagers;
 use App\Models\Hashtag;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
 
 class HashtagResource extends Resource
 {
     protected static ?string $model = Hashtag::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-hashtag';
+
     protected static ?string $navigationLabel = 'Hashtags';
+
     protected static ?string $modelLabel = 'Hashtag';
+
     protected static ?string $pluralModelLabel = 'Hashtags';
+
+    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Form $form): Form
     {
@@ -61,7 +64,7 @@ class HashtagResource extends Resource
                             ->maxLength(255)
                             ->placeholder('Example: Beauty Salon - IRL'),
                     ]),
-                
+
                 Forms\Components\Section::make('Intro')
                     ->schema([
                         Forms\Components\TextInput::make('intro_title')
@@ -233,6 +236,20 @@ class HashtagResource extends Resource
             'index' => Pages\ListHashtags::route('/'),
             'create' => Pages\CreateHashtag::route('/create'),
             'edit' => Pages\EditHashtag::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'intro_title', 'industry', 'country'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Industry' => (string) ($record->getAttribute('industry') ?: '—'),
+            'Country' => strtoupper((string) ($record->getAttribute('country') ?: '')) ?: '—',
+            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
         ];
     }
 }
