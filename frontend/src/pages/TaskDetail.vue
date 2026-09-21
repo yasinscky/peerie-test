@@ -504,6 +504,7 @@ onUnmounted(() => {
 <style scoped>
 .instruction-content {
   font-family: 'Manrope', system-ui, sans-serif;
+  overflow-x: auto;
 }
 
 .instruction-content :deep(ul) {
@@ -531,6 +532,26 @@ onUnmounted(() => {
 .instruction-content :deep(h2),
 .instruction-content :deep(h3) {
   font-family: 'Switzer', system-ui, sans-serif;
+  color: rgb(var(--color-black));
+}
+
+.instruction-content :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.instruction-content :deep(th),
+.instruction-content :deep(td) {
+  border: 1px solid rgb(var(--color-grey));
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.instruction-content :deep(th) {
+  background: rgb(var(--color-light-grey));
+  font-weight: 700;
   color: rgb(var(--color-black));
 }
 </style>

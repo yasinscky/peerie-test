@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class ResourceFileResource extends Resource
@@ -17,9 +18,15 @@ class ResourceFileResource extends Resource
     protected static ?string $model = ResourceFile::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-arrow-down';
+
     protected static ?string $navigationLabel = 'Resource Files';
+
     protected static ?string $modelLabel = 'Resource File';
+
     protected static ?string $pluralModelLabel = 'Resource Files';
+
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static ?string $navigationGroup = 'Content';
 
     public static function form(Form $form): Form
@@ -59,7 +66,8 @@ class ResourceFileResource extends Resource
                             ])
                             ->directory(function ($get, $record) {
                                 $lang = $get('language') ?? ($record?->language ?? 'en');
-                                return 'resources/' . $lang;
+
+                                return 'resources/'.$lang;
                             })
                             ->visibility('private')
                             ->required(fn ($context) => $context === 'create')
@@ -166,6 +174,19 @@ class ResourceFileResource extends Resource
             'index' => Pages\ListResourceFiles::route('/'),
             'create' => Pages\CreateResourceFile::route('/create'),
             'edit' => Pages\EditResourceFile::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'original_filename'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
+            'File' => (string) ($record->getAttribute('original_filename') ?: '—'),
         ];
     }
 }

@@ -7,10 +7,12 @@ use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -18,9 +20,15 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
+
     protected static ?string $navigationLabel = 'Users';
+
     protected static ?string $modelLabel = 'User';
+
     protected static ?string $pluralModelLabel = 'Users';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -52,7 +60,7 @@ class UserResource extends Resource
                             ->helperText('Administrators have access to the admin panel')
                             ->default(false),
                     ]),
-                
+
                 Forms\Components\Section::make('Additional information')
                     ->schema([
                         Forms\Components\DateTimePicker::make('email_verified_at')
@@ -171,11 +179,11 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()
+                Tables\Actions\DeleteAction::make()
                     ->requiresConfirmation()
                     ->before(function (Tables\Actions\DeleteAction $action, User $record) {
                         if (auth()->id() === $record->id) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->danger()
                                 ->title('You cannot delete your own account')
                                 ->send();
@@ -189,7 +197,7 @@ class UserResource extends Resource
                         ->requiresConfirmation()
                         ->before(function (Tables\Actions\DeleteBulkAction $action, $records) {
                             if ($records->contains('id', auth()->id())) {
-                                \Filament\Notifications\Notification::make()
+                                Notification::make()
                                     ->danger()
                                     ->title('You cannot delete your own account')
                                     ->title('You cannot delete your own account')
@@ -218,5 +226,16 @@ class UserResource extends Resource
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
-}
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'email'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Email' => (string) ($record->getAttribute('email') ?: '—'),
+        ];
+    }
+}

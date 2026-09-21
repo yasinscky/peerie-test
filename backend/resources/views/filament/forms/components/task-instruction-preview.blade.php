@@ -7,6 +7,25 @@
         $hasContent = filled($description);
     @endphp
 
+    <style>
+        .instruction-preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .instruction-preview-content th,
+        .instruction-preview-content td {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+        .instruction-preview-content th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+    </style>
+
     <div x-data="{ open: false }" class="space-y-3">
         @if ($hasContent)
             <button
@@ -30,7 +49,7 @@
                         Instruction preview (dashboard)
                     </h2>
 
-                    <div class="prose max-w-none text-sm leading-relaxed text-gray-800">
+                    <div class="prose max-w-none text-sm leading-relaxed text-gray-800 instruction-preview-content">
                         {!! $description !!}
                     </div>
                 </div>

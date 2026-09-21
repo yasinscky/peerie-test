@@ -2,26 +2,31 @@
 
 namespace App\Filament\Resources;
 
+use AmidEsfahani\FilamentTinyEditor\TinyEditor;
 use App\Filament\Resources\TaskResource\Pages;
-use App\Filament\Resources\TaskResource\RelationManagers;
 use App\Models\Task;
 use Filament\Forms;
-use Filament\Forms\Get;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
 
 class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+
     protected static ?string $navigationLabel = 'Tasks';
+
     protected static ?string $modelLabel = 'Task';
+
     protected static ?string $pluralModelLabel = 'Tasks';
+
+    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Form $form): Form
     {
@@ -104,11 +109,11 @@ class TaskResource extends Resource
                             ->itemLabel(function (array $state): ?string {
                                 $condition = $state['condition'] ?? null;
                                 $value = $state['value'] ?? null;
-                                
-                                if (!$condition) {
+
+                                if (! $condition) {
                                     return 'New prerequisite';
                                 }
-                                
+
                                 $conditionLabels = [
                                     'business_goals_defined' => 'Business goals defined',
                                     'marketing_goals_defined' => 'Marketing goals defined',
@@ -122,11 +127,11 @@ class TaskResource extends Resource
                                     'has_primary_social_channel' => 'Primary social channel',
                                     'has_secondary_social_channel' => 'Secondary social channel',
                                 ];
-                                
+
                                 $label = $conditionLabels[$condition] ?? $condition;
                                 $valueLabel = $value === 'no' ? 'No (when answer is No)' : 'Yes (when answer is Yes)';
-                                
-                                return $label . ': ' . $valueLabel;
+
+                                return $label.': '.$valueLabel;
                             })
                             ->helperText('Add prerequisites based on questionnaire answers. If condition is "No", task will be shown.'),
                     ])
@@ -288,25 +293,17 @@ class TaskResource extends Resource
                     ->collapsible()
                     ->collapsed(),
 
-                Forms\Components\RichEditor::make('description')
+                TinyEditor::make('description')
                     ->label('15. Instruction')
+                    ->profile('instruction')
+                    ->fileAttachmentsDisk('public')
+                    ->fileAttachmentsDirectory('task-instructions')
+                    ->minHeight(420)
+                    ->minWidth(0)
+                    ->toolbarMode('wrap')
+                    ->resize('both')
+                    ->live(onBlur: true)
                     ->required()
-                    ->toolbarButtons([
-                        'attachFiles',
-                        'blockquote',
-                        'bold',
-                        'bulletList',
-                        'codeBlock',
-                        'h2',
-                        'h3',
-                        'italic',
-                        'link',
-                        'orderedList',
-                        'redo',
-                        'strike',
-                        'underline',
-                        'undo',
-                    ])
                     ->columnSpanFull(),
                 Forms\Components\ViewField::make('instruction_preview')
                     ->label('Instruction preview')
@@ -325,32 +322,7 @@ class TaskResource extends Resource
                     ->label('ActionID')
                     ->searchable()
                     ->sortable()
-                    ->formatStateUsing(function ($state, Task $record) {
-                        $number = is_numeric($state) ? (int) $state : null;
-
-                        if ($number === null) {
-                            return '—';
-                        }
-
-                        $prefix = match ($record->category) {
-                            'Goals' => 'G',
-                            'Digital Marketing Foundations' => 'F',
-                            'Local SEO' => 'SEO',
-                            'Content' => 'CON',
-                            'Social Media' => 'SM',
-                            'Website' => 'WEB',
-                            'Email Marketing' => 'EM',
-                            'Paid Advertising' => 'PA',
-                            'CRM' => 'CRM',
-                            default => '',
-                        };
-
-                        $formattedNumber = str_pad((string) $number, 3, '0', STR_PAD_LEFT);
-
-                        return $prefix !== ''
-                            ? $prefix . '-' . $formattedNumber
-                            : $formattedNumber;
-                    }),
+                    ->formatStateUsing(fn ($state, Task $record) => $record->formattedActionId()),
                 Tables\Columns\TextColumn::make('global_order')
                     ->label('GlobalOrder')
                     ->sortable(),
@@ -370,7 +342,7 @@ class TaskResource extends Resource
                     ->formatStateUsing(function ($state, Task $record) {
                         $prerequisites = $record->prerequisites ?? [];
 
-                        if (!is_array($prerequisites) || empty($prerequisites)) {
+                        if (! is_array($prerequisites) || empty($prerequisites)) {
                             return '—';
                         }
 
@@ -391,13 +363,13 @@ class TaskResource extends Resource
                         $conditions = [];
 
                         foreach ($prerequisites as $prerequisite) {
-                            if (!isset($prerequisite['condition'], $prerequisite['value'])) {
+                            if (! isset($prerequisite['condition'], $prerequisite['value'])) {
                                 continue;
                             }
 
                             $label = $conditionLabels[$prerequisite['condition']] ?? $prerequisite['condition'];
                             $valueLabel = $prerequisite['value'] === 'no' ? 'No' : 'Yes';
-                            $conditions[] = $label . ': ' . $valueLabel;
+                            $conditions[] = $label.': '.$valueLabel;
                         }
 
                         return count($conditions) > 0 ? implode(', ', $conditions) : '—';
@@ -510,14 +482,14 @@ class TaskResource extends Resource
                     ->formatStateUsing(function ($state) {
                         if (is_array($state) && count($state) > 0) {
                             $labels = array_map(function ($value) {
-                                return (string) $value . 'h';
+                                return (string) $value.'h';
                             }, $state);
 
                             return implode(', ', $labels);
                         }
 
                         if ($state !== null && $state !== '') {
-                            return (string) $state . 'h';
+                            return (string) $state.'h';
                         }
 
                         return '—';
@@ -525,7 +497,7 @@ class TaskResource extends Resource
                     ->badge(),
                 Tables\Columns\TextColumn::make('duration_minutes')
                     ->label('EffortMin')
-                    ->formatStateUsing(fn ($state) => $state ? $state . ' min' : '—')
+                    ->formatStateUsing(fn ($state) => $state ? $state.' min' : '—')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('local_presence_options')
                     ->label('LocalPresence')
@@ -533,6 +505,7 @@ class TaskResource extends Resource
                         if (is_array($state) && count($state) > 0) {
                             return $state[0];
                         }
+
                         return $state ?? '—';
                     })
                     ->badge(),
@@ -583,13 +556,14 @@ class TaskResource extends Resource
                         'DE' => 'Germany (DE)',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['values'])) {
+                        if (! empty($data['values'])) {
                             return $query->where(function (Builder $q) use ($data) {
                                 foreach ($data['values'] as $country) {
                                     $q->orWhereJsonContains('target_countries', $country);
                                 }
                             });
                         }
+
                         return $query;
                     })
                     ->multiple(),
@@ -602,20 +576,21 @@ class TaskResource extends Resource
                         'coaching' => 'Coaching',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['values'])) {
+                        if (! empty($data['values'])) {
                             return $query->where(function (Builder $q) use ($data) {
                                 foreach ($data['values'] as $industry) {
                                     if ($industry === 'all') {
                                         $q->orWhereJsonContains('target_industries', 'all')
-                                          ->orWhereNull('target_industries')
-                                          ->orWhere('target_industries', '[]');
+                                            ->orWhereNull('target_industries')
+                                            ->orWhere('target_industries', '[]');
                                     } else {
                                         $q->orWhereJsonContains('target_industries', $industry)
-                                          ->orWhereJsonContains('target_industries', 'all');
+                                            ->orWhereJsonContains('target_industries', 'all');
                                     }
                                 }
                             });
                         }
+
                         return $query;
                     })
                     ->multiple(),
@@ -627,13 +602,14 @@ class TaskResource extends Resource
                         6 => '6 hours',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['values'])) {
+                        if (! empty($data['values'])) {
                             return $query->where(function (Builder $q) use ($data) {
                                 foreach ($data['values'] as $capacity) {
                                     $q->orWhereJsonContains('allowed_capacities', (int) $capacity);
                                 }
                             });
                         }
+
                         return $query;
                     })
                     ->multiple(),
@@ -687,18 +663,19 @@ class TaskResource extends Resource
                         if ($data['value'] === true) {
                             return $query->where(function (Builder $q) {
                                 $q->whereNotNull('prerequisites')
-                                  ->where('prerequisites', '!=', '[]')
-                                  ->where('prerequisites', '!=', 'null')
-                                  ->whereRaw("JSON_LENGTH(prerequisites) > 0");
+                                    ->where('prerequisites', '!=', '[]')
+                                    ->where('prerequisites', '!=', 'null')
+                                    ->whereRaw('JSON_LENGTH(prerequisites) > 0');
                             });
                         } elseif ($data['value'] === false) {
                             return $query->where(function (Builder $q) {
                                 $q->whereNull('prerequisites')
-                                  ->orWhere('prerequisites', '[]')
-                                  ->orWhere('prerequisites', 'null')
-                                  ->orWhereRaw("JSON_LENGTH(prerequisites) = 0");
+                                    ->orWhere('prerequisites', '[]')
+                                    ->orWhere('prerequisites', 'null')
+                                    ->orWhereRaw('JSON_LENGTH(prerequisites) = 0');
                             });
                         }
+
                         return $query;
                     }),
             ])
@@ -708,7 +685,7 @@ class TaskResource extends Resource
                 Tables\Actions\ReplicateAction::make()
                     ->label('Duplicate')
                     ->beforeReplicaSaved(function (Task $replica): void {
-                        $replica->title = $replica->title . ' (Copy)';
+                        $replica->title = $replica->title.' (Copy)';
                         $replica->global_order = ($replica->global_order ?? 0) + 1;
                     })
                     ->successNotificationTitle('Task duplicated successfully'),
@@ -736,5 +713,62 @@ class TaskResource extends Resource
             'create' => Pages\CreateTask::route('/create'),
             'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['title', 'short_description', 'description', 'category'];
+    }
+
+    public static function getGlobalSearchResultTitle(Model $record): string
+    {
+        $actionId = $record instanceof Task ? $record->formattedActionId() : '—';
+
+        if ($actionId === '—') {
+            return (string) $record->getAttribute('title');
+        }
+
+        return $actionId.' — '.$record->getAttribute('title');
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Category' => (string) ($record->getAttribute('category') ?: '—'),
+            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
+        ];
+    }
+
+    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
+    {
+        $trimmed = trim($search);
+
+        if ($trimmed === '') {
+            return;
+        }
+
+        $number = null;
+        $category = null;
+
+        if (preg_match('/^(G|F|SEO|CON|SM|WEB|EM|PA|CRM)[-\s]?0*(\d+)$/i', $trimmed, $matches)) {
+            $category = Task::categoryFromActionIdPrefix($matches[1]);
+            $number = (int) $matches[2];
+        } elseif (preg_match('/^0*(\d+)$/', $trimmed, $matches)) {
+            $number = (int) $matches[1];
+        }
+
+        if ($number === null) {
+            return;
+        }
+
+        $query->orWhere(function (Builder $actionQuery) use ($number, $category) {
+            $actionQuery->where('action_id', $number);
+
+            if ($category !== null) {
+                $actionQuery->where('category', $category);
+            }
+        });
+
+        $query->orderByRaw('CASE WHEN action_id = ? THEN 0 ELSE 1 END', [$number]);
     }
 }

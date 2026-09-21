@@ -2,8 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use App\Http\Middleware\IsAdminMiddleware;
 use App\Http\Middleware\FilamentAdminAuthenticate;
+use App\Http\Middleware\IsAdminMiddleware;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -33,6 +33,8 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Task extends Model
 {
@@ -67,15 +68,15 @@ class Task extends Model
         $fields = is_array($data['document_fields'] ?? null) ? $data['document_fields'] : [];
         $normalized = [];
         foreach ($fields as $field) {
-            if (!is_array($field)) {
+            if (! is_array($field)) {
                 continue;
             }
             $key = trim((string) ($field['key'] ?? ''));
             $label = trim((string) ($field['label'] ?? ''));
             if ($key === '' && $label !== '') {
-                $key = str_replace('-', '_', \Illuminate\Support\Str::slug($label, '_'));
+                $key = str_replace('-', '_', Str::slug($label, '_'));
             }
-            $key = str_replace('-', '_', \Illuminate\Support\Str::slug($key, '_'));
+            $key = str_replace('-', '_', Str::slug($key, '_'));
             if ($key === '') {
                 continue;
             }
@@ -94,7 +95,7 @@ class Task extends Model
             $documentKey = (string) ($data['title'] ?? 'document');
         }
         $data['document_key'] = $documentKey !== ''
-            ? \Illuminate\Support\Str::slug($documentKey)
+            ? Str::slug($documentKey)
             : null;
 
         $layout = $data['document_layout'] ?? null;
@@ -116,24 +117,74 @@ class Task extends Model
     protected function getLocalPresenceOptionsAttribute($value)
     {
         if (is_array($value)) {
-            return !empty($value) ? $value[0] : 'any';
+            return ! empty($value) ? $value[0] : 'any';
         }
+
         return $value ?? 'any';
     }
 
     protected function getTemplateAttribute($value)
     {
         if (is_array($value)) {
-            return !empty($value) ? $value[0] : 'no';
+            return ! empty($value) ? $value[0] : 'no';
         }
+
         return $value ?? 'no';
+    }
+
+    public static function actionIdPrefix(?string $category): string
+    {
+        return match ($category) {
+            'Goals' => 'G',
+            'Digital Marketing Foundations' => 'F',
+            'Local SEO' => 'SEO',
+            'Content' => 'CON',
+            'Social Media' => 'SM',
+            'Website' => 'WEB',
+            'Email Marketing' => 'EM',
+            'Paid Advertising' => 'PA',
+            'CRM' => 'CRM',
+            default => '',
+        };
+    }
+
+    public static function categoryFromActionIdPrefix(string $prefix): ?string
+    {
+        return match (strtoupper($prefix)) {
+            'G' => 'Goals',
+            'F' => 'Digital Marketing Foundations',
+            'SEO' => 'Local SEO',
+            'CON' => 'Content',
+            'SM' => 'Social Media',
+            'WEB' => 'Website',
+            'EM' => 'Email Marketing',
+            'PA' => 'Paid Advertising',
+            'CRM' => 'CRM',
+            default => null,
+        };
+    }
+
+    public function formattedActionId(): string
+    {
+        $number = is_numeric($this->action_id) ? (int) $this->action_id : null;
+
+        if ($number === null) {
+            return '—';
+        }
+
+        $prefix = self::actionIdPrefix($this->category);
+        $formattedNumber = str_pad((string) $number, 3, '0', STR_PAD_LEFT);
+
+        return $prefix !== ''
+            ? $prefix.'-'.$formattedNumber
+            : $formattedNumber;
     }
 
     public function plans()
     {
         return $this->belongsToMany(Plan::class, 'plan_tasks')
-                    ->withPivot(['id', 'week', 'year', 'month', 'completed', 'notes'])
-                    ->withTimestamps();
+            ->withPivot(['id', 'week', 'year', 'month', 'completed', 'notes'])
+            ->withTimestamps();
     }
 
     /**

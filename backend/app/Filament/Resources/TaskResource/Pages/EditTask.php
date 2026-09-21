@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\TaskResource\Pages;
 
 use App\Filament\Resources\TaskResource;
+use App\Models\Task;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -29,7 +30,7 @@ class EditTask extends EditRecord
 
         if (isset($data['local_presence_options'])) {
             if (is_array($data['local_presence_options'])) {
-                $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
+                $data['local_presence_options'] = ! empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
             } elseif (empty($data['local_presence_options'])) {
                 $data['local_presence_options'] = 'any';
             }
@@ -39,7 +40,7 @@ class EditTask extends EditRecord
 
         if (isset($data['template'])) {
             if (is_array($data['template'])) {
-                $data['template'] = !empty($data['template']) ? $data['template'][0] : 'no';
+                $data['template'] = ! empty($data['template']) ? $data['template'][0] : 'no';
             } elseif (empty($data['template'])) {
                 $data['template'] = 'no';
             }
@@ -76,7 +77,7 @@ class EditTask extends EditRecord
 
         if (isset($data['local_presence_options'])) {
             if (is_array($data['local_presence_options'])) {
-                $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
+                $data['local_presence_options'] = ! empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
             } elseif (empty($data['local_presence_options'])) {
                 $data['local_presence_options'] = 'any';
             }
@@ -86,7 +87,7 @@ class EditTask extends EditRecord
 
         if (isset($data['template'])) {
             if (is_array($data['template'])) {
-                $data['template'] = !empty($data['template']) ? $data['template'][0] : 'no';
+                $data['template'] = ! empty($data['template']) ? $data['template'][0] : 'no';
             } elseif (empty($data['template'])) {
                 $data['template'] = 'no';
             }
@@ -102,11 +103,6 @@ class EditTask extends EditRecord
             $data['prerequisites'] = [];
         }
 
-        return \App\Models\Task::normalizeDocumentPayload($data);
-    }
-
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index', ['highlight' => $this->record->id]);
+        return Task::normalizeDocumentPayload($data);
     }
 }
