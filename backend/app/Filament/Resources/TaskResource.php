@@ -12,7 +12,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 class TaskResource extends Resource
 {
@@ -25,8 +24,6 @@ class TaskResource extends Resource
     protected static ?string $modelLabel = 'Task';
 
     protected static ?string $pluralModelLabel = 'Tasks';
-
-    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Form $form): Form
     {
@@ -299,10 +296,6 @@ class TaskResource extends Resource
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('task-instructions')
                     ->minHeight(420)
-                    ->minWidth(0)
-                    ->toolbarMode('wrap')
-                    ->resize('both')
-                    ->live(onBlur: true)
                     ->required()
                     ->columnSpanFull(),
                 Forms\Components\ViewField::make('instruction_preview')
@@ -317,14 +310,45 @@ class TaskResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Search ActionID, GlobalOrder or Action')
             ->columns([
                 Tables\Columns\TextColumn::make('action_id')
                     ->label('ActionID')
-                    ->searchable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $trimmed = trim($search);
+
+                        if (preg_match('/^(G|F|SEO|CON|SM|WEB|EM|PA|CRM)[-\s]?0*(\d+)$/i', $trimmed, $matches)) {
+                            $category = Task::categoryFromActionIdPrefix($matches[1]);
+                            $number = (int) $matches[2];
+
+                            return $query->orWhere(function (Builder $actionQuery) use ($category, $number) {
+                                $actionQuery->where('action_id', $number);
+
+                                if ($category !== null) {
+                                    $actionQuery->where('category', $category);
+                                }
+                            });
+                        }
+
+                        if (preg_match('/^0*(\d+)$/', $trimmed, $matches)) {
+                            return $query->orWhere('action_id', (int) $matches[1]);
+                        }
+
+                        return $query;
+                    })
                     ->sortable()
                     ->formatStateUsing(fn ($state, Task $record) => $record->formattedActionId()),
                 Tables\Columns\TextColumn::make('global_order')
                     ->label('GlobalOrder')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        $trimmed = trim($search);
+
+                        if (! preg_match('/^0*(\d+)$/', $trimmed, $matches)) {
+                            return $query;
+                        }
+
+                        return $query->orWhere('global_order', (int) $matches[1]);
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('category')
                     ->label('Category')
@@ -713,62 +737,5 @@ class TaskResource extends Resource
             'create' => Pages\CreateTask::route('/create'),
             'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
-    }
-
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['title', 'short_description', 'description', 'category'];
-    }
-
-    public static function getGlobalSearchResultTitle(Model $record): string
-    {
-        $actionId = $record instanceof Task ? $record->formattedActionId() : '—';
-
-        if ($actionId === '—') {
-            return (string) $record->getAttribute('title');
-        }
-
-        return $actionId.' — '.$record->getAttribute('title');
-    }
-
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        return [
-            'Category' => (string) ($record->getAttribute('category') ?: '—'),
-            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
-        ];
-    }
-
-    public static function modifyGlobalSearchQuery(Builder $query, string $search): void
-    {
-        $trimmed = trim($search);
-
-        if ($trimmed === '') {
-            return;
-        }
-
-        $number = null;
-        $category = null;
-
-        if (preg_match('/^(G|F|SEO|CON|SM|WEB|EM|PA|CRM)[-\s]?0*(\d+)$/i', $trimmed, $matches)) {
-            $category = Task::categoryFromActionIdPrefix($matches[1]);
-            $number = (int) $matches[2];
-        } elseif (preg_match('/^0*(\d+)$/', $trimmed, $matches)) {
-            $number = (int) $matches[1];
-        }
-
-        if ($number === null) {
-            return;
-        }
-
-        $query->orWhere(function (Builder $actionQuery) use ($number, $category) {
-            $actionQuery->where('action_id', $number);
-
-            if ($category !== null) {
-                $actionQuery->where('category', $category);
-            }
-        });
-
-        $query->orderByRaw('CASE WHEN action_id = ? THEN 0 ELSE 1 END', [$number]);
     }
 }
