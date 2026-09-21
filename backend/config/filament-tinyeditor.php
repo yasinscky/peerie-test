@@ -41,6 +41,9 @@ return [
             'plugins' => 'autoresize advlist autolink link image lists table',
             'toolbar' => 'undo redo | styles | bold italic underline strikethrough | bullist numlist | blockquote | table | link image | removeformat',
             'upload_directory' => 'task-instructions',
+            'custom_configs' => [
+                'language_url' => false,
+            ],
         ],
     ],
     'languages' => [],

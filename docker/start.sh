@@ -4,6 +4,16 @@
 export PORT=${PORT:-80}
 echo "Starting on port: $PORT"
 
+if [ -n "$APP_URL" ]; then
+  case "$APP_URL" in
+    http://localhost*|http://127.0.0.1*) ;;
+    http://*)
+      export APP_URL="https://${APP_URL#http://}"
+      echo "APP_URL forced to HTTPS: $APP_URL"
+      ;;
+  esac
+fi
+
 # Ожидание PostgreSQL (если DB_HOST установлен)
 if [ -n "$DB_HOST" ]; then
   DB_PORT_VAR="${DB_PORT:-5432}"

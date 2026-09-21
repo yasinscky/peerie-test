@@ -12,7 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->forceHttps();
     }
 
     /**
@@ -20,9 +20,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $appUrl = (string) config('app.url');
-        if ($this->app->environment('production') || str_starts_with($appUrl, 'https://')) {
-            URL::forceScheme('https');
+        $this->forceHttps();
+    }
+
+    private function forceHttps(): void
+    {
+        if ($this->app->environment('local')) {
+            return;
         }
+
+        URL::forceScheme('https');
     }
 }
