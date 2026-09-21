@@ -56,7 +56,9 @@ RUN mkdir -p bootstrap/cache storage/framework/cache/data \
 
 # Установка зависимостей (пропускаем скрипты - они требуют настроенного .env)
 # Скрипты выполним в start.sh после настройки окружения
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts \
+    && mkdir -p public/vendor \
+    && if [ -d vendor/tinymce/tinymce ]; then cp -R vendor/tinymce/tinymce public/vendor/tinymce; fi
 
 # PHP upload limits (for Livewire/Filament file uploads)
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/99-peerie.ini
