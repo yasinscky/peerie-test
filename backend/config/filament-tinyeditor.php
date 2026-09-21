@@ -9,7 +9,7 @@ return [
         ],
         'licence_key' => env('TINY_LICENSE_KEY', 'no-api-key'),
     ],
-    'provider' => 'cloud',
+    'provider' => 'vendor',
     'darkMode' => 'auto',
     'license_key' => 'gpl',
     'skins' => [
@@ -45,7 +45,6 @@ return [
     ],
     'languages' => [],
     'extra' => [
-        'content_style' => 'table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #d1d5db; padding: 8px; vertical-align: top; } th { background-color: #f3f4f6; font-weight: 600; }',
         'toolbar' => [],
     ],
 ];

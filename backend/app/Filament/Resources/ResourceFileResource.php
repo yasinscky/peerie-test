@@ -10,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class ResourceFileResource extends Resource
@@ -24,8 +23,6 @@ class ResourceFileResource extends Resource
     protected static ?string $modelLabel = 'Resource File';
 
     protected static ?string $pluralModelLabel = 'Resource Files';
-
-    protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?string $navigationGroup = 'Content';
 
@@ -174,19 +171,6 @@ class ResourceFileResource extends Resource
             'index' => Pages\ListResourceFiles::route('/'),
             'create' => Pages\CreateResourceFile::route('/create'),
             'edit' => Pages\EditResourceFile::route('/{record}/edit'),
-        ];
-    }
-
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['title', 'original_filename'];
-    }
-
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        return [
-            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
-            'File' => (string) ($record->getAttribute('original_filename') ?: '—'),
         ];
     }
 }

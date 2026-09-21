@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 
 class HashtagResource extends Resource
 {
@@ -22,8 +21,6 @@ class HashtagResource extends Resource
     protected static ?string $modelLabel = 'Hashtag';
 
     protected static ?string $pluralModelLabel = 'Hashtags';
-
-    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Form $form): Form
     {
@@ -236,20 +233,6 @@ class HashtagResource extends Resource
             'index' => Pages\ListHashtags::route('/'),
             'create' => Pages\CreateHashtag::route('/create'),
             'edit' => Pages\EditHashtag::route('/{record}/edit'),
-        ];
-    }
-
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['title', 'intro_title', 'industry', 'country'];
-    }
-
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        return [
-            'Industry' => (string) ($record->getAttribute('industry') ?: '—'),
-            'Country' => strtoupper((string) ($record->getAttribute('country') ?: '')) ?: '—',
-            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
         ];
     }
 }

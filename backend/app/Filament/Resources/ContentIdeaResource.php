@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 
 class ContentIdeaResource extends Resource
 {
@@ -37,8 +36,6 @@ class ContentIdeaResource extends Resource
     protected static ?string $modelLabel = 'Content Idea';
 
     protected static ?string $pluralModelLabel = 'Content Ideas';
-
-    protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?string $navigationGroup = 'Content';
 
@@ -203,21 +200,6 @@ class ContentIdeaResource extends Resource
             'index' => Pages\ListContentIdeas::route('/'),
             'create' => Pages\CreateContentIdea::route('/create'),
             'edit' => Pages\EditContentIdea::route('/{record}/edit'),
-        ];
-    }
-
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['title', 'caption', 'hashtags'];
-    }
-
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        $date = $record->getAttribute('date');
-
-        return [
-            'Language' => strtoupper((string) ($record->getAttribute('language') ?: '')) ?: '—',
-            'Date' => $date?->format('d M Y') ?: '—',
         ];
     }
 }
