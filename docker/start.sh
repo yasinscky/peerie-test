@@ -65,6 +65,15 @@ chmod -R 775 /var/www/html/storage/app
 chown -R www-data:www-data /var/www/html/storage/app
 echo "Livewire upload and resources directories ready"
 
+# TinyMCE for Filament instruction editor (not in git, copied from composer vendor)
+echo "Ensuring TinyMCE assets are published..."
+if [ ! -f /var/www/html/public/vendor/tinymce/tinymce.min.js ] && [ -d /var/www/html/vendor/tinymce/tinymce ]; then
+  mkdir -p /var/www/html/public/vendor
+  cp -R /var/www/html/vendor/tinymce/tinymce /var/www/html/public/vendor/tinymce
+  chown -R www-data:www-data /var/www/html/public/vendor/tinymce
+fi
+echo "TinyMCE assets ready"
+
 # Проверка PHP расширения Redis
 echo "Checking PHP Redis extension..."
 if php -m | grep -i redis > /dev/null 2>&1; then
