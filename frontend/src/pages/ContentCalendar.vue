@@ -259,10 +259,10 @@ const monthIdeas = ref([])
 const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
-      headerTitle: 'Content Ideen',
+      headerTitle: 'Content Calendar',
       headerSection: 'Erstellen',
-      headerCurrent: 'Content Ideen',
-      subtitle: 'Wähle einen Monat und erstelle Content-Ideen für dein Marketing',
+      headerCurrent: 'Content Calendar',
+      subtitle: 'Wähle einen Monat und plane Content für dein Marketing',
       monthSelector: 'Monat auswählen',
       loading: 'Lädt...',
       noIdeaFound: 'Keine Idee für dieses Datum gefunden',
@@ -274,10 +274,10 @@ const texts = computed(() => {
   }
 
   return {
-    headerTitle: 'Content Ideas',
+    headerTitle: 'Content Calendar',
     headerSection: 'Create',
-    headerCurrent: 'Content Ideas',
-    subtitle: 'Select a month and create content ideas for your marketing',
+    headerCurrent: 'Content Calendar',
+    subtitle: 'Select a month and plan content for your marketing',
     monthSelector: 'Select Month',
     loading: 'Loading...',
     noIdeaFound: 'No idea found for this date',

@@ -1,6 +1,39 @@
-import { worksheetKindFromTitle } from '@/data/worksheets'
+import { slugToKind, worksheetKindFromTitle } from '@/data/worksheets'
 
 const STEP_HEADING = /^(step|schritt)\s*\d+/i
+const ANSWER_HEADER = /^(your answers?|dein(?:e)? antwort(?:en)?)$/i
+
+export function stripAnswerTables(rawHtml) {
+  const html = String(rawHtml || '')
+  if (!html || !/<table/i.test(html)) return html
+
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  ;[...doc.querySelectorAll('table')].forEach((table) => {
+    const header = [...(table.rows[0]?.cells || [])].map((cell) => cell.textContent.replace(/\u00a0/g, ' ').trim())
+    if (!header.some((text) => ANSWER_HEADER.test(text))) return
+
+    let heading = null
+    let cursor = table.previousSibling
+    while (cursor) {
+      if (cursor.nodeType === 1 && /^H[1-3]$/.test(cursor.tagName)) {
+        heading = cursor
+        break
+      }
+      cursor = cursor.previousSibling
+    }
+
+    let current = heading || table
+    while (current) {
+      const next = current.nextSibling
+      const isTable = current === table
+      current.remove()
+      if (isTable) break
+      current = next
+    }
+  })
+
+  return doc.body.innerHTML
+}
 
 const emptyParsed = (html = '') => ({
   titleHtml: '',
@@ -9,6 +42,72 @@ const emptyParsed = (html = '') => ({
   outroHtml: '',
   hasPages: false,
 })
+
+function snapshotCell(cell) {
+  return {
+    tag: cell.tagName.toLowerCase(),
+    html: cell.innerHTML,
+    style: cell.getAttribute('style') || '',
+    className: cell.className || '',
+    align: cell.getAttribute('align') || '',
+  }
+}
+
+function cellIsEmpty(html) {
+  return String(html || '')
+    .replace(/&nbsp;|\u00a0/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .trim() === ''
+}
+
+function repairInstructionTables(doc) {
+  doc.querySelectorAll('table').forEach((table) => {
+    const rows = [...table.rows]
+    if (!rows.length) return
+    const spanned = [...table.querySelectorAll('td, th')].some((cell) => {
+      return Number(cell.getAttribute('rowspan') || 1) > 1 || Number(cell.getAttribute('colspan') || 1) > 1
+    })
+    const uneven = new Set(rows.map((row) => row.cells.length)).size > 1
+    if (!spanned && !uneven) return
+
+    const grid = []
+    rows.forEach((row, rowIndex) => {
+      let column = 0
+      ;[...row.cells].forEach((cell) => {
+        while (grid[rowIndex]?.[column]) column += 1
+        const rowspan = Math.max(1, Number(cell.getAttribute('rowspan') || 1))
+        const colspan = Math.max(1, Number(cell.getAttribute('colspan') || 1))
+        for (let rowOffset = 0; rowOffset < rowspan; rowOffset += 1) {
+          for (let columnOffset = 0; columnOffset < colspan; columnOffset += 1) {
+            if (!grid[rowIndex + rowOffset]) grid[rowIndex + rowOffset] = []
+            grid[rowIndex + rowOffset][column + columnOffset] = rowOffset === 0 && columnOffset === 0
+              ? snapshotCell(cell)
+              : { tag: cell.tagName.toLowerCase(), html: '', style: '', className: '', align: '' }
+          }
+        }
+        column += colspan
+      })
+    })
+
+    const width = Math.max(0, ...grid.map((row) => row.length))
+    const tbody = doc.createElement('tbody')
+    grid.forEach((row) => {
+      const tr = doc.createElement('tr')
+      for (let column = 0; column < width; column += 1) {
+        const snapshot = row[column] || { tag: 'td', html: '', style: '', className: '', align: '' }
+        const cell = doc.createElement(snapshot.tag === 'th' ? 'th' : 'td')
+        if (snapshot.style) cell.setAttribute('style', snapshot.style)
+        if (snapshot.className) cell.className = snapshot.className
+        if (snapshot.align) cell.setAttribute('align', snapshot.align)
+        cell.innerHTML = cellIsEmpty(snapshot.html) ? '\u00a0' : snapshot.html
+        tr.appendChild(cell)
+      }
+      tbody.appendChild(tr)
+    })
+    table.textContent = ''
+    table.appendChild(tbody)
+  })
+}
 
 function applyHeadingClass(el, className) {
   if (el) {
@@ -25,6 +124,7 @@ export function parseInstruction(rawHtml) {
   try {
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
+    repairInstructionTables(doc)
     const body = doc.body
 
     const titleEl = body?.querySelector('h1')

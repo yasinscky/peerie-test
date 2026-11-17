@@ -42,13 +42,13 @@
                 </router-link>
 
                 <router-link
-                  to="/dashboard/marketing-plans"
+                  to="/dashboard/action-steps"
                   class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
-                  :class="navLinkClass('/dashboard/marketing-plans')"
+                  :class="navLinkClass('/dashboard/action-steps')"
                   :title="sidebarCollapsed ? texts.yourMarketingPlan : ''"
                 >
                   <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
-                    <img :src="iconMarketingPlan" alt="" class="w-3.5 h-3.5">
+                    <img :src="iconActionSteps" alt="" class="w-3.5 h-3.5">
                   </span>
                   <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
                     {{ texts.yourMarketingPlan }}
@@ -60,7 +60,7 @@
                   class="ml-8 space-y-1 py-1"
                 >
                   <button
-                    v-for="monthOption in availableMonths"
+                    v-for="monthOption in visibleMonths"
                     :key="`${monthOption.year}-${monthOption.month}`"
                     type="button"
                     class="flex items-center gap-2 w-full text-left text-[14px] tracking-[-0.7px] transition-colors"
@@ -72,12 +72,20 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-red shrink-0" />
                     {{ formatMonth(monthOption.year, monthOption.month) }}
                   </button>
+                  <button
+                    v-if="availableMonths.length > 3"
+                    type="button"
+                    class="w-full text-left text-[14px] tracking-[-0.7px] text-purple/70 hover:text-red pl-3.5"
+                    @click="monthsExpanded = !monthsExpanded"
+                  >
+                    {{ monthsExpanded ? texts.showLess : texts.showMore }}
+                  </button>
                 </div>
 
                 <router-link
-                  to="/dashboard/content-ideas"
+                  to="/dashboard/content-calendar"
                   class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
-                  :class="navLinkClass('/dashboard/content-ideas')"
+                  :class="navLinkClass('/dashboard/content-calendar')"
                   :title="sidebarCollapsed ? texts.contentIdeas : ''"
                 >
                   <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
@@ -85,6 +93,20 @@
                   </span>
                   <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
                     {{ texts.contentIdeas }}
+                  </span>
+                </router-link>
+
+                <router-link
+                  to="/dashboard/documents"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
+                  :class="navLinkClass('/dashboard/documents')"
+                  :title="sidebarCollapsed ? texts.documents : ''"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
+                    <img :src="iconDocuments" alt="" class="w-[14px] h-[14px]">
+                  </span>
+                  <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
+                    {{ texts.documents }}
                   </span>
                 </router-link>
 
@@ -130,31 +152,8 @@
                       <span class="w-1.5 h-1.5 rounded-full bg-red shrink-0" />
                       {{ texts.hashtags }}
                     </router-link>
-                    <router-link
-                      to="/dashboard/learn"
-                      class="flex items-center gap-2 text-[14px] tracking-[-0.7px] transition-colors"
-                      :class="currentRoute.startsWith('/dashboard/learn') ? 'text-red font-medium' : 'text-purple hover:text-red'"
-                      @click="closeSidebarOnMobile"
-                    >
-                      <span class="w-1.5 h-1.5 rounded-full bg-red shrink-0" />
-                      {{ texts.resources }}
-                    </router-link>
                   </div>
                 </div>
-
-                <router-link
-                  to="/dashboard/documents"
-                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5 transition-colors"
-                  :class="navLinkClass('/dashboard/documents')"
-                  :title="sidebarCollapsed ? texts.documents : ''"
-                >
-                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center shrink-0">
-                    <img :src="iconDocuments" alt="" class="w-[14px] h-[14px]">
-                  </span>
-                  <span v-if="!sidebarCollapsed" class="text-[18px] font-bold tracking-[-0.9px]">
-                    {{ texts.documents }}
-                  </span>
-                </router-link>
 
                 <router-link
                   to="/dashboard/community"
@@ -289,26 +288,37 @@
                   <span class="text-[18px] font-bold">{{ texts.dashboard }}</span>
                 </router-link>
                 <router-link
-                  to="/dashboard/marketing-plans"
+                  to="/dashboard/action-steps"
                   class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
-                  :class="navLinkClass('/dashboard/marketing-plans')"
+                  :class="navLinkClass('/dashboard/action-steps')"
                   @click="closeSidebarOnMobile"
                 >
                   <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
-                    <img :src="iconMarketingPlan" alt="" class="w-3.5 h-3.5">
+                    <img :src="iconActionSteps" alt="" class="w-3.5 h-3.5">
                   </span>
                   <span class="text-[18px] font-bold">{{ texts.yourMarketingPlan }}</span>
                 </router-link>
                 <router-link
-                  to="/dashboard/content-ideas"
+                  to="/dashboard/content-calendar"
                   class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
-                  :class="navLinkClass('/dashboard/content-ideas')"
+                  :class="navLinkClass('/dashboard/content-calendar')"
                   @click="closeSidebarOnMobile"
                 >
                   <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
                     <img :src="iconContentCalendar" alt="" class="w-3.5 h-3.5">
                   </span>
                   <span class="text-[18px] font-bold">{{ texts.contentIdeas }}</span>
+                </router-link>
+                <router-link
+                  to="/dashboard/documents"
+                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
+                  :class="navLinkClass('/dashboard/documents')"
+                  @click="closeSidebarOnMobile"
+                >
+                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
+                    <img :src="iconDocuments" alt="" class="w-[14px] h-[14px]">
+                  </span>
+                  <span class="text-[18px] font-bold">{{ texts.documents }}</span>
                 </router-link>
                 <router-link
                   to="/dashboard/image-generator"
@@ -328,31 +338,9 @@
                   @click="closeSidebarOnMobile"
                 >
                   <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
-                    <img :src="iconActionSteps" alt="" class="w-3.5 h-3.5">
+                    <img :src="iconHashtags" alt="" class="w-3.5 h-3.5">
                   </span>
                   <span class="text-[18px] font-bold">{{ texts.hashtags }}</span>
-                </router-link>
-                <router-link
-                  to="/dashboard/learn"
-                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
-                  :class="navLinkClass('/dashboard/learn')"
-                  @click="closeSidebarOnMobile"
-                >
-                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
-                    <img :src="iconLearn" alt="" class="w-3.5 h-3.5">
-                  </span>
-                  <span class="text-[18px] font-bold">{{ texts.resources }}</span>
-                </router-link>
-                <router-link
-                  to="/dashboard/documents"
-                  class="flex items-center gap-3 rounded-[8px] px-2.5 py-2.5"
-                  :class="navLinkClass('/dashboard/documents')"
-                  @click="closeSidebarOnMobile"
-                >
-                  <span class="w-5 h-5 rounded-[12px] bg-mint flex items-center justify-center">
-                    <img :src="iconDocuments" alt="" class="w-[14px] h-[14px]">
-                  </span>
-                  <span class="text-[18px] font-bold">{{ texts.documents }}</span>
                 </router-link>
                 <router-link
                   to="/dashboard/community"
@@ -405,6 +393,63 @@
             <img :src="logoImage" alt="Peerie" class="h-6">
           </div>
           <div class="flex items-center gap-3">
+            <div ref="notificationsRoot" class="relative">
+              <button
+                type="button"
+                class="relative w-10 h-10 rounded-[14px] bg-white border border-grey flex items-center justify-center text-black"
+                :aria-label="texts.notifications"
+                @click="notificationsOpen = !notificationsOpen"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0" />
+                </svg>
+                <span
+                  v-if="unreadCount"
+                  class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red"
+                />
+              </button>
+              <div
+                v-if="notificationsOpen"
+                class="absolute right-0 top-full z-30 mt-2 w-[min(420px,calc(100vw-2rem))] rounded-[24px] bg-light-grey shadow-card p-5"
+              >
+                <div class="flex items-center gap-3 mb-5">
+                  <span class="w-10 h-10 rounded-[12px] bg-white flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0" />
+                    </svg>
+                  </span>
+                  <h2 class="text-[28px] font-bold tracking-[-1.4px] text-black leading-none">{{ texts.notifications }}</h2>
+                  <button
+                    type="button"
+                    class="ml-auto text-[16px] tracking-[-0.8px] text-purple/70 hover:text-black disabled:opacity-40"
+                    :disabled="!hasUnreadAnnouncements || markingRead"
+                    @click="markAllRead"
+                  >
+                    {{ texts.markAllRead }}
+                  </button>
+                </div>
+                <p v-if="!notifications.length" class="text-[16px] text-purple/70">{{ texts.noNotifications }}</p>
+                <ul v-else class="space-y-4">
+                  <li
+                    v-for="(item, index) in notifications"
+                    :key="item.id"
+                    class="list-disc ml-5"
+                    :class="index > 0 ? 'border-t border-grey pt-4' : ''"
+                  >
+                    <router-link v-if="item.to" :to="item.to" class="block hover:text-red" @click="notificationsOpen = false">
+                      <p class="text-[18px] font-bold tracking-[-0.9px] text-black leading-tight">{{ item.title }}</p>
+                      <p class="mt-1 text-[15px] text-purple/70 leading-snug">{{ item.body }}</p>
+                      <p v-if="item.published_at" class="mt-1 text-[12px] uppercase tracking-[-0.4px] text-purple/50">{{ formatNotificationDate(item.published_at) }}</p>
+                    </router-link>
+                    <template v-else>
+                      <p class="text-[18px] font-bold tracking-[-0.9px] text-black leading-tight">{{ item.title }}</p>
+                      <p class="mt-1 text-[15px] text-purple/70 leading-snug">{{ item.body }}</p>
+                      <p v-if="item.published_at" class="mt-1 text-[12px] uppercase tracking-[-0.4px] text-purple/50">{{ formatNotificationDate(item.published_at) }}</p>
+                    </template>
+                  </li>
+                </ul>
+              </div>
+            </div>
             <p class="hidden sm:block text-[12px] font-bold uppercase tracking-[-0.6px] text-black">
               {{ firstName }}
             </p>
@@ -435,25 +480,27 @@ import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import logoImage from '@/assets/images/logos/logo.svg'
 import iconDashboard from '@/assets/images/icons/dashboard/v2/dashboard.svg'
-import iconMarketingPlan from '@/assets/images/icons/dashboard/v2/marketing-plan.svg'
 import iconContentCalendar from '@/assets/images/icons/dashboard/v2/content-calendar.svg'
 import iconResourceLibrary from '@/assets/images/icons/dashboard/v2/resource-library.svg'
 import iconActionSteps from '@/assets/images/icons/dashboard/v2/action-steps.svg'
+import iconHashtags from '@/assets/images/icons/dashboard/v2/hash.svg'
 import iconCommunity from '@/assets/images/icons/dashboard/v2/community.svg'
 import iconSettings from '@/assets/images/icons/dashboard/v2/settings.svg'
-import iconLearn from '@/assets/images/icons/dashboard/v2/learn.svg'
 import iconDocuments from '@/assets/images/icons/dashboard/v2/documents.svg'
 import iconChevron from '@/assets/images/icons/dashboard/v2/chevron.svg'
 import iconBlog from '@/assets/images/icons/dashboard/v2/blog.svg'
 import iconHelp from '@/assets/images/icons/dashboard/v2/help.svg'
 import iconUser from '@/assets/images/icons/dashboard/v2/user.svg'
 import { useLanguageStore } from '@/stores/language'
+import { useNotifications } from '@/composables/useNotifications'
 import TestEnvironmentBanner from '@/components/TestEnvironmentBanner.vue'
 
 const router = useRouter()
 const route = useRoute()
 
 const sidebarOpen = ref(false)
+const notificationsOpen = ref(false)
+const notificationsRoot = ref(null)
 const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
 const resourceLibraryOpen = ref(
   ['/dashboard/image-generator', '/dashboard/hashtags'].includes(route.path)
@@ -461,10 +508,12 @@ const resourceLibraryOpen = ref(
 )
 const user = ref(null)
 const availableMonths = ref([])
+const monthsExpanded = ref(false)
 const selectedYear = ref(parseInt(route.query.year) || new Date().getFullYear())
 const selectedMonth = ref(parseInt(route.query.month) || new Date().getMonth() + 1)
 
 const languageStore = useLanguageStore()
+const { notifications, unreadCount, hasUnreadAnnouncements, markingRead, formatNotificationDate, fetchNotifications, markAllRead } = useNotifications()
 
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value
@@ -484,7 +533,7 @@ const toggleResourceLibrary = () => {
 const currentRoute = computed(() => route.path)
 
 const isDashboardHome = computed(() => currentRoute.value === '/dashboard')
-const isMarketingPlans = computed(() => currentRoute.value === '/dashboard/marketing-plans')
+const isMarketingPlans = computed(() => currentRoute.value === '/dashboard/action-steps')
 
 const resourceLibraryActive = computed(() =>
   currentRoute.value === '/dashboard/image-generator'
@@ -511,9 +560,9 @@ const texts = computed(() => {
     return {
       workspace: 'Workspace',
       dashboard: 'Dashboard',
-      yourMarketingPlan: 'Marketingplan',
+      yourMarketingPlan: 'Action Steps',
       imageLibrary: 'Bildbibliothek',
-      contentIdeas: 'Content Ideen',
+      contentIdeas: 'Content Calendar',
       hashtags: 'Hashtags',
       resourceLibrary: 'Ressourcen',
       community: 'Community',
@@ -526,16 +575,21 @@ const texts = computed(() => {
       expandSidebar: 'Seitenleiste ausklappen',
       blog: 'Peerie Blog',
       help: 'Hilfe & Support',
-      businessAccount: 'Business-Konto'
+      businessAccount: 'Business-Konto',
+      showMore: 'Mehr anzeigen',
+      showLess: 'Weniger anzeigen',
+      notifications: 'Benachrichtigungen',
+      markAllRead: 'Alle gelesen',
+      noNotifications: 'Keine Benachrichtigungen'
     }
   }
 
   return {
     workspace: 'Workspace',
     dashboard: 'Dashboard',
-    yourMarketingPlan: 'Marketing Plan',
+    yourMarketingPlan: 'Action Steps',
     imageLibrary: 'Image Library',
-    contentIdeas: 'Content Ideas',
+    contentIdeas: 'Content Calendar',
     hashtags: 'Hashtags',
     resourceLibrary: 'Resource Library',
     community: 'Community',
@@ -548,7 +602,12 @@ const texts = computed(() => {
     expandSidebar: 'Expand sidebar',
     blog: 'Peerie blog',
     help: 'Help & Support',
-    businessAccount: 'Business account'
+    showMore: 'Show more',
+    showLess: 'Show less',
+    businessAccount: 'Business account',
+    notifications: 'Notifications',
+    markAllRead: 'Mark all read',
+    noNotifications: 'No notifications'
   }
 })
 
@@ -565,6 +624,12 @@ const firstName = computed(() => {
   if (!user.value?.name) return 'USER'
   return user.value.name.split(' ')[0].toUpperCase()
 })
+
+const closeNotificationsOnOutsideClick = (event) => {
+  if (!notificationsOpen.value) return
+  if (notificationsRoot.value?.contains(event.target)) return
+  notificationsOpen.value = false
+}
 
 const handleLogout = async () => {
   try {
@@ -673,7 +738,7 @@ const fetchAvailableMonths = async () => {
         selectedYear.value = latest.year
         selectedMonth.value = latest.month
         router.replace({
-          path: '/dashboard/marketing-plans',
+          path: '/dashboard/action-steps',
           query: {
             ...route.query,
             year: latest.year,
@@ -684,7 +749,7 @@ const fetchAvailableMonths = async () => {
         selectedYear.value = currentYear
         selectedMonth.value = currentMonth
         router.replace({
-          path: '/dashboard/marketing-plans',
+          path: '/dashboard/action-steps',
           query: {
             ...route.query,
             year: currentYear,
@@ -704,7 +769,7 @@ const fetchAvailableMonths = async () => {
         selectedYear.value = currentYear
         selectedMonth.value = currentMonth
         router.replace({
-          path: '/dashboard/marketing-plans',
+          path: '/dashboard/action-steps',
           query: {
             ...route.query,
             year: currentYear,
@@ -729,6 +794,20 @@ const isMonthSelected = (year, month) => {
   return selectedYear.value === year && selectedMonth.value === month
 }
 
+const visibleMonths = computed(() => {
+  if (monthsExpanded.value || availableMonths.value.length <= 3) {
+    return availableMonths.value
+  }
+
+  const first = availableMonths.value.slice(0, 3)
+  const selected = availableMonths.value.find((monthOption) => isMonthSelected(monthOption.year, monthOption.month))
+  if (selected && !first.some((monthOption) => monthOption.year === selected.year && monthOption.month === selected.month)) {
+    return [...first, selected]
+  }
+
+  return first
+})
+
 const formatMonth = (year, month) => {
   const monthNames = languageStore.language === 'de'
     ? ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
@@ -741,7 +820,7 @@ const handleMonthSelect = ({ year, month }) => {
   selectedYear.value = year
   selectedMonth.value = month
   router.push({
-    path: '/dashboard/marketing-plans',
+    path: '/dashboard/action-steps',
     query: {
       year,
       month
@@ -751,7 +830,7 @@ const handleMonthSelect = ({ year, month }) => {
 }
 
 watch(() => route.path, async (newPath) => {
-  if (newPath === '/dashboard/marketing-plans') {
+  if (newPath === '/dashboard/action-steps') {
     await fetchAvailableMonths()
     if (route.query.year && route.query.month) {
       selectedYear.value = parseInt(route.query.year)
@@ -767,7 +846,7 @@ watch(() => route.path, async (newPath) => {
 }, { immediate: true })
 
 watch(() => route.query, (newQuery) => {
-  if (newQuery.year && newQuery.month && route.path === '/dashboard/marketing-plans') {
+  if (newQuery.year && newQuery.month && route.path === '/dashboard/action-steps') {
     selectedYear.value = parseInt(newQuery.year)
     selectedMonth.value = parseInt(newQuery.month)
   }
@@ -785,10 +864,17 @@ onMounted(async () => {
   }
 
   await fetchUser()
+  await fetchNotifications()
   window.addEventListener('profile-updated', handleProfileUpdated)
+  window.addEventListener('click', closeNotificationsOnOutsideClick)
+})
+
+watch(() => languageStore.language, () => {
+  fetchNotifications()
 })
 
 onUnmounted(() => {
   window.removeEventListener('profile-updated', handleProfileUpdated)
+  window.removeEventListener('click', closeNotificationsOnOutsideClick)
 })
 </script>

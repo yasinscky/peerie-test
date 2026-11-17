@@ -40,51 +40,87 @@
     </section>
     </template>
 
+    <template v-if="taskSections.length && onlyStep == null">
+      <section
+        v-for="section in taskSections"
+        :key="`task-${section.plan_task_id}`"
+        :class="plain ? '' : 'bg-white rounded-[30px] shadow-card p-5 md:p-8'"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 class="text-[20px] md:text-[24px] font-bold tracking-[-1.2px] text-black">
+            {{ section.title }}
+          </h2>
+          <router-link
+            v-if="section.plan_task_id"
+            :to="{ name: 'TaskDetail', params: { planTaskId: section.plan_task_id }, query: { from: 'documents', worksheet: worksheetSlug } }"
+            class="shrink-0 text-[14px] font-bold tracking-[-0.7px] text-red hover:text-red-dark"
+          >
+            {{ openTaskLabel }}
+          </router-link>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="worksheet-table">
+            <thead>
+              <tr>
+                <th v-for="(header, headerIndex) in sectionHeaders(section)" :key="`head-${section.plan_task_id}-${headerIndex}`">
+                  {{ header }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, index) in section.rows" :key="`${section.plan_task_id}-${index}`">
+                <td v-for="key in schema.rowKeys" :key="`${section.plan_task_id}-${index}-${key}`">
+                  <span v-if="key === labelColumnKey" class="worksheet-table-label">{{ row[key] }}</span>
+                  <input
+                    v-else
+                    v-model="row[key]"
+                    type="text"
+                    :placeholder="schema.placeholders?.[key] || schema.labels[key]"
+                    class="worksheet-table-input"
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </template>
+
     <section
-      v-if="schema.layout === 'rows' && onlyStep == null"
+      v-else-if="(schema.rowKeys || []).length && onlyStep == null"
       :class="plain ? '' : 'bg-white rounded-[30px] shadow-card p-5 md:p-8'"
     >
-      <div class="space-y-4">
-        <div
-          v-for="(row, index) in (document.rows || [])"
-          :key="`row-${index}`"
-          class="bg-light-grey rounded-[20px] border-4 border-rose p-4"
-        >
-          <div class="flex items-start justify-end mb-3">
-            <button
-              type="button"
-              class="h-[36px] px-4 rounded-[16px] border border-grey bg-white text-[13px] font-bold tracking-[-0.6px] text-red hover:bg-rose"
-              @click="removeRow(index)"
-            >
-              {{ removeLabel }}
-            </button>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div
-              v-for="key in schema.rowKeys"
-              :key="`${index}-${key}`"
-              :class="key === 'notes' || key === 'topic' ? 'md:col-span-2' : ''"
-            >
-              <label class="block text-[13px] font-bold tracking-[-0.6px] text-black mb-1">
-                {{ schema.labels[key] }}
-              </label>
-              <input
-                v-model="row[key]"
-                type="text"
-                :placeholder="schema.placeholders?.[key]"
-                class="w-full rounded-[16px] border border-grey bg-white px-3 py-2 text-[15px] text-black tracking-[-0.7px] outline-none focus:border-red"
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-      <button
-        type="button"
-        class="mt-4 h-[42px] px-5 rounded-[20px] bg-light-grey border-4 border-rose text-[16px] font-bold tracking-[-0.8px] text-black hover:bg-rose"
-        @click="addRow"
+      <h2
+        v-if="schema.rowTitle"
+        class="text-[20px] md:text-[24px] font-bold tracking-[-1.2px] text-black mb-4"
       >
-        {{ addLabel }}
-      </button>
+        {{ schema.rowTitle }}
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="worksheet-table">
+          <thead>
+            <tr>
+              <th v-for="key in schema.rowKeys" :key="`head-${key}`">
+                {{ schema.labels[key] }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, index) in (document.rows || [])" :key="`row-${index}`">
+              <td v-for="key in schema.rowKeys" :key="`${index}-${key}`">
+                <span v-if="key === labelColumnKey" class="worksheet-table-label">{{ row[key] }}</span>
+                <input
+                  v-else
+                  v-model="row[key]"
+                  type="text"
+                  :placeholder="schema.placeholders?.[key] || schema.labels[key]"
+                  class="worksheet-table-input"
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <template v-if="(schema.fields || []).length && showFields">
@@ -141,6 +177,8 @@ const props = defineProps({
   onlyStep: { type: Number, default: null },
   plain: { type: Boolean, default: false },
   showStepTitles: { type: Boolean, default: true },
+  openTaskLabel: { type: String, default: 'Open task' },
+  worksheetSlug: { type: String, default: '' },
 })
 
 const showFields = computed(() => props.schema.layout === 'fields' || (props.schema.fields || []).length > 0)
@@ -153,19 +191,22 @@ const fieldSteps = computed(() => {
 
 const fieldsForStep = (stepNumber) => (props.schema.fields || []).filter((field) => field.step === stepNumber)
 
-const addRow = () => {
-  if (!Array.isArray(props.document.rows)) props.document.rows = []
-  const row = {}
-  ;(props.schema.rowKeys || []).forEach((key) => {
-    row[key] = ''
-  })
-  props.document.rows.push(row)
+const ANSWER_LABEL = /^(your (?:answer|answers|input|plan|notes|hashtags|campaign)|this month|deine (?:antwort|antworten|angaben|notizen|hashtags|kampagne)|dein plan|dieser monat)$/i
+
+const taskSections = computed(() => (Array.isArray(props.document.sections) ? props.document.sections : []))
+
+const sectionHeaders = (section) => {
+  const headers = Array.isArray(section?.headers) ? section.headers.filter(Boolean) : []
+  if (headers.length >= (props.schema.rowKeys || []).length) return headers
+  return (props.schema.rowKeys || []).map((key) => props.schema.labels?.[key] || key)
 }
 
-const removeRow = (index) => {
-  if (!Array.isArray(props.document.rows)) return
-  props.document.rows.splice(index, 1)
-}
+const labelColumnKey = computed(() => {
+  const keys = props.schema.rowKeys || []
+  if (keys.length !== 2) return null
+  const answerLabel = String(props.schema.labels?.[keys[1]] || '').trim()
+  return ANSWER_LABEL.test(answerLabel) ? keys[0] : null
+})
 
 const removeCategoryItem = (key, index) => {
   const items = props.document.categories?.[key]
@@ -174,3 +215,52 @@ const removeCategoryItem = (key, index) => {
   if (!items.length) items.push('')
 }
 </script>
+
+<style scoped>
+.worksheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.worksheet-table th,
+.worksheet-table td {
+  border: 1px solid rgb(var(--color-grey));
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.worksheet-table th {
+  background: rgb(var(--color-light-grey));
+  font-weight: 700;
+  color: rgb(var(--color-black));
+}
+
+.worksheet-table-label {
+  display: block;
+  color: rgb(var(--color-purple));
+}
+
+.worksheet-table-input {
+  width: 100%;
+  min-height: 2.25rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  padding: 0.25rem 0.625rem;
+  outline: none;
+  font: inherit;
+  color: rgb(var(--color-black));
+}
+
+.worksheet-table-input::placeholder {
+  color: rgb(var(--color-purple) / 0.45);
+}
+
+.worksheet-table-input:placeholder-shown,
+.worksheet-table-input:focus {
+  background: rgb(var(--color-light-grey));
+  box-shadow: inset 0 0 0 1px rgb(var(--color-grey));
+}
+</style>

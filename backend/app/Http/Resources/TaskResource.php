@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Task;
+use App\Services\WorksheetService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,12 +23,16 @@ class TaskResource extends JsonResource
             'is_local' => $this->is_local,
             'requires_website' => $this->requires_website,
             'category' => $this->category,
-            'document_key' => $this->document_key,
-            'document_group' => $this->document_group,
-            'document_layout' => $this->document_layout,
-            'document_short_label' => $this->document_short_label,
-            'document_description' => $this->document_description,
-            'document_fields' => $this->document_fields,
+            ...($this->resource instanceof Task
+                ? app(WorksheetService::class)->documentPresentation($this->resource)
+                : [
+                    'document_key' => $this->document_key,
+                    'document_group' => $this->document_group,
+                    'document_layout' => $this->document_layout,
+                    'document_short_label' => $this->document_short_label,
+                    'document_description' => $this->document_description,
+                    'document_fields' => $this->document_fields,
+                ]),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'pivot' => $this->when($this->pivot, function () {

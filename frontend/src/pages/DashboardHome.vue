@@ -104,7 +104,7 @@
                 <span>{{ planFocusLabel }}</span>
               </div>
               <h2 class="mt-3 text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none">
-                {{ texts.planTitle }} {{ monthName }}
+                {{ texts.planTitle }}
               </h2>
               <p class="mt-3 text-[16px] text-purple/70 tracking-[-0.8px] max-w-[490px] leading-snug">
                 {{ planSubtitle }}
@@ -135,20 +135,20 @@
             <div>
               <div class="h-2.5 w-[100px] rounded-[10px] bg-yellow mb-3" />
               <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">
-                {{ stats.completedTasks }}/{{ stats.totalTasks }}
+                {{ weekCompletedCount }}/{{ weekTaskCount }}
               </p>
               <p class="mt-2 text-[14px] font-medium tracking-[-0.7px] text-purple">{{ texts.tasksCompleted }}</p>
             </div>
             <div>
               <div class="h-2.5 w-[100px] rounded-[10px] bg-yellow mb-3" />
-              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ weeksLeftLabel }}</p>
+              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ daysLeftLabel }}</p>
               <p class="mt-2 text-[14px] font-medium tracking-[-0.7px] text-purple">{{ texts.leftInStage }}</p>
             </div>
             <div>
               <div class="h-2.5 w-[100px] rounded-[10px] bg-grey mb-3 overflow-hidden">
                 <div class="h-full bg-red rounded-[10px]" :style="{ width: `${Math.min(progressPercent, 100)}%` }" />
               </div>
-              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ pendingTasksCount }}</p>
+              <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ weekPendingCount }}</p>
               <p class="mt-2 text-[14px] font-medium tracking-[-0.7px] text-purple">{{ texts.pendingTasks }}</p>
             </div>
           </div>
@@ -158,10 +158,10 @@
           <div class="flex flex-wrap items-center justify-between gap-2 mb-4 px-1">
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="text-[24px] font-bold tracking-[-1.2px] text-black">{{ texts.actionSteps }}</h3>
-              <span class="text-[14px] text-purple/70 tracking-[-0.7px]">{{ currentMonthRange }}</span>
+              <span class="text-[14px] text-purple/70 tracking-[-0.7px]">{{ weekRangeLabel }}</span>
             </div>
             <router-link
-              to="/dashboard/marketing-plans"
+              :to="{ path: '/dashboard/action-steps', query: { year: selectedYear, month: selectedMonth } }"
               class="inline-flex items-center gap-1 text-[16px] text-purple tracking-[-0.8px] hover:text-red"
             >
               {{ texts.allTasks }}
@@ -244,7 +244,7 @@
               </router-link>
             </div>
 
-            <div v-if="flatTasks.length === 0" class="py-10 text-center text-purple/70">
+            <div v-if="visibleActionTasks.length === 0" class="py-10 text-center text-purple/70">
               {{ texts.noTasks }}
             </div>
           </div>
@@ -255,27 +255,48 @@
         <section class="bg-white rounded-[30px] shadow-card p-5">
           <div class="flex items-center gap-3 mb-4">
             <h3 class="text-[32px] font-bold tracking-[-1.6px] text-black leading-none">{{ texts.progress }}</h3>
-            <label class="relative inline-flex items-center gap-2 cursor-pointer">
-              <span class="text-[16px] font-bold tracking-[-0.8px] text-black">
-                {{ selectedProgressMonthLabel }}
-              </span>
-              <span class="w-5 h-5 rounded-[12px] bg-yellow flex items-center justify-center shrink-0">
-                <img :src="iconChevronDown" alt="" class="w-4 h-4">
-              </span>
-              <select
-                v-model="progressMonthKey"
-                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                @change="onProgressMonthChange"
+            <div ref="weekMenuRoot" class="relative">
+              <button
+                type="button"
+                class="inline-flex items-center gap-2"
+                @click="weekMenuOpen = !weekMenuOpen"
               >
-                <option
-                  v-for="monthOption in availableMonths"
-                  :key="`${monthOption.year}-${monthOption.month}`"
-                  :value="`${monthOption.year}-${monthOption.month}`"
+                <span class="text-[16px] font-bold tracking-[-0.8px] text-black">
+                  {{ texts.week }} {{ selectedWeek }}
+                </span>
+                <span class="w-5 h-5 rounded-[12px] bg-yellow flex items-center justify-center shrink-0">
+                  <img
+                    :src="iconChevronDown"
+                    alt=""
+                    class="w-4 h-4 transition-transform"
+                    :class="weekMenuOpen ? 'rotate-180' : ''"
+                  >
+                </span>
+              </button>
+              <div
+                v-if="weekMenuOpen"
+                class="absolute left-0 top-full z-20 mt-2 min-w-[190px] bg-white rounded-[16px] border border-grey shadow-card p-1.5"
+              >
+                <button
+                  v-for="option in weekOptions"
+                  :key="option.week"
+                  type="button"
+                  class="w-full text-left px-3 py-2 rounded-[12px] transition-colors"
+                  :class="selectedWeek === option.week
+                    ? 'bg-red text-white'
+                    : 'text-black hover:bg-rose'"
+                  @click="selectWeek(option.week)"
                 >
-                  {{ formatMonthName(monthOption.year, monthOption.month) }}
-                </option>
-              </select>
-            </label>
+                  <span class="block text-[14px] font-bold tracking-[-0.7px]">{{ option.label }}</span>
+                  <span
+                    class="block text-[12px] tracking-[-0.6px]"
+                    :class="selectedWeek === option.week ? 'text-white/80' : 'text-purple/70'"
+                  >
+                    {{ option.range }}
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
           <div class="relative w-[180px] h-[180px] mx-auto">
             <svg class="w-full h-full -rotate-90" viewBox="0 0 180 180">
@@ -295,22 +316,22 @@
             <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
               <p class="text-[36px] font-bold tracking-[-1.8px] text-black leading-none">{{ progressPercent }}%</p>
               <p class="mt-2 text-[14px] text-purple/70 tracking-[-0.7px]">
-                {{ stats.completedTasks }} {{ texts.of }} {{ stats.totalTasks }} {{ texts.tasks }}
+                {{ weekCompletedCount }} {{ texts.of }} {{ weekTaskCount }} {{ texts.tasks }}
               </p>
             </div>
           </div>
           <div class="mt-5 space-y-2 text-[14px] tracking-[-0.7px]">
             <div class="flex items-center justify-between text-black">
               <span>{{ texts.completed }}</span>
-              <span class="font-bold">{{ stats.completedTasks }}</span>
+              <span class="font-bold">{{ weekCompletedCount }}</span>
             </div>
             <div class="flex items-center justify-between text-black">
               <span>{{ texts.pending }}</span>
-              <span class="font-bold">{{ stats.inProgressTasks }}</span>
+              <span class="font-bold">{{ weekPendingCount }}</span>
             </div>
             <div class="flex items-center justify-between text-black">
               <span>{{ texts.total }}</span>
-              <span class="font-bold">{{ stats.totalTasks }}</span>
+              <span class="font-bold">{{ weekTaskCount }}</span>
             </div>
           </div>
         </section>
@@ -321,7 +342,7 @@
           </div>
           <div class="grid grid-cols-2 gap-3">
             <router-link
-              to="/dashboard/content-ideas"
+              to="/dashboard/content-calendar"
               class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
             >
               <img :src="iconContentCalendar" alt="" class="w-4 h-4 mb-2">
@@ -335,20 +356,57 @@
               <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.imageLibrary }}</p>
             </router-link>
             <router-link
-              to="/dashboard/hashtags"
-              class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
-            >
-              <img :src="iconActionSteps" alt="" class="w-4 h-4 mb-2">
-              <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.hashtags }}</p>
-            </router-link>
-            <router-link
               to="/dashboard/documents"
               class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
             >
               <img :src="iconDocuments" alt="" class="w-[14px] h-[14px] mb-2">
               <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.documents }}</p>
             </router-link>
+            <router-link
+              to="/dashboard/hashtags"
+              class="bg-light-grey rounded-[20px] border-4 border-rose p-3 hover:bg-rose transition-colors"
+            >
+              <img :src="iconHashtags" alt="" class="w-4 h-4 mb-2">
+              <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">{{ texts.hashtags }}</p>
+            </router-link>
           </div>
+        </section>
+
+        <section class="bg-white rounded-[30px] shadow-card p-5">
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0" />
+            </svg>
+            <h3 class="text-[24px] font-bold tracking-[-1.2px] text-black leading-none">{{ texts.notifications }}</h3>
+            <button
+              type="button"
+              class="ml-auto text-[14px] tracking-[-0.7px] text-purple/70 hover:text-black disabled:opacity-40"
+              :disabled="!hasUnreadAnnouncements || markingRead"
+              @click="markAllRead"
+            >
+              {{ texts.markAllRead }}
+            </button>
+          </div>
+          <p v-if="!notifications.length" class="text-[15px] text-purple/70">{{ texts.noNotifications }}</p>
+          <ul v-else class="space-y-4">
+            <li
+              v-for="(item, index) in notifications"
+              :key="item.id"
+              class="list-disc ml-5"
+              :class="index > 0 ? 'border-t border-grey pt-4' : ''"
+            >
+              <router-link v-if="item.to" :to="item.to" class="block">
+                <p class="text-[16px] font-bold tracking-[-0.8px] text-black leading-tight">{{ item.title }}</p>
+                <p class="mt-1 text-[14px] text-purple/70 leading-snug">{{ item.body }}</p>
+                <p v-if="item.published_at" class="mt-1 text-[12px] uppercase tracking-[-0.4px] text-purple/50">{{ formatNotificationDate(item.published_at) }}</p>
+              </router-link>
+              <template v-else>
+                <p class="text-[16px] font-bold tracking-[-0.8px] text-black leading-tight">{{ item.title }}</p>
+                <p class="mt-1 text-[14px] text-purple/70 leading-snug">{{ item.body }}</p>
+                <p v-if="item.published_at" class="mt-1 text-[12px] uppercase tracking-[-0.4px] text-purple/50">{{ formatNotificationDate(item.published_at) }}</p>
+              </template>
+            </li>
+          </ul>
         </section>
       </aside>
     </div>
@@ -360,7 +418,7 @@
           <span class="text-[14px] text-purple/70 tracking-[-0.7px]">{{ texts.thisWeek }}</span>
         </div>
         <router-link
-          to="/dashboard/content-ideas"
+          to="/dashboard/content-calendar"
           class="inline-flex items-center gap-1 text-[16px] text-purple tracking-[-0.8px] hover:text-red"
         >
           {{ texts.openCalendar }}
@@ -387,7 +445,7 @@
             <div class="flex-1 p-2 space-y-2">
               <router-link
                 v-if="day.idea"
-                to="/dashboard/content-ideas"
+                to="/dashboard/content-calendar"
                 class="block rounded-[12px] bg-white px-2.5 py-2 shadow-[0_2px_8px_rgba(28,26,27,0.06)] hover:shadow-[0_4px_12px_rgba(28,26,27,0.1)] transition-shadow"
               >
                 <span
@@ -438,8 +496,14 @@
           :to="item.to"
           class="bg-light-grey rounded-[16px] p-3 hover:bg-rose transition-colors"
         >
-          <div class="h-[76px] rounded-[16px] border border-[#cacaca] bg-light-grey flex items-center justify-center">
-            <img :src="iconDocumentCard" alt="" class="w-5 h-5">
+          <div class="aspect-[3/2] w-full rounded-[16px] border border-[#cacaca] bg-white overflow-hidden flex items-center justify-center">
+            <img
+              v-if="item.image"
+              :src="item.image"
+              alt=""
+              class="w-full h-full object-cover"
+            >
+            <img v-else :src="iconDocumentCard" alt="" class="w-5 h-5">
           </div>
           <h4 class="mt-4 text-[24px] font-bold tracking-[-1.2px] text-black leading-none">
             {{ item.title }}
@@ -460,11 +524,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
 import iconActionSteps from '@/assets/images/icons/dashboard/v2/action-steps.svg'
+import iconHashtags from '@/assets/images/icons/dashboard/v2/hash.svg'
 import iconArrowLink from '@/assets/images/icons/dashboard/v2/arrow-link.svg'
 import iconContentCalendar from '@/assets/images/icons/dashboard/v2/content-calendar.svg'
 import iconResourceLibrary from '@/assets/images/icons/dashboard/v2/resource-library.svg'
@@ -473,9 +538,12 @@ import iconContinue from '@/assets/images/icons/dashboard/v2/continue.svg'
 import iconDocumentCard from '@/assets/images/icons/dashboard/v2/document-card.svg'
 import iconChevronDown from '@/assets/images/icons/dashboard/v2/chevron-down.svg'
 import { documentStatus, getDocumentCatalog, mergeDocumentCatalog } from '@/data/worksheets'
+import { comparePlanTasks, currentPlanWeek, daysUntilWeekEnd, formatWeekRange } from '@/utils/planWeeks'
+import { useNotifications } from '@/composables/useNotifications'
 
 const route = useRoute()
 const languageStore = useLanguageStore()
+const { notifications, hasUnreadAnnouncements, markingRead, formatNotificationDate, fetchNotifications, markAllRead } = useNotifications()
 
 const plans = ref([])
 const isLoading = ref(true)
@@ -492,7 +560,6 @@ const generateMonthYear = ref(new Date().getFullYear())
 const generateMonthMonth = ref(new Date().getMonth() + 1)
 const isGeneratingMonth = ref(false)
 const userName = ref('')
-const progressMonthKey = ref('')
 const weekIdeas = ref([])
 const worksheetStatuses = ref([])
 const catalogExtra = ref([])
@@ -526,25 +593,29 @@ const texts = computed(() => {
   if (languageStore.language === 'de') {
     return {
       welcome: 'Willkommen zurück',
-      planTitle: 'Dein Marketingplan für',
+      planTitle: 'Deine Action Steps diese Woche',
       stageLabel: 'Monatlicher Plan',
       tasksCompleted: 'Aufgaben erledigt',
-      leftInStage: 'noch in diesem Monat',
+      leftInStage: 'noch diese Woche',
       pendingTasks: 'offen',
       actionSteps: 'Action Steps',
       allTasks: 'Alle Aufgaben',
       hideTasks: 'Weniger',
       open: 'Öffnen',
-      noTasks: 'Keine Aufgaben für diesen Monat',
+      noTasks: 'Keine Aufgaben in dieser Woche',
       progress: 'Fortschritt',
       of: 'von',
       tasks: 'Aufgaben',
       completed: 'Erledigt',
       pending: 'Offen',
       total: 'Gesamt',
+      week: 'Woche',
       quickLinks: 'Schnellzugriff',
-      contentIdeas: 'Content Ideen',
-      contentCalendar: 'Content Kalender',
+      notifications: 'Benachrichtigungen',
+      markAllRead: 'Alle gelesen',
+      noNotifications: 'Keine Benachrichtigungen',
+      contentIdeas: 'Content Calendar',
+      contentCalendar: 'Content Calendar',
       thisWeek: 'diese Woche',
       openCalendar: 'Kalender öffnen',
       noIdea: 'Keine Idee',
@@ -555,8 +626,8 @@ const texts = computed(() => {
       allDrafts: 'Alle Entwürfe',
       continueAction: 'Weiter',
       start: 'Starten',
-      emptyTitle: 'Du hast noch keine Pläne',
-      emptyText: 'Dein Marketingplan wird nach dem Ausfüllen des Fragebogens automatisch erstellt',
+      emptyTitle: 'Du hast noch keine Action Steps',
+      emptyText: 'Deine Action Steps werden nach dem Ausfüllen des Fragebogens automatisch erstellt',
       done: 'Done',
       notStarted: 'Not started'
     }
@@ -564,24 +635,28 @@ const texts = computed(() => {
 
   return {
     welcome: 'Welcome back',
-    planTitle: 'Your marketing plan for',
+    planTitle: 'Your action steps this week',
     stageLabel: 'Monthly plan',
     tasksCompleted: 'tasks completed',
-    leftInStage: 'left in this stage',
+    leftInStage: 'left this week',
     pendingTasks: 'pending tasks',
-    actionSteps: "This week's action steps",
+    actionSteps: 'Action Steps',
     allTasks: 'All tasks',
     hideTasks: 'Hide tasks',
     open: 'Open',
-    noTasks: 'No tasks for this month',
+    noTasks: 'No tasks this week',
     progress: 'Progress',
     of: 'of',
     tasks: 'tasks',
     completed: 'Completed',
     pending: 'Pending',
     total: 'Total',
+    week: 'Week',
     quickLinks: 'Quick links',
-    contentIdeas: 'Content Ideas',
+    notifications: 'Notifications',
+    markAllRead: 'Mark all read',
+    noNotifications: 'No notifications',
+    contentIdeas: 'Content Calendar',
     contentCalendar: 'Content Calendar',
     thisWeek: 'this week',
     openCalendar: 'Open calendar',
@@ -593,8 +668,8 @@ const texts = computed(() => {
     allDrafts: 'All drafts',
     continueAction: 'Continue',
     start: 'Start',
-    emptyTitle: "You don't have any plans yet",
-    emptyText: 'Your marketing plan will be created after completing the questionnaire',
+    emptyTitle: "You don't have action steps yet",
+    emptyText: 'Your action steps will be created after completing the questionnaire',
     done: 'Done',
     notStarted: 'Not started'
   }
@@ -603,13 +678,6 @@ const texts = computed(() => {
 const welcomeName = computed(() => {
   if (!userName.value) return 'there'
   return userName.value.split(' ')[0]
-})
-
-const monthName = computed(() => {
-  const names = languageStore.language === 'de'
-    ? ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
-    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-  return names[selectedMonth.value - 1] || ''
 })
 
 const todayLabel = computed(() => {
@@ -621,9 +689,17 @@ const todayLabel = computed(() => {
   })
 })
 
+const selectedWeek = ref(currentPlanWeek(selectedYear.value, selectedMonth.value))
+const weekMenuOpen = ref(false)
+const weekMenuRoot = ref(null)
+
+watch([selectedYear, selectedMonth], () => {
+  selectedWeek.value = currentPlanWeek(selectedYear.value, selectedMonth.value)
+})
+
 const progressPercent = computed(() => {
-  if (!plan.value) return 0
-  return getProgressPercentage(plan.value)
+  if (!weekTaskCount.value) return 0
+  return Math.round((weekCompletedCount.value / weekTaskCount.value) * 100)
 })
 
 const circumference = 2 * Math.PI * 39
@@ -637,14 +713,12 @@ const largeProgressOffset = computed(() => {
   return largeCircumference - (progressPercent.value / 100) * largeCircumference
 })
 
-const pendingTasksCount = computed(() => stats.value.inProgressTasks)
-
-const weeksLeftLabel = computed(() => {
-  const now = new Date()
-  const end = new Date(selectedYear.value, selectedMonth.value, 0)
-  const daysLeft = Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)))
-  const weeks = Math.max(0, Math.ceil(daysLeft / 7))
-  return `${weeks} wks`
+const daysLeftLabel = computed(() => {
+  const days = daysUntilWeekEnd(selectedYear.value, selectedMonth.value, selectedWeek.value)
+  if (languageStore.language === 'de') {
+    return days === 1 ? '1 Tag' : `${days} Tage`
+  }
+  return days === 1 ? '1 day' : `${days} days`
 })
 
 const planFocusLabel = computed(() => {
@@ -661,14 +735,6 @@ const planSubtitle = computed(() => {
   return `This month's focus: growing visibility and content. Your plan refreshes automatically next month.`
 })
 
-const currentMonthRange = computed(() => {
-  const start = new Date(selectedYear.value, selectedMonth.value - 1, 1)
-  const end = new Date(selectedYear.value, selectedMonth.value, 0)
-  const opts = { month: 'short', day: 'numeric' }
-  const locale = languageStore.language === 'de' ? 'de-DE' : 'en-US'
-  return `${start.toLocaleDateString(locale, opts)} – ${end.toLocaleDateString(locale, opts)}`
-})
-
 const flatTasks = computed(() => {
   if (!categorisedTasks.value.length) return []
   return categorisedTasks.value.flatMap(category =>
@@ -680,10 +746,41 @@ const flatTasks = computed(() => {
 })
 
 const visibleActionTasks = computed(() => {
-  const pending = flatTasks.value.filter(item => !item.task.pivot?.completed)
-  const source = pending.length > 0 ? pending : flatTasks.value
-  return source.slice(0, 6)
+  return flatTasks.value
+    .filter(item => Number(item.task.pivot?.week) === selectedWeek.value)
+    .sort(comparePlanTasks)
 })
+
+const weekTaskCount = computed(() => visibleActionTasks.value.length)
+
+const weekCompletedCount = computed(() => {
+  return visibleActionTasks.value.filter(item => item.task.pivot?.completed).length
+})
+
+const weekPendingCount = computed(() => weekTaskCount.value - weekCompletedCount.value)
+
+const weekRangeLabel = computed(() => {
+  return formatWeekRange(selectedYear.value, selectedMonth.value, selectedWeek.value, languageStore.language)
+})
+
+const weekOptions = computed(() => {
+  return [1, 2, 3, 4].map((week) => ({
+    week,
+    label: `${texts.value.week} ${week}`,
+    range: formatWeekRange(selectedYear.value, selectedMonth.value, week, languageStore.language),
+  }))
+})
+
+const selectWeek = (week) => {
+  selectedWeek.value = week
+  weekMenuOpen.value = false
+}
+
+const closeWeekMenuOnOutsideClick = (event) => {
+  if (!weekMenuOpen.value) return
+  if (weekMenuRoot.value?.contains(event.target)) return
+  weekMenuOpen.value = false
+}
 
 const formatDateKey = (date) => {
   const year = date.getFullYear()
@@ -724,22 +821,48 @@ const weekDays = computed(() => {
 
 const continueDocuments = computed(() => {
   const byKind = Object.fromEntries(worksheetStatuses.value.map((item) => [item.kind, item]))
+  const monthOpen = (item) => (item.schedule || []).some((entry) => (
+    Number(entry.year) === selectedYear.value
+    && Number(entry.month) === selectedMonth.value
+    && !entry.completed
+  ))
   const ranked = mergeDocumentCatalog(getDocumentCatalog(languageStore.language), catalogExtra.value).map((meta) => {
     const live = byKind[meta.kind] || {}
     const status = documentStatus(live)
-    const percent = live.completed ? 100 : Number(live.fill_percent || 0)
+    const openThisMonth = monthOpen(live)
+    const percent = live.completed && !openThisMonth ? 100 : Number(live.fill_percent || 0)
     return {
       ...meta,
       ...live,
       status,
+      openThisMonth,
       percent,
       to: `/dashboard/documents/${meta.kind.replaceAll('_', '-')}`,
     }
+  }).filter((item) => item.plan_task_id)
+
+  const needsUpdate = []
+  const drafts = []
+  const thisMonth = []
+  const rest = []
+  ranked.forEach((item) => {
+    if (item.status === 'needs_review' && item.filled) {
+      needsUpdate.push(item)
+      return
+    }
+    if (Number(item.fill_percent) >= 100 || item.status === 'up_to_date' || item.completed) return
+    if (item.status === 'draft') {
+      drafts.push(item)
+      return
+    }
+    if (item.openThisMonth) {
+      thisMonth.push(item)
+      return
+    }
+    if (!item.filled) rest.push(item)
   })
 
-  const inProgress = ranked.filter((item) => item.status === 'draft' || item.status === 'needs_review')
-  const notStarted = ranked.filter((item) => item.status === 'not_started')
-  return [...inProgress, ...notStarted].slice(0, 3)
+  return [...needsUpdate, ...drafts, ...thisMonth, ...rest].slice(0, 3)
 })
 
 const ideaTypeLabel = (title) => {
@@ -815,25 +938,6 @@ const taskStatusClass = (task) => {
     : 'bg-grey text-purple'
 }
 
-const formatMonthName = (year, month) => {
-  const names = languageStore.language === 'de'
-    ? ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember']
-    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-  return names[month - 1] || ''
-}
-
-const selectedProgressMonthLabel = computed(() => {
-  return formatMonthName(selectedYear.value, selectedMonth.value)
-})
-
-const onProgressMonthChange = async () => {
-  const [year, month] = progressMonthKey.value.split('-').map(Number)
-  if (!year || !month) return
-  selectedYear.value = year
-  selectedMonth.value = month
-  await fetchPlans()
-}
-
 const fetchAvailableMonths = async () => {
   try {
     const response = await axios.get('/api/plans/available-months')
@@ -844,7 +948,6 @@ const fetchAvailableMonths = async () => {
         const latest = availableMonths.value[0]
         selectedYear.value = latest.year
         selectedMonth.value = latest.month
-        progressMonthKey.value = `${latest.year}-${latest.month}`
       }
     } else {
       const now = new Date()
@@ -854,7 +957,6 @@ const fetchAvailableMonths = async () => {
       }]
       selectedYear.value = now.getFullYear()
       selectedMonth.value = now.getMonth() + 1
-      progressMonthKey.value = `${selectedYear.value}-${selectedMonth.value}`
     }
   } catch (error) {
     console.error('Failed to load available months:', error)
@@ -865,7 +967,6 @@ const fetchAvailableMonths = async () => {
     }]
     selectedYear.value = now.getFullYear()
     selectedMonth.value = now.getMonth() + 1
-    progressMonthKey.value = `${selectedYear.value}-${selectedMonth.value}`
   }
 }
 
@@ -927,7 +1028,6 @@ const generateMonthTasks = async () => {
       await fetchAvailableMonths()
       selectedYear.value = generateMonthYear.value
       selectedMonth.value = generateMonthMonth.value
-      progressMonthKey.value = `${generateMonthYear.value}-${generateMonthMonth.value}`
       await fetchPlans()
     }
   } catch (error) {
@@ -944,11 +1044,6 @@ const updateStats = () => {
     inProgressTasks: plans.value.reduce((sum, plan) => sum + ((plan.total_tasks || 0) - (plan.completed_tasks || 0)), 0),
     totalTasks: plans.value.reduce((sum, plan) => sum + (plan.total_tasks || 0), 0)
   }
-}
-
-const getProgressPercentage = (plan) => {
-  if (!plan.total_tasks || plan.total_tasks === 0) return 0
-  return Math.round((plan.completed_tasks || 0) / plan.total_tasks * 100)
 }
 
 function getTaskMinutes(task) {
@@ -1063,6 +1158,7 @@ const toggleTask = async (planTaskId, completed) => {
 }
 
 onMounted(async () => {
+  document.addEventListener('click', closeWeekMenuOnOutsideClick)
   try {
     const savedUser = localStorage.getItem('user')
     if (savedUser) {
@@ -1074,7 +1170,11 @@ onMounted(async () => {
   }
 
   await fetchAvailableMonths()
-  await Promise.all([fetchPlans(), fetchWeekIdeas(), fetchWorksheets()])
+  await Promise.all([fetchPlans(), fetchWeekIdeas(), fetchWorksheets(), fetchNotifications()])
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeWeekMenuOnOutsideClick)
 })
 </script>
 

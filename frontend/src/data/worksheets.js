@@ -72,17 +72,23 @@ const AUDIT_INSIGHT_FIELDS = [
   { key: 'gaps', step: 4, type: 'textarea', rows: 4 },
 ]
 
-const CONTENT_BANK_CATEGORIES = [
-  'quick_wins',
-  'education',
-  'results',
-  'behind_scenes',
-  'myths',
-  'promo',
-  'seasonal',
-]
+const CONTENT_BANK_ROW_KEYS = ['idea', 'category', 'format', 'priority', 'status']
+const CONTENT_BANK_ROW_COUNT = 10
 
 const AUDIT_ROW_KEYS = ['date', 'platform', 'topic', 'format', 'category', 'engagement', 'notes']
+const PLANNING_ROW_KEYS = ['week', 'channel', 'idea', 'format', 'cta', 'notes']
+
+function contentPlanRows(schema) {
+  const prefix = String(schema?.labels?.week || '').startsWith('Woche') ? 'Woche' : 'Week'
+  const blank = emptyFromKeys(schema?.rowKeys || PLANNING_ROW_KEYS)
+  const rows = []
+  for (let week = 1; week <= 4; week += 1) {
+    for (let slot = 0; slot < 4; slot += 1) {
+      rows.push({ ...blank, week: `${prefix} ${week}` })
+    }
+  }
+  return rows
+}
 
 function emptyFromKeys(keys) {
   return keys.reduce((acc, key) => {
@@ -149,6 +155,7 @@ export function mergeDocumentCatalog(base, extra) {
       title: item.title || item.kind,
       shortLabel: item.shortLabel || '',
       description: item.description || '',
+      image: item.image || '',
     }
     if (index >= 0) {
       const current = items[index]
@@ -159,6 +166,7 @@ export function mergeDocumentCatalog(base, extra) {
         title: current.title || mapped.title,
         shortLabel: current.shortLabel || mapped.shortLabel,
         description: current.description || mapped.description,
+        image: current.image || mapped.image || '',
       }
       return
     }
@@ -179,14 +187,20 @@ export function emptyWorksheetDocument(kind, schema) {
     }
   }
   if (schema?.layout === 'rows') {
+    const blank = emptyFromKeys(schema.rowKeys || [])
+    const count = kind === 'content_bank' ? CONTENT_BANK_ROW_COUNT : 1
     return {
       type: kind,
       fields: emptyFromKeys((schema.fields || []).map((field) => field.key)),
-      rows: [emptyFromKeys(schema.rowKeys || [])],
+      rows: Array.from({ length: count }, () => ({ ...blank })),
     }
   }
   if (schema?.fields?.length) {
-    return { type: kind, fields: emptyFromKeys(schema.fields.map((field) => field.key)) }
+    const doc = { type: kind, fields: emptyFromKeys(schema.fields.map((field) => field.key)) }
+    if ((schema.rowKeys || []).length) {
+      doc.rows = kind === 'content_planning' ? contentPlanRows(schema) : [emptyFromKeys(schema.rowKeys)]
+    }
+    return doc
   }
   if (kind === 'buyer_persona') {
     return { type: kind, fields: emptyBuyerPersonaFields() }
@@ -205,13 +219,11 @@ export function emptyWorksheetDocument(kind, schema) {
     }
   }
   if (kind === 'content_bank') {
+    const blank = emptyFromKeys(CONTENT_BANK_ROW_KEYS)
     return {
       type: kind,
       fields: {},
-      categories: CONTENT_BANK_CATEGORIES.reduce((acc, key) => {
-        acc[key] = ['']
-        return acc
-      }, {}),
+      rows: Array.from({ length: CONTENT_BANK_ROW_COUNT }, () => ({ ...blank })),
     }
   }
   return { type: kind, fields: {} }
@@ -312,6 +324,8 @@ export function getWorksheetSchema(kind, lang) {
       kind,
       layout: 'fields',
       fields: PLANNING_FIELDS,
+      rowKeys: PLANNING_ROW_KEYS,
+      rowTitle: isDe ? 'Dein monatlicher Content-Plan' : 'Your Monthly Content Plan',
       title: isDe ? 'Monats-Content-Planning-Vorlage' : 'Monthly Content Planning Template',
       intro: isDe
         ? 'Dein Monatsplan aus der Aufgabe. Ergänze ihn hier und lade ihn als PDF oder Word herunter.'
@@ -330,6 +344,12 @@ export function getWorksheetSchema(kind, lang) {
             hero_pieces: 'Wichtige Content-Stücke',
             ctas: 'CTAs für den Monat',
             channel_map: 'Verteilung auf die Kanäle',
+            week: 'Woche / Datum',
+            channel: 'Kanal',
+            idea: 'Thema / Content-Idee',
+            format: 'Format',
+            cta: 'CTA',
+            notes: 'Wiederverwendung / Notizen',
           }
         : {
             active_channels: 'Active channels',
@@ -341,6 +361,12 @@ export function getWorksheetSchema(kind, lang) {
             hero_pieces: 'Key content pieces',
             ctas: 'CTAs for the month',
             channel_map: 'How content maps across channels',
+            week: 'Week / Date',
+            channel: 'Channel',
+            idea: 'Content idea / topic',
+            format: 'Format',
+            cta: 'CTA',
+            notes: 'Repurpose or notes',
           },
       placeholders: isDe
         ? {
@@ -371,36 +397,44 @@ export function getWorksheetSchema(kind, lang) {
   if (kind === 'content_bank') {
     return {
       kind,
-      layout: 'categories',
+      layout: 'rows',
       fields: [],
-      categoryKeys: CONTENT_BANK_CATEGORIES,
+      rowKeys: CONTENT_BANK_ROW_KEYS,
       title: isDe ? 'Content-Bank-Vorlage' : 'Content Bank Template',
       intro: isDe
-        ? 'Sammle Ideen nach Kategorien. Alles, was du in der Aufgabe festhältst, landet hier.'
-        : 'Collect ideas by category. Anything you capture in the task lands here.',
+        ? 'Dieselbe Tabelle wie in der Aufgabe: Idee, Kategorie, Format, Priorität und Status.'
+        : 'The same table as in the task: idea, category, format, priority and status.',
       stepTitles: {},
       labels: isDe
         ? {
-            quick_wins: 'Schnelle Erfolge',
-            education: 'Bildung & Tipps',
-            results: 'Kundenergebnisse & Testimonials',
-            behind_scenes: 'Hinter den Kulissen',
-            myths: 'Mythen aufklären',
-            promo: 'Werbung',
-            seasonal: 'Saisonal',
+            idea: 'Content-Idee',
+            category: 'Kategorie',
+            format: 'Format',
+            priority: 'Priorität',
+            status: 'Status',
           }
         : {
-            quick_wins: 'Quick wins',
-            education: 'Education & tips',
-            results: 'Client results & testimonials',
-            behind_scenes: 'Behind the scenes',
-            myths: 'Myth-busting',
-            promo: 'Promotional',
-            seasonal: 'Seasonal',
+            idea: 'Content idea',
+            category: 'Category',
+            format: 'Format',
+            priority: 'Priority',
+            status: 'Status',
           },
       placeholders: isDe
-        ? { idea: 'Neue Idee…' }
-        : { idea: 'New idea…' },
+        ? {
+            idea: 'Idee',
+            category: 'Kategorie',
+            format: 'Reel, Karussell…',
+            priority: 'Hoch, Mittel, Niedrig',
+            status: 'Idee',
+          }
+        : {
+            idea: 'Idea',
+            category: 'Category',
+            format: 'Reel, carousel…',
+            priority: 'High, Medium, Low',
+            status: 'Idea',
+          },
     }
   }
 
@@ -412,8 +446,8 @@ export function getWorksheetSchema(kind, lang) {
     rowKeys: AUDIT_ROW_KEYS,
     title: isDe ? 'Content-Audit-Vorlage' : 'Content Audit Template',
     intro: isDe
-      ? 'Dein Content-Audit aus der Aufgabe. Ergänze Zeilen, Insights und Lücken – und lade es als PDF oder Word herunter.'
-      : 'Your content audit from the task. Add rows, insights and gaps — then download it as PDF or Word.',
+      ? 'Dein Content-Audit aus der Aufgabe. Ergänze Insights und Lücken – und lade es als PDF oder Word herunter.'
+      : 'Your content audit from the task. Add insights and gaps, then download it as PDF or Word.',
     stepTitles: isDe
       ? { 3: 'Schritt 3: Was funktioniert', 4: 'Schritt 4: Lücken & Chancen' }
       : { 3: 'Step 3: What’s working', 4: 'Step 4: Gaps & opportunities' },
@@ -423,8 +457,8 @@ export function getWorksheetSchema(kind, lang) {
           platform: 'Plattform',
           topic: 'Thema / Titel',
           format: 'Format',
-          category: 'Kategorie',
-          engagement: 'Engagement',
+          category: 'Content-Kategorie',
+          engagement: 'Performance',
           notes: 'Notizen',
           insights_topics: 'Themen, die ankommen',
           insights_formats: 'Formate, die funktionieren',
@@ -434,10 +468,10 @@ export function getWorksheetSchema(kind, lang) {
       : {
           date: 'Date',
           platform: 'Platform',
-          topic: 'Topic / title',
+          topic: 'Topic / Title',
           format: 'Format',
-          category: 'Category',
-          engagement: 'Engagement',
+          category: 'Content category',
+          engagement: 'Performance',
           notes: 'Notes',
           insights_topics: 'Topics that resonate',
           insights_formats: 'Formats that perform',
@@ -494,13 +528,27 @@ export function applyDocument(target, incoming, kind, schema) {
   })
   Object.assign(target.fields, empty.fields || {}, incoming?.fields || {})
 
+  const sections = Array.isArray(incoming?.sections) ? incoming.sections : []
+  target.sections = sections.map((section) => ({
+    plan_task_id: section.plan_task_id,
+    title: section.title || '',
+    headers: Array.isArray(section.headers) ? [...section.headers] : [],
+    rows: (section.rows || []).map((row) => ({ ...(empty.rows?.[0] || {}), ...row })),
+  }))
+
   if (empty.rows) {
     if (!Array.isArray(target.rows)) target.rows = []
-    target.rows.splice(
-      0,
-      target.rows.length,
-      ...(incoming?.rows?.length ? incoming.rows.map((row) => ({ ...empty.rows[0], ...row })) : empty.rows)
-    )
+    const rows = target.sections.length
+      ? target.sections.flatMap((section) => section.rows)
+      : incoming?.rows?.length
+      ? incoming.rows.map((row) => ({ ...empty.rows[0], ...row }))
+      : empty.rows.map((row) => ({ ...row }))
+    if (kind === 'content_bank') {
+      while (rows.length < empty.rows.length) {
+        rows.push({ ...empty.rows[0] })
+      }
+    }
+    target.rows.splice(0, target.rows.length, ...rows)
   }
   if (empty.categories) {
     if (!target.categories) target.categories = {}
@@ -531,7 +579,7 @@ export function getDocumentCatalog(lang) {
   return [
     {
       kind: 'buyer_persona',
-      group: 'brand',
+      group: 'marketing-foundations',
       title: isDe ? 'Buyer Persona' : 'Buyer Persona',
       shortLabel: isDe ? 'Wer dein idealer Kunde ist' : 'Who your ideal client is',
       description: isDe
@@ -540,7 +588,7 @@ export function getDocumentCatalog(lang) {
     },
     {
       kind: 'brand_identity',
-      group: 'brand',
+      group: 'marketing-foundations',
       title: isDe ? 'Markenidentität' : 'Brand Identity',
       shortLabel: isDe ? 'Wie deine Marke wirkt' : 'How your brand looks and sounds',
       description: isDe
@@ -549,7 +597,7 @@ export function getDocumentCatalog(lang) {
     },
     {
       kind: 'content_audit',
-      group: 'planning',
+      group: 'content',
       title: isDe ? 'Content Audit' : 'Content Audit',
       shortLabel: isDe ? 'Was bereits funktioniert' : 'What content already works',
       description: isDe
@@ -558,7 +606,7 @@ export function getDocumentCatalog(lang) {
     },
     {
       kind: 'content_bank',
-      group: 'planning',
+      group: 'social-media',
       title: isDe ? 'Content Bank' : 'Content Bank',
       shortLabel: isDe ? 'Ideen, bereit zum Posten' : 'Ideas ready to post',
       description: isDe
@@ -567,7 +615,7 @@ export function getDocumentCatalog(lang) {
     },
     {
       kind: 'content_planning',
-      group: 'planning',
+      group: 'content',
       title: isDe ? 'Monatsplanung' : 'Monthly Planning',
       shortLabel: isDe ? 'Dein Content für den Monat' : "This month's content plan",
       description: isDe
@@ -577,10 +625,18 @@ export function getDocumentCatalog(lang) {
   ]
 }
 
-export function getDocumentGroups(lang) {
-  const isDe = lang === 'de'
+export function getDocumentGroups() {
   return [
-    { id: 'brand', title: isDe ? 'Marke' : 'Brand' },
-    { id: 'planning', title: isDe ? 'Planung' : 'Planning' },
+    { id: 'goals', title: 'Goals' },
+    { id: 'marketing-foundations', title: 'Marketing Foundations' },
+    { id: 'digital-marketing-foundations', title: 'Digital Marketing Foundations' },
+    { id: 'local-seo', title: 'Local SEO' },
+    { id: 'content', title: 'Content' },
+    { id: 'social-media', title: 'Social Media' },
+    { id: 'website', title: 'Website' },
+    { id: 'email-marketing', title: 'Email Marketing' },
+    { id: 'paid-advertising', title: 'Paid Advertising' },
+    { id: 'leads-clients', title: 'Leads & Clients' },
+    { id: 'crm', title: 'CRM' },
   ]
 }

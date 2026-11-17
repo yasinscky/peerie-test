@@ -48,7 +48,7 @@ class WorksheetRegistry
             'buyer_persona' => [
                 'layout' => 'fields',
                 'filename' => 'Buyer-Persona',
-                'group' => 'brand',
+                'group' => 'marketing-foundations',
                 'title_needles' => ['buyer persona'],
                 'titles' => ['en' => 'Buyer Persona Template', 'de' => 'Buyer Persona Vorlage'],
                 'field_keys' => [
@@ -93,7 +93,7 @@ class WorksheetRegistry
             'brand_identity' => [
                 'layout' => 'fields',
                 'filename' => 'Brand-Identity',
-                'group' => 'brand',
+                'group' => 'marketing-foundations',
                 'title_needles' => ['brand identity', 'markenidentit', 'unternehmensmarke', 'personal/ company brand', 'personal or company brand', 'company brand'],
                 'titles' => ['en' => 'Brand Identity Template', 'de' => 'Markenidentität-Vorlage'],
                 'field_keys' => [
@@ -129,30 +129,30 @@ class WorksheetRegistry
                 ],
             ],
             'content_bank' => [
-                'layout' => 'categories',
+                'layout' => 'rows',
                 'filename' => 'Content-Bank',
-                'group' => 'planning',
+                'group' => 'social-media',
                 'title_needles' => ['content bank', 'contentbank'],
                 'titles' => ['en' => 'Content Bank Template', 'de' => 'Content-Bank-Vorlage'],
-                'category_keys' => ['quick_wins', 'education', 'results', 'behind_scenes', 'myths', 'promo', 'seasonal'],
+                'row_keys' => ['idea', 'category', 'format', 'priority', 'status'],
                 'field_keys' => [],
                 'sections' => [],
                 'step_titles' => ['en' => [], 'de' => []],
                 'labels' => [
                     'en' => [
-                        'quick_wins' => 'Quick wins', 'education' => 'Education & tips', 'results' => 'Client results & testimonials',
-                        'behind_scenes' => 'Behind the scenes', 'myths' => 'Myth-busting', 'promo' => 'Promotional', 'seasonal' => 'Seasonal',
+                        'idea' => 'Content idea', 'category' => 'Category', 'format' => 'Format',
+                        'priority' => 'Priority', 'status' => 'Status',
                     ],
                     'de' => [
-                        'quick_wins' => 'Schnelle Erfolge', 'education' => 'Bildung & Tipps', 'results' => 'Kundenergebnisse & Testimonials',
-                        'behind_scenes' => 'Hinter den Kulissen', 'myths' => 'Mythen aufklären', 'promo' => 'Werbung', 'seasonal' => 'Saisonal',
+                        'idea' => 'Content-Idee', 'category' => 'Kategorie', 'format' => 'Format',
+                        'priority' => 'Priorität', 'status' => 'Status',
                     ],
                 ],
             ],
             'content_audit' => [
                 'layout' => 'rows',
                 'filename' => 'Content-Audit',
-                'group' => 'planning',
+                'group' => 'content',
                 'title_needles' => ['content audit'],
                 'titles' => ['en' => 'Content Audit Template', 'de' => 'Content-Audit-Vorlage'],
                 'row_keys' => ['date', 'platform', 'topic', 'format', 'category', 'engagement', 'notes'],
@@ -169,14 +169,14 @@ class WorksheetRegistry
                 ],
                 'labels' => [
                     'en' => [
-                        'date' => 'Date', 'platform' => 'Platform', 'topic' => 'Topic / title', 'format' => 'Format',
-                        'category' => 'Category', 'engagement' => 'Engagement', 'notes' => 'Notes',
+                        'date' => 'Date', 'platform' => 'Platform', 'topic' => 'Topic / Title', 'format' => 'Format',
+                        'category' => 'Content category', 'engagement' => 'Performance', 'notes' => 'Notes',
                         'insights_topics' => 'Topics that resonate', 'insights_formats' => 'Formats that perform',
                         'insights_ignored' => 'What’s getting ignored', 'gaps' => 'Content gaps',
                     ],
                     'de' => [
                         'date' => 'Datum', 'platform' => 'Plattform', 'topic' => 'Thema / Titel', 'format' => 'Format',
-                        'category' => 'Kategorie', 'engagement' => 'Engagement', 'notes' => 'Notizen',
+                        'category' => 'Content-Kategorie', 'engagement' => 'Performance', 'notes' => 'Notizen',
                         'insights_topics' => 'Themen, die ankommen', 'insights_formats' => 'Formate, die funktionieren',
                         'insights_ignored' => 'Was ignoriert wird', 'gaps' => 'Content-Lücken',
                     ],
@@ -185,13 +185,14 @@ class WorksheetRegistry
             'content_planning' => [
                 'layout' => 'fields',
                 'filename' => 'Monthly-Content-Planning',
-                'group' => 'planning',
+                'group' => 'content',
                 'title_needles' => ['content planning', 'content calendar', 'monats content', 'plan content for the month', 'plane deinen content'],
                 'titles' => ['en' => 'Monthly Content Planning Template', 'de' => 'Monats-Content-Planning-Vorlage'],
                 'field_keys' => [
                     'active_channels', 'time_per_week', 'monthly_goal', 'whats_happening', 'audience_need',
                     'monthly_theme', 'hero_pieces', 'ctas', 'channel_map',
                 ],
+                'row_keys' => ['week', 'channel', 'idea', 'format', 'cta', 'notes'],
                 'sections' => [
                     1 => ['active_channels', 'time_per_week'],
                     2 => ['monthly_goal', 'whats_happening', 'audience_need', 'monthly_theme'],
@@ -208,12 +209,16 @@ class WorksheetRegistry
                         'monthly_goal' => 'Main goal this month', 'whats_happening' => 'What’s happening this month',
                         'audience_need' => 'What your audience needs now', 'monthly_theme' => 'Monthly theme',
                         'hero_pieces' => 'Key content pieces', 'ctas' => 'CTAs for the month', 'channel_map' => 'How content maps across channels',
+                        'week' => 'Week / Date', 'channel' => 'Channel', 'idea' => 'Content idea / topic',
+                        'format' => 'Format', 'cta' => 'CTA', 'notes' => 'Repurpose or notes',
                     ],
                     'de' => [
                         'active_channels' => 'Aktive Kanäle', 'time_per_week' => 'Zeit pro Woche',
                         'monthly_goal' => 'Hauptziel diesen Monat', 'whats_happening' => 'Was diesen Monat passiert',
                         'audience_need' => 'Was deine Zielgruppe jetzt braucht', 'monthly_theme' => 'Monatsthema',
                         'hero_pieces' => 'Wichtige Content-Stücke', 'ctas' => 'CTAs für den Monat', 'channel_map' => 'Verteilung auf die Kanäle',
+                        'week' => 'Woche / Datum', 'channel' => 'Kanal', 'idea' => 'Thema / Content-Idee',
+                        'format' => 'Format', 'cta' => 'CTA', 'notes' => 'Wiederverwendung / Notizen',
                     ],
                 ],
             ],

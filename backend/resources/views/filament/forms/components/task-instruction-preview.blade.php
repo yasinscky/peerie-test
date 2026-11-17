@@ -11,18 +11,20 @@
         .instruction-preview-content table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
             margin: 1rem 0;
         }
         .instruction-preview-content th,
         .instruction-preview-content td {
             border: 1px solid #d1d5db;
-            padding: 0.5rem 0.75rem;
+            padding: 0.625rem 0.75rem;
             text-align: left;
-            vertical-align: top;
+            vertical-align: middle;
         }
-        .instruction-preview-content th {
+        .instruction-preview-content tr:first-child th,
+        .instruction-preview-content tr:first-child td {
             background: #f3f4f6;
-            font-weight: 600;
+            font-weight: 700;
         }
     </style>
 

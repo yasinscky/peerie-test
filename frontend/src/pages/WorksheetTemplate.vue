@@ -53,7 +53,7 @@
 
     <div v-else>
       <div
-        v-if="planTaskId"
+        v-if="planTaskId && !document.sections?.length"
         class="mb-5 bg-white rounded-[30px] shadow-card px-5 py-4 flex flex-wrap items-center justify-between gap-3"
       >
         <p class="text-[14px] text-purple tracking-[-0.7px]">{{ texts.linkedTask }}</p>
@@ -64,7 +64,7 @@
           {{ texts.openTask }}
         </router-link>
       </div>
-      <div v-else class="mb-5 bg-white rounded-[30px] shadow-card px-5 py-4">
+      <div v-else-if="!document.sections?.length" class="mb-5 bg-white rounded-[30px] shadow-card px-5 py-4">
         <p class="text-[14px] text-purple tracking-[-0.7px]">{{ texts.missingTask }}</p>
       </div>
 
@@ -73,6 +73,8 @@
         :document="document"
         :add-label="texts.add"
         :remove-label="texts.remove"
+        :open-task-label="texts.openTask"
+        :worksheet-slug="slug"
       />
     </div>
   </div>
@@ -192,10 +194,15 @@ const saveDocument = async () => {
   isSaving.value = true
   saveState.value = 'saving'
   try {
+    const sections = (document.sections || []).map((section) => ({
+      plan_task_id: section.plan_task_id,
+      rows: section.rows || [],
+    }))
     await axios.put(`/api/worksheets/${kind.value}`, {
       fields: document.fields || {},
       rows: document.rows || [],
       categories: document.categories || {},
+      sections,
     })
     saveState.value = 'saved'
   } catch (saveError) {
@@ -254,9 +261,18 @@ const fetchTemplate = async () => {
       return
     }
     apiSchema.value = schemaFromApi(response.data.schema, kind.value)
+    const sectionTitle = response.data.document?.sections?.length ? response.data.document_title : ''
+    const pageTitle = sectionTitle || response.data.task_title
+    if (pageTitle && apiSchema.value) {
+      apiSchema.value = { ...apiSchema.value, title: pageTitle }
+    }
     resetDocument(kind.value)
     applyDocument(document, response.data.document, kind.value, schema.value)
     planTaskId.value = response.data.plan_task_id || null
+    if (!planTaskId.value) {
+      router.replace('/dashboard/documents')
+      return
+    }
     await nextTick()
     isHydrated.value = true
     saveState.value = 'idle'

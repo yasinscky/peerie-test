@@ -6,7 +6,7 @@
           <img :src="logoImage" alt="Peerie Logo" class="w-20 h-20 sm:w-32 sm:h-32 mx-auto">
           <h1 class="text-[24px] sm:text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black mb-2 sm:mb-3">Onboarding questionnaire</h1>
           <p class="text-[16px] text-purple/70 tracking-[-0.8px] max-w-[560px] mx-auto">
-            Tell us a bit about your business so we can build your customised marketing plan.
+            Tell us a bit about your business so we can build your customised action steps.
           </p>
         </div>
 
@@ -64,7 +64,7 @@
             </div>
 
             <div>
-              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">What language do you want to use for your marketing plan?</label>
+              <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-3">What language do you want to use for your action steps?</label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label
                   class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
@@ -79,12 +79,9 @@
                 </label>
                 <label
                   class="relative flex items-center p-4 rounded-[16px] border cursor-pointer transition-all"
-                  :class="[
-                    form.language === 'en' ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted',
-                    form.country === 'de' ? 'opacity-40 pointer-events-none' : ''
-                  ]"
+                  :class="form.language === 'en' ? 'border-red bg-rose' : 'border-grey bg-light-grey hover:bg-muted'"
                 >
-                  <input v-model="form.language" type="radio" value="en" class="sr-only" :disabled="form.country === 'de'" @change="updateProgress">
+                  <input v-model="form.language" type="radio" value="en" class="sr-only" @change="updateProgress">
                   <span class="text-2xl mr-3">🇬🇧</span>
                   <div class="font-bold text-[14px] tracking-[-0.7px] text-black">English</div>
                 </label>
@@ -116,7 +113,7 @@
             <div>
               <label class="block text-[14px] font-bold tracking-[-0.7px] text-black mb-1">How much time can you realistically spend on marketing each week?</label>
               <p class="text-[13px] text-purple/60 tracking-[-0.6px] mb-3">We'll tailor your plan to match your capacity.</p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <label
                   v-for="option in timeOptions"
                   :key="option.value"
@@ -472,7 +469,7 @@
                 Here's a quick summary of what you told us. If anything looks off, you can edit it now — it only takes a second.
               </p>
               <p class="text-[14px] text-purple/70 tracking-[-0.7px] mt-1">
-                When you're happy, continue — we'll generate your marketing plan using these answers.
+                When you're happy, continue — we'll generate your action steps using these answers.
               </p>
             </div>
 
@@ -616,9 +613,9 @@
 
         <div v-if="isSubmitted && planId" class="text-center py-8">
           <div class="text-6xl mb-4">🎉</div>
-          <h3 class="text-[24px] font-bold tracking-[-1.2px] text-black mb-2">Your marketing plan is ready 🎉</h3>
+          <h3 class="text-[24px] font-bold tracking-[-1.2px] text-black mb-2">Your action steps are ready 🎉</h3>
           <p class="text-[16px] text-purple/70 tracking-[-0.8px] mb-6">
-            Head to your dashboard to see your personalised plan and this month's tasks.
+            Head to your dashboard to see your personalised action steps and this month's tasks.
           </p>
           <router-link
             to="/dashboard"
@@ -704,7 +701,8 @@ export default {
 
     const timeOptions = [
       { value: 2, label: '2h Standard', description: '', icon: '⏰' },
-      { value: 4, label: '4h Turbo', description: '', icon: '⏱️' }
+      { value: 4, label: '4h Turbo', description: '', icon: '⏱️' },
+      { value: 6, label: '6h', description: '', icon: '⚡' }
     ]
 
     const adsOptions = [
@@ -981,7 +979,7 @@ export default {
     })
 
     watch(() => form.value.country, (newCountry) => {
-      if (newCountry === 'de' && form.value.language !== 'de') {
+      if (newCountry === 'de' && !form.value.language) {
         form.value.language = 'de'
       }
       if ((newCountry === 'uk' || newCountry === 'ie') && form.value.language !== 'en') {

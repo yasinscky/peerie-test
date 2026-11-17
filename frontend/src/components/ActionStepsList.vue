@@ -120,7 +120,7 @@ import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
 
 export default {
-  name: 'PlansList',
+  name: 'ActionStepsList',
   setup() {
     const languageStore = useLanguageStore()
     const plans = ref([])
@@ -130,11 +130,11 @@ export default {
     const texts = computed(() => {
       if (languageStore.language === 'de') {
         return {
-          title: 'Dein Marketingplan',
-          subtitle: 'Sieh dir deinen personalisierten Marketingplan aus deinem Fragebogen an',
-          loading: 'Pläne werden geladen...',
-          emptyTitle: 'Du hast noch keinen Plan',
-          emptyText: 'Fülle den Fragebogen aus, um automatisch deinen personalisierten Marketingplan zu erhalten',
+          title: 'Action Steps',
+          subtitle: 'Sieh dir deine personalisierten Action Steps aus deinem Fragebogen an',
+          loading: 'Action Steps werden geladen...',
+          emptyTitle: 'Du hast noch keine Action Steps',
+          emptyText: 'Fülle den Fragebogen aus, um automatisch deine personalisierten Action Steps zu erhalten',
           completeQuestionnaire: 'Fragebogen ausfüllen',
           created: 'Erstellt:',
           completed: 'abgeschlossen',
@@ -146,11 +146,11 @@ export default {
       }
 
       return {
-        title: 'My Marketing Plan',
-        subtitle: 'View your personalized marketing plan generated from your questionnaire',
-        loading: 'Loading plans...',
-        emptyTitle: 'No Plan Yet',
-        emptyText: 'Complete the questionnaire to get your personalized marketing plan generated automatically',
+        title: 'Action Steps',
+        subtitle: 'View your personalized action steps generated from your questionnaire',
+        loading: 'Loading action steps...',
+        emptyTitle: 'No action steps yet',
+        emptyText: 'Complete the questionnaire to get your personalized action steps generated automatically',
         completeQuestionnaire: 'Complete Questionnaire',
         created: 'Created:',
         completed: 'completed',
