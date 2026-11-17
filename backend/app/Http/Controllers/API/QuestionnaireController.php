@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\PlanResource;
 use App\Models\Plan;
 use App\Services\PlanGeneratorService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,9 +23,6 @@ class QuestionnaireController extends Controller
     {
         $data = $request->all();
         $country = $data['country'] ?? null;
-        if ($country === 'de') {
-            $data['language'] = 'de';
-        }
         if ($country === 'uk' || $country === 'ie') {
             $data['language'] = 'en';
         }
@@ -36,22 +32,22 @@ class QuestionnaireController extends Controller
             'industry' => 'required|string|in:beauty,physio,coaching',
             'language' => 'required|string|in:de,en',
             'is_local_business' => 'required|boolean',
-            'marketing_time_per_week' => 'required|integer|in:2,4',
-            
+            'marketing_time_per_week' => 'required|integer|in:2,4,6',
+
             'business_goals_defined' => 'required|boolean',
             'marketing_goals_defined' => 'required|boolean',
-            
+
             'google_business_claimed' => 'nullable|boolean',
             'core_directories_claimed' => 'nullable|boolean',
             'industry_directories_claimed' => 'nullable|boolean',
             'business_directories_claimed' => 'nullable|boolean',
-            
+
             'has_website' => 'required|boolean',
             'email_marketing_tool' => 'required|boolean',
             'crm_pipeline' => 'required|boolean',
             'running_ads' => 'nullable|array',
             'running_ads.*' => 'string|in:retargeting,paid_search,prospecting_social',
-            
+
             'has_primary_social_channel' => 'required|boolean',
             'primary_social_channel' => 'nullable|string|in:instagram,facebook,linkedin,tiktok,youtube,twitter',
             'has_secondary_social_channel' => 'required|boolean',
@@ -62,7 +58,7 @@ class QuestionnaireController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -80,15 +76,15 @@ class QuestionnaireController extends Controller
                 'physio' => 'Physio',
                 'coaching' => 'Coaching',
             ];
-            
-            $planTitle = 'Marketing Plan for ' . ($industryLabels[$request->industry] ?? $request->industry);
-            
+
+            $planTitle = 'Action Steps for '.($industryLabels[$request->industry] ?? $request->industry);
+
             $runningAds = $request->input('running_ads');
 
-            if (!is_array($runningAds) || empty($runningAds)) {
+            if (! is_array($runningAds) || empty($runningAds)) {
                 $runningAds = [];
             }
-            
+
             $plan = Plan::create([
                 'user_id' => Auth::id(),
                 'title' => $planTitle,
@@ -98,7 +94,7 @@ class QuestionnaireController extends Controller
                 'has_website' => $data['has_website'],
                 'marketing_time_per_week' => $data['marketing_time_per_week'],
                 'questionnaire_data' => $data,
-                
+
                 'industries' => [$data['industry']],
                 'business_goals_defined' => $data['business_goals_defined'],
                 'marketing_goals_defined' => $data['marketing_goals_defined'],
@@ -127,13 +123,13 @@ class QuestionnaireController extends Controller
                     'tasks' => $generatedPlan['tasks'] ?? [],
                     'total_tasks' => $generatedPlan['total_tasks'] ?? 0,
                     'total_minutes' => $generatedPlan['total_minutes'] ?? 0,
-                ]
+                ],
             ], 201);
 
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error creating plan: ' . $e->getMessage()
+                'message' => 'Error creating plan: '.$e->getMessage(),
             ], 500);
         }
     }

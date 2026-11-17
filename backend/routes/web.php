@@ -1,19 +1,27 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Validation\ValidationException;
-use App\Models\User;
-use App\Services\VerificationCodeService;
-use App\Services\ResendEmailService;
-use App\Http\Controllers\API\QuestionnaireController;
-use App\Http\Controllers\API\PlanController;
-use App\Http\Controllers\API\TaskController;
+use App\Http\Controllers\API\BuyerPersonaController;
+use App\Http\Controllers\API\ContentIdeasController;
 use App\Http\Controllers\API\HashtagController;
+use App\Http\Controllers\API\ImageController;
+use App\Http\Controllers\API\NotificationController;
+use App\Http\Controllers\API\PlanController;
+use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\API\QuestionnaireController;
+use App\Http\Controllers\API\ResourceController;
+use App\Http\Controllers\API\TaskController;
+use App\Http\Controllers\API\WorksheetController;
+use App\Models\User;
+use App\Services\ResendEmailService;
+use App\Services\VerificationCodeService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -40,6 +48,7 @@ Route::post('/admin/login', function (Request $request) {
 
     if (Auth::guard('admin')->attempt($credentials, $request->filled('remember'))) {
         $request->session()->regenerate();
+
         return redirect('/admin');
     }
 
@@ -54,17 +63,17 @@ const VERIFICATION_COOLDOWN_TTL_MINUTES = 360;
 
 function getRegistrationVerificationLastSentKey(int $userId): string
 {
-    return 'registration_verification_last_sent:' . $userId;
+    return 'registration_verification_last_sent:'.$userId;
 }
 
 function getRegistrationVerificationResendCountKey(int $userId): string
 {
-    return 'registration_verification_resend_count:' . $userId;
+    return 'registration_verification_resend_count:'.$userId;
 }
 
 function getVerificationRetryAfter(?int $lastSentAt, int $cooldownSeconds): int
 {
-    if (!$lastSentAt) {
+    if (! $lastSentAt) {
         return 0;
     }
 
@@ -98,7 +107,7 @@ Route::prefix('api')->group(function () {
         app(ResendEmailService::class)->send(
             $user->email,
             'Verification code for Peerie',
-            '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
+            '<p>Your verification code is: <strong>'.$codeData['plain'].'</strong></p>'
         );
 
         Cache::put(getRegistrationVerificationLastSentKey($user->id), time(), now()->addMinutes(VERIFICATION_COOLDOWN_TTL_MINUTES));
@@ -127,7 +136,7 @@ Route::prefix('api')->group(function () {
 
         $email = is_string($request->email) ? mb_strtolower(trim($request->email)) : $request->email;
 
-        if (!Auth::attempt(['email' => $email, 'password' => $request->password], $request->filled('remember'))) {
+        if (! Auth::attempt(['email' => $email, 'password' => $request->password], $request->filled('remember'))) {
             throw ValidationException::withMessages([
                 'email' => ['Invalid credentials.'],
             ]);
@@ -135,14 +144,14 @@ Route::prefix('api')->group(function () {
 
         $user = Auth::user();
 
-        if (!$user->email_verified_at) {
+        if (! $user->email_verified_at) {
             $service = app(VerificationCodeService::class);
             $codeData = $service->createCode($user, 'registration');
 
             app(ResendEmailService::class)->send(
                 $user->email,
                 'Verification code for Peerie',
-                '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
+                '<p>Your verification code is: <strong>'.$codeData['plain'].'</strong></p>'
             );
 
             Auth::logout();
@@ -200,7 +209,7 @@ Route::prefix('api')->group(function () {
         $service = app(VerificationCodeService::class);
         $verified = $service->verifyCode($user, 'registration', $request->input('code'));
 
-        if (!$verified) {
+        if (! $verified) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid or expired verification code.',
@@ -246,7 +255,7 @@ Route::prefix('api')->group(function () {
             ], 429);
         }
 
-        if (!Cache::has(getRegistrationVerificationResendCountKey($user->id))) {
+        if (! Cache::has(getRegistrationVerificationResendCountKey($user->id))) {
             Cache::put(getRegistrationVerificationResendCountKey($user->id), 0, now()->addMinutes(VERIFICATION_COUNTER_TTL_MINUTES));
         }
 
@@ -256,7 +265,7 @@ Route::prefix('api')->group(function () {
         app(ResendEmailService::class)->send(
             $user->email,
             'Verification code for Peerie',
-            '<p>Your verification code is: <strong>' . $codeData['plain'] . '</strong></p>'
+            '<p>Your verification code is: <strong>'.$codeData['plain'].'</strong></p>'
         );
 
         Cache::put(getRegistrationVerificationLastSentKey($user->id), time(), now()->addMinutes(VERIFICATION_COOLDOWN_TTL_MINUTES));
@@ -285,7 +294,7 @@ Route::prefix('api')->group(function () {
         $email = is_string($request->email) ? mb_strtolower(trim($request->email)) : $request->email;
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'success' => true,
                 'message' => 'If the email exists, a password reset code has been sent.',
@@ -298,7 +307,7 @@ Route::prefix('api')->group(function () {
         app(ResendEmailService::class)->send(
             $user->email,
             'Reset your password',
-            '<p>Your password reset code is: <strong>' . $codeData['plain'] . '</strong></p>'
+            '<p>Your password reset code is: <strong>'.$codeData['plain'].'</strong></p>'
         );
 
         $response = [
@@ -326,7 +335,7 @@ Route::prefix('api')->group(function () {
         $service = app(VerificationCodeService::class);
         $verified = $service->verifyCode($user, 'password_reset', $request->input('code'));
 
-        if (!$verified) {
+        if (! $verified) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid or expired verification code.',
@@ -343,15 +352,15 @@ Route::prefix('api')->group(function () {
     })->middleware('throttle:10,15');
 
     Route::middleware('auth')->group(function () {
-        Route::get('/user', [App\Http\Controllers\API\ProfileController::class, 'show']);
+        Route::get('/user', [ProfileController::class, 'show']);
         Route::post('/questionnaire', [QuestionnaireController::class, 'submit']);
 
         Route::prefix('profile')->group(function () {
-            Route::put('/', [App\Http\Controllers\API\ProfileController::class, 'update']);
-            Route::put('/password', [App\Http\Controllers\API\ProfileController::class, 'updatePassword']);
-            Route::post('/email/request-change', [App\Http\Controllers\API\ProfileController::class, 'requestEmailChange']);
-            Route::post('/email/confirm-change', [App\Http\Controllers\API\ProfileController::class, 'confirmEmailChange']);
-            Route::post('/password/request-change', [App\Http\Controllers\API\ProfileController::class, 'requestPasswordChange']);
+            Route::put('/', [ProfileController::class, 'update']);
+            Route::put('/password', [ProfileController::class, 'updatePassword']);
+            Route::post('/email/request-change', [ProfileController::class, 'requestEmailChange']);
+            Route::post('/email/confirm-change', [ProfileController::class, 'confirmEmailChange']);
+            Route::post('/password/request-change', [ProfileController::class, 'requestPasswordChange']);
         });
 
         Route::middleware('questionnaire.completed')->group(function () {
@@ -361,17 +370,17 @@ Route::prefix('api')->group(function () {
             Route::post('/plans/generate-month', [PlanController::class, 'generateMonth']);
             Route::get('/plan-tasks/{planTaskId}', [PlanController::class, 'showPlanTask']);
             Route::put('/plan/{planId}/plan-task/{planTaskId}', [PlanController::class, 'updateTaskStatus']);
-            
+
             Route::get('/tasks', [TaskController::class, 'index']);
             Route::get('/tasks/{id}', [TaskController::class, 'show']);
 
             Route::prefix('images')->group(function () {
-                Route::post('/search', [App\Http\Controllers\API\ImageController::class, 'search']);
-                Route::post('/search/category', [App\Http\Controllers\API\ImageController::class, 'searchByCategory']);
-                Route::get('/popular', [App\Http\Controllers\API\ImageController::class, 'popular']);
-                Route::get('/{id}', [App\Http\Controllers\API\ImageController::class, 'getImage']);
-                Route::get('/{id}/download', [App\Http\Controllers\API\ImageController::class, 'download']);
-                Route::post('/download-proxy', [App\Http\Controllers\API\ImageController::class, 'downloadProxy']);
+                Route::post('/search', [ImageController::class, 'search']);
+                Route::post('/search/category', [ImageController::class, 'searchByCategory']);
+                Route::get('/popular', [ImageController::class, 'popular']);
+                Route::get('/{id}', [ImageController::class, 'getImage']);
+                Route::get('/{id}/download', [ImageController::class, 'download']);
+                Route::post('/download-proxy', [ImageController::class, 'downloadProxy']);
             });
 
             Route::get('/discord/invite', function () {
@@ -381,30 +390,32 @@ Route::prefix('api')->group(function () {
             });
 
             Route::get('/hashtags', [HashtagController::class, 'index']);
+            Route::get('/notifications', [NotificationController::class, 'index']);
+            Route::post('/notifications/read', [NotificationController::class, 'markAllRead']);
 
             Route::prefix('content-ideas')->group(function () {
-                Route::get('/available-months', [App\Http\Controllers\API\ContentIdeasController::class, 'getAvailableMonths']);
-                Route::get('/by-month', [App\Http\Controllers\API\ContentIdeasController::class, 'getByMonth']);
-                Route::get('/by-date', [App\Http\Controllers\API\ContentIdeasController::class, 'getByDate']);
+                Route::get('/available-months', [ContentIdeasController::class, 'getAvailableMonths']);
+                Route::get('/by-month', [ContentIdeasController::class, 'getByMonth']);
+                Route::get('/by-date', [ContentIdeasController::class, 'getByDate']);
             });
 
             Route::prefix('resources')->group(function () {
-                Route::get('/', [App\Http\Controllers\API\ResourceController::class, 'index']);
-                Route::get('/download', [App\Http\Controllers\API\ResourceController::class, 'download']);
-                Route::get('/download/{id}', [App\Http\Controllers\API\ResourceController::class, 'downloadById']);
+                Route::get('/', [ResourceController::class, 'index']);
+                Route::get('/download', [ResourceController::class, 'download']);
+                Route::get('/download/{id}', [ResourceController::class, 'downloadById']);
             });
 
             Route::prefix('buyer-persona')->group(function () {
-                Route::get('/', [App\Http\Controllers\API\BuyerPersonaController::class, 'show']);
-                Route::put('/', [App\Http\Controllers\API\BuyerPersonaController::class, 'update']);
-                Route::get('/export', [App\Http\Controllers\API\BuyerPersonaController::class, 'export']);
+                Route::get('/', [BuyerPersonaController::class, 'show']);
+                Route::put('/', [BuyerPersonaController::class, 'update']);
+                Route::get('/export', [BuyerPersonaController::class, 'export']);
             });
 
             Route::prefix('worksheets')->group(function () {
-                Route::get('/', [App\Http\Controllers\API\WorksheetController::class, 'index']);
-                Route::get('/{kind}', [App\Http\Controllers\API\WorksheetController::class, 'show']);
-                Route::put('/{kind}', [App\Http\Controllers\API\WorksheetController::class, 'update']);
-                Route::get('/{kind}/export', [App\Http\Controllers\API\WorksheetController::class, 'export']);
+                Route::get('/', [WorksheetController::class, 'index']);
+                Route::get('/{kind}', [WorksheetController::class, 'show']);
+                Route::put('/{kind}', [WorksheetController::class, 'update']);
+                Route::get('/{kind}/export', [WorksheetController::class, 'export']);
             });
         });
     });

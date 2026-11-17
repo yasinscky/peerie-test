@@ -4,11 +4,13 @@ namespace App\Filament\Resources\TaskResource\Pages;
 
 use App\Filament\Resources\TaskResource;
 use App\Models\Task;
+use App\Services\NotionInstructionHtml;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateTask extends CreateRecord
 {
     protected static string $resource = TaskResource::class;
+
     protected static bool $canCreateAnother = false;
 
     protected function mutateFormDataBeforeCreate(array $data): array
@@ -36,11 +38,11 @@ class CreateTask extends CreateRecord
         }
 
         if (isset($data['local_presence_options']) && is_array($data['local_presence_options'])) {
-            $data['local_presence_options'] = !empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
+            $data['local_presence_options'] = ! empty($data['local_presence_options']) ? $data['local_presence_options'][0] : 'any';
         }
 
         if (isset($data['template']) && is_array($data['template'])) {
-            $data['template'] = !empty($data['template']) ? $data['template'][0] : 'no';
+            $data['template'] = ! empty($data['template']) ? $data['template'][0] : 'no';
         }
 
         if (isset($data['prerequisites']) && is_array($data['prerequisites'])) {
@@ -51,6 +53,20 @@ class CreateTask extends CreateRecord
             $data['prerequisites'] = [];
         }
 
-        return Task::normalizeDocumentPayload($data);
+        return $this->normalizeInstruction(Task::normalizeDocumentPayload(Task::normalizeSchedulingPayload($data)));
+    }
+
+    protected function afterCreate(): void
+    {
+        $this->record->syncDocumentCover();
+    }
+
+    private function normalizeInstruction(array $data): array
+    {
+        if (isset($data['description']) && is_string($data['description']) && $data['description'] !== '') {
+            $data['description'] = app(NotionInstructionHtml::class)->repairTables($data['description']);
+        }
+
+        return $data;
     }
 }

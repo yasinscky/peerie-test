@@ -12,16 +12,18 @@ class PlansRelationManager extends RelationManager
 {
     protected static string $relationship = 'plans';
 
-    protected static ?string $title = 'User plans';
-    protected static ?string $modelLabel = 'Plan';
-    protected static ?string $pluralModelLabel = 'Plans';
+    protected static ?string $title = 'Action steps';
+
+    protected static ?string $modelLabel = 'Action step';
+
+    protected static ?string $pluralModelLabel = 'Action steps';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('title')
-                    ->label('Plan title')
+                    ->label('Title')
                     ->maxLength(255),
             ]);
     }
@@ -50,7 +52,7 @@ class PlansRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('completed_tasks')
                     ->label('Completed tasks')
                     ->badge()
-                    ->formatStateUsing(fn ($state, $record) => $record->completed_tasks . ' / ' . $record->total_tasks),
+                    ->formatStateUsing(fn ($state, $record) => $record->completed_tasks.' / '.$record->total_tasks),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created at')
                     ->dateTime('d.m.Y H:i')
@@ -94,4 +96,3 @@ class PlansRelationManager extends RelationManager
             ->defaultSort('created_at', 'desc');
     }
 }
-

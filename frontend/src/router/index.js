@@ -7,7 +7,7 @@ import Register from '../pages/Register.vue'
 import ForgotPassword from '../pages/ForgotPassword.vue'
 import Dashboard from '../pages/Dashboard.vue'
 import DashboardHome from '../pages/DashboardHome.vue'
-import MarketingPlans from '../pages/MarketingPlans.vue'
+import ActionSteps from '../pages/ActionSteps.vue'
 import ImageGenerator from '../pages/ImageGenerator.vue'
 import Settings from '../pages/Settings.vue'
 import Hashtags from '../pages/Hashtags.vue'
@@ -15,10 +15,10 @@ import Community from '../pages/Community.vue'
 import Learn from '../pages/Learn.vue'
 import Documents from '../pages/Documents.vue'
 import WorksheetTemplate from '../pages/WorksheetTemplate.vue'
-import ContentIdeas from '../pages/ContentIdeas.vue'
+import ContentCalendar from '../pages/ContentCalendar.vue'
 import TaskDetail from '../pages/TaskDetail.vue'
 import MultiStepQuestionnaire from '../components/MultiStepQuestionnaire.vue'
-import PlansList from '../components/PlansList.vue'
+import ActionStepsList from '../components/ActionStepsList.vue'
 
 const { posthog } = usePostHog()
 
@@ -55,9 +55,17 @@ const routes = [
         component: DashboardHome
       },
       {
+        path: 'action-steps',
+        name: 'ActionSteps',
+        component: ActionSteps
+      },
+      {
         path: 'marketing-plans',
-        name: 'MarketingPlans',
-        component: MarketingPlans
+        redirect: (to) => ({
+          path: '/dashboard/action-steps',
+          query: to.query,
+          hash: to.hash,
+        }),
       },
       {
         path: 'image-generator',
@@ -99,9 +107,17 @@ const routes = [
         component: WorksheetTemplate
       },
       {
+        path: 'content-calendar',
+        name: 'ContentCalendar',
+        component: ContentCalendar
+      },
+      {
         path: 'content-ideas',
-        name: 'ContentIdeas',
-        component: ContentIdeas
+        redirect: (to) => ({
+          path: '/dashboard/content-calendar',
+          query: to.query,
+          hash: to.hash,
+        }),
       },
       {
         path: 'tasks/:planTaskId',
@@ -113,7 +129,11 @@ const routes = [
   {
     path: '/marketing-plans',
     name: 'MarketingPlansRedirect',
-    redirect: '/dashboard/marketing-plans'
+    redirect: (to) => ({
+      path: '/dashboard/action-steps',
+      query: to.query,
+      hash: to.hash,
+    })
   },
   {
     path: '/image-generator',
@@ -128,7 +148,11 @@ const routes = [
   {
     path: '/content-ideas',
     name: 'ContentIdeasRedirect',
-    redirect: '/dashboard/content-ideas'
+    redirect: (to) => ({
+      path: '/dashboard/content-calendar',
+      query: to.query,
+      hash: to.hash,
+    })
   },
   {
     path: '/questionnaire',
@@ -138,8 +162,8 @@ const routes = [
   },
   {
     path: '/plans',
-    name: 'PlansList',
-    component: PlansList,
+    name: 'ActionStepsList',
+    component: ActionStepsList,
     meta: { requiresAuth: true }
   }
 ]

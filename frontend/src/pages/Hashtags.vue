@@ -8,7 +8,7 @@
     <div class="bg-white rounded-[30px] shadow-card p-5 md:p-8">
       <div class="mb-6 space-y-3">
         <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none">{{ headerTitle }}</h2>
-        <p class="text-[16px] text-purple/70 tracking-[-0.8px] leading-relaxed max-w-[820px]">
+        <p class="text-[18px] text-purple/70 tracking-[-0.8px] leading-relaxed">
           {{ introDescription }}
         </p>
       </div>
@@ -31,17 +31,17 @@
               :key="sectionIndex"
               class="bg-light-grey rounded-[20px] border-4 border-rose p-5"
             >
-              <h3 class="text-[18px] font-bold tracking-[-0.9px] text-black mb-4">{{ section.title }}</h3>
+              <h3 class="text-[22px] font-bold tracking-[-1.1px] text-black mb-4">{{ section.title }}</h3>
               <div class="space-y-4">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="itemIndex"
                   class="space-y-1"
                 >
-                  <h4 v-if="item.subtitle" class="text-[14px] font-bold tracking-[-0.7px] text-black">
+                  <h4 v-if="item.subtitle" class="text-[16px] font-bold tracking-[-0.8px] text-black">
                     {{ item.subtitle }}
                   </h4>
-                  <p class="text-[14px] text-purple/70 tracking-[-0.7px] leading-relaxed">
+                  <p class="text-[16px] text-purple/70 tracking-[-0.8px] leading-relaxed">
                     {{ item.text }}
                   </p>
                 </div>
@@ -51,8 +51,8 @@
 
           <div v-for="(block, index) in hashtagBlocks" :key="index" class="space-y-3">
             <div>
-              <h4 class="text-[18px] font-bold tracking-[-0.9px] text-black mb-1">{{ block.title }}</h4>
-              <p class="text-[14px] text-purple/70 tracking-[-0.7px]">{{ block.description }}</p>
+              <h4 class="text-[22px] font-bold tracking-[-1.1px] text-black mb-1">{{ block.title }}</h4>
+              <p class="text-[16px] text-purple/70 tracking-[-0.8px] leading-relaxed">{{ block.description }}</p>
             </div>
 
             <div class="relative bg-light-grey rounded-[20px] border-4 border-rose p-4 pr-14">
@@ -67,7 +67,7 @@
                 </svg>
               </button>
 
-              <div class="text-black break-words">
+              <div class="text-[16px] text-black break-words leading-relaxed">
                 <template v-if="(block.title === '5 – Branded' || block.title === '5 – Marke') && isBrandedFormat(block.tags)">
                   <div v-for="(item, i) in block.tags" :key="i" class="mb-3 last:mb-0">
                     <span class="font-medium">{{ item.tag || item }}</span>
@@ -76,23 +76,23 @@
                 </template>
                 <template v-else-if="(block.title === '3 – Industry & Expertise' || block.title === '3 – Branche & Expertise') && block.categories">
                   <div v-for="(tags, categoryName, index) in block.categories" :key="categoryName" :class="{'mt-4': index > 0}">
-                    <div class="mb-2 text-[14px] font-bold tracking-[-0.7px] text-black">{{ categoryName }}:</div>
+                    <div class="mb-2 text-[16px] font-bold tracking-[-0.8px] text-black">{{ categoryName }}:</div>
                     <div>
                       <span
                         v-for="(tag, i) in tags"
                         :key="i"
-                        class="inline-flex items-center mr-2 mb-2 px-2.5 py-1 rounded-full bg-white text-[13px] tracking-[-0.5px] text-purple"
+                        class="inline-flex items-center mr-2 mb-2 px-3 py-1.5 rounded-full bg-white text-[15px] tracking-[-0.5px] text-purple"
                       >{{ tag }}</span>
                     </div>
                   </div>
                 </template>
                 <template v-else-if="block.title === '4 – Niche' || block.title === '4 – Nische'">
-                  <div class="mb-2 text-[13px] text-purple/70 italic">{{ LOCALES[userLanguage]?.nicheExamplePrefix || LOCALES.en.nicheExamplePrefix }}</div>
+                  <div class="mb-2 text-[15px] text-purple/70 italic">{{ LOCALES[userLanguage]?.nicheExamplePrefix || LOCALES.en.nicheExamplePrefix }}</div>
                   <div>
                     <span
                       v-for="(tag, i) in block.tags"
                       :key="i"
-                      class="inline-flex items-center mr-2 mb-2 px-2.5 py-1 rounded-full bg-white text-[13px] font-medium tracking-[-0.5px] text-black"
+                      class="inline-flex items-center mr-2 mb-2 px-3 py-1.5 rounded-full bg-white text-[15px] font-medium tracking-[-0.5px] text-black"
                     >{{ tag }}</span>
                   </div>
                 </template>
@@ -100,7 +100,7 @@
                   <span
                     v-for="(tag, i) in block.tags"
                     :key="i"
-                    class="inline-flex items-center mr-2 mb-2 px-2.5 py-1 rounded-full bg-white text-[13px] tracking-[-0.5px] text-purple"
+                    class="inline-flex items-center mr-2 mb-2 px-3 py-1.5 rounded-full bg-white text-[15px] tracking-[-0.5px] text-purple"
                   >{{ tag }}</span>
                 </template>
               </div>
@@ -113,17 +113,17 @@
               :key="sectionIndex"
               class="bg-light-grey rounded-[20px] border-4 border-rose p-5"
             >
-              <h3 class="text-[18px] font-bold tracking-[-0.9px] text-black mb-4">{{ section.title }}</h3>
+              <h3 class="text-[22px] font-bold tracking-[-1.1px] text-black mb-4">{{ section.title }}</h3>
               <div class="space-y-4">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="itemIndex"
                   class="space-y-1"
                 >
-                  <h4 v-if="item.subtitle" class="text-[14px] font-bold tracking-[-0.7px] text-black">
+                  <h4 v-if="item.subtitle" class="text-[16px] font-bold tracking-[-0.8px] text-black">
                     {{ item.subtitle }}
                   </h4>
-                  <p class="text-[14px] text-purple/70 tracking-[-0.7px] leading-relaxed">
+                  <p class="text-[16px] text-purple/70 tracking-[-0.8px] leading-relaxed">
                     {{ item.text }}
                   </p>
                 </div>

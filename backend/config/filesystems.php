@@ -13,7 +13,15 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL') . '/storage',
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        'document_covers' => [
+            'driver' => 'local',
+            'root' => public_path('document-covers'),
+            'url' => rtrim((string) env('APP_URL', 'http://localhost'), '/').'/document-covers',
             'visibility' => 'public',
             'throw' => false,
         ],
@@ -23,4 +31,3 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 ];
-

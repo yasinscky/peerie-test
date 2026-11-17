@@ -31,11 +31,11 @@ class ContentIdeaResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
 
-    protected static ?string $navigationLabel = 'Content Ideas';
+    protected static ?string $navigationLabel = 'Content Calendar';
 
-    protected static ?string $modelLabel = 'Content Idea';
+    protected static ?string $modelLabel = 'Content Calendar';
 
-    protected static ?string $pluralModelLabel = 'Content Ideas';
+    protected static ?string $pluralModelLabel = 'Content Calendar';
 
     protected static ?string $navigationGroup = 'Content';
 

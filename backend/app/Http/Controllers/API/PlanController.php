@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlanResource;
 use App\Models\Plan;
-use App\Models\Task;
 use App\Models\PlanTask;
+use App\Models\Task;
 use App\Services\PlanGeneratorService;
-use Illuminate\Http\Request;
+use App\Services\WorksheetService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -38,7 +40,7 @@ class PlanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -59,13 +61,13 @@ class PlanController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Plan created successfully',
-                'plan' => $generatedPlan
+                'plan' => $generatedPlan,
             ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create plan: ' . $e->getMessage()
+                'message' => 'Failed to create plan: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -86,62 +88,62 @@ class PlanController extends Controller
         $currentMonth = now()->month;
 
         foreach ($plans as $plan) {
-            $hasTasksForRequestedMonth = \App\Models\PlanTask::where('plan_id', $plan->id)
+            $hasTasksForRequestedMonth = PlanTask::where('plan_id', $plan->id)
                 ->where('year', $year)
                 ->where('month', $month)
                 ->exists();
 
-            if (!$hasTasksForRequestedMonth) {
+            if (! $hasTasksForRequestedMonth) {
                 try {
                     $this->planGenerator->generatePlanForMonth($plan, $year, $month);
                 } catch (\Exception $e) {
-                    \Log::error("Failed to auto-generate tasks for plan {$plan->id} for {$year}-{$month}: " . $e->getMessage());
+                    \Log::error("Failed to auto-generate tasks for plan {$plan->id} for {$year}-{$month}: ".$e->getMessage());
                 }
             } else {
-                $planCreatedAt = $plan->created_at instanceof \Carbon\Carbon
+                $planCreatedAt = $plan->created_at instanceof Carbon
                     ? $plan->created_at
-                    : \Carbon\Carbon::parse($plan->created_at ?? \Carbon\Carbon::now());
-                
-                $requestedDate = \Carbon\Carbon::create($year, $month, 1)->startOfMonth();
-                $planStartDate = \Carbon\Carbon::create($planCreatedAt->year, $planCreatedAt->month, 1)->startOfMonth();
-                
+                    : Carbon::parse($plan->created_at ?? Carbon::now());
+
+                $requestedDate = Carbon::create($year, $month, 1)->startOfMonth();
+                $planStartDate = Carbon::create($planCreatedAt->year, $planCreatedAt->month, 1)->startOfMonth();
+
                 if ($requestedDate->gt($planStartDate)) {
-                    $previousMonthsTasks = \App\Models\PlanTask::where('plan_id', $plan->id)
+                    $previousMonthsTasks = PlanTask::where('plan_id', $plan->id)
                         ->where(function ($query) use ($year, $month) {
                             $query->where('year', '<', $year)
-                                  ->orWhere(function ($q) use ($year, $month) {
-                                      $q->where('year', $year)
+                                ->orWhere(function ($q) use ($year, $month) {
+                                    $q->where('year', $year)
                                         ->where('month', '<', $month);
-                                  });
+                                });
                         })
                         ->pluck('task_id')
                         ->unique()
                         ->toArray();
-                    
-                    $currentMonthTasks = \App\Models\PlanTask::where('plan_id', $plan->id)
+
+                    $currentMonthTasks = PlanTask::where('plan_id', $plan->id)
                         ->where('year', $year)
                         ->where('month', $month)
                         ->pluck('task_id')
                         ->unique()
                         ->toArray();
-                    
-                    $onceTasksInCurrentMonth = \App\Models\Task::whereIn('id', $currentMonthTasks)
+
+                    $onceTasksInCurrentMonth = Task::whereIn('id', $currentMonthTasks)
                         ->where('frequency', 'once')
                         ->pluck('id')
                         ->toArray();
-                    
-                    $onceTasksInPreviousMonths = \App\Models\Task::whereIn('id', $previousMonthsTasks)
+
+                    $onceTasksInPreviousMonths = Task::whereIn('id', $previousMonthsTasks)
                         ->where('frequency', 'once')
                         ->pluck('id')
                         ->toArray();
-                    
-                    $hasOnceTasksFromPreviousMonths = !empty(array_intersect($onceTasksInCurrentMonth, $onceTasksInPreviousMonths));
-                    
+
+                    $hasOnceTasksFromPreviousMonths = ! empty(array_intersect($onceTasksInCurrentMonth, $onceTasksInPreviousMonths));
+
                     if ($hasOnceTasksFromPreviousMonths) {
                         try {
                             $this->planGenerator->generatePlanForMonth($plan, $year, $month);
                         } catch (\Exception $e) {
-                            \Log::error("Failed to re-generate tasks for plan {$plan->id} for {$year}-{$month}: " . $e->getMessage());
+                            \Log::error("Failed to re-generate tasks for plan {$plan->id} for {$year}-{$month}: ".$e->getMessage());
                         }
                     }
                 }
@@ -152,15 +154,15 @@ class PlanController extends Controller
             try {
                 $this->planGenerator->syncNewTasksForMonth($plan, $year, $month);
             } catch (\Exception $e) {
-                \Log::error("Failed to sync new tasks for plan {$plan->id} for {$year}-{$month}: " . $e->getMessage());
+                \Log::error("Failed to sync new tasks for plan {$plan->id} for {$year}-{$month}: ".$e->getMessage());
             }
         }
 
         $plans->load(['tasks' => function ($query) use ($year, $month) {
             $query->where('plan_tasks.year', $year)
-                  ->where('plan_tasks.month', $month)
-                  ->orderBy('plan_tasks.week')
-                  ->orderBy('plan_tasks.created_at');
+                ->where('plan_tasks.month', $month)
+                ->orderBy('plan_tasks.week')
+                ->orderBy('plan_tasks.created_at');
         }]);
 
         return response()->json([
@@ -178,7 +180,7 @@ class PlanController extends Controller
         if ($plan->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied'
+                'message' => 'Access denied',
             ], 403);
         }
 
@@ -188,14 +190,14 @@ class PlanController extends Controller
         try {
             $this->planGenerator->syncNewTasksForMonth($plan, $year, $month);
         } catch (\Exception $e) {
-            \Log::error("Failed to sync new tasks for plan {$plan->id} for {$year}-{$month}: " . $e->getMessage());
+            \Log::error("Failed to sync new tasks for plan {$plan->id} for {$year}-{$month}: ".$e->getMessage());
         }
 
         $plan->load(['tasks' => function ($query) use ($year, $month) {
             $query->where('plan_tasks.year', $year)
-                  ->where('plan_tasks.month', $month)
-                  ->orderBy('plan_tasks.week')
-                  ->orderBy('plan_tasks.created_at');
+                ->where('plan_tasks.month', $month)
+                ->orderBy('plan_tasks.week')
+                ->orderBy('plan_tasks.created_at');
         }]);
 
         return response()->json([
@@ -210,19 +212,19 @@ class PlanController extends Controller
     {
         $planTask = PlanTask::with(['task', 'plan'])->find($planTaskId);
 
-        if (!$planTask || !$planTask->plan || $planTask->plan->user_id !== Auth::id()) {
+        if (! $planTask || ! $planTask->plan || $planTask->plan->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Task not found'
+                'message' => 'Task not found',
             ], 404);
         }
 
         $task = $planTask->task;
 
-        if (!$task) {
+        if (! $task) {
             return response()->json([
                 'success' => false,
-                'message' => 'Task not found'
+                'message' => 'Task not found',
             ], 404);
         }
 
@@ -246,6 +248,7 @@ class PlanController extends Controller
                 'frequency' => $task->frequency,
                 'category' => $task->category,
                 'language' => $task->language,
+                ...app(WorksheetService::class)->documentPresentation($task),
             ],
         ]);
     }
@@ -261,7 +264,7 @@ class PlanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -270,7 +273,7 @@ class PlanController extends Controller
         if ($plan->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied'
+                'message' => 'Access denied',
             ], 403);
         }
 
@@ -278,10 +281,10 @@ class PlanController extends Controller
             ->where('plan_id', $plan->id)
             ->first();
 
-        if (!$planTask) {
+        if (! $planTask) {
             return response()->json([
                 'success' => false,
-                'message' => 'Task not found in plan'
+                'message' => 'Task not found in plan',
             ], 404);
         }
 
@@ -291,7 +294,7 @@ class PlanController extends Controller
             $completed = $request->boolean('completed');
             $updateData['completed'] = $completed;
 
-            if ($completed && !$planTask->completed) {
+            if ($completed && ! $planTask->completed) {
                 $updateData['last_completed_at'] = now();
             }
         }
@@ -300,7 +303,7 @@ class PlanController extends Controller
             $updateData['notes'] = $request->notes;
         }
 
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             $planTask->update($updateData);
             $planTask->refresh();
         }
@@ -327,7 +330,7 @@ class PlanController extends Controller
 
         return response()->json([
             'success' => true,
-            'plans' => $plans
+            'plans' => $plans,
         ]);
     }
 
@@ -338,28 +341,29 @@ class PlanController extends Controller
             ->get();
 
         if ($userPlans->isEmpty()) {
-            $now = \Carbon\Carbon::now();
+            $now = Carbon::now();
+
             return response()->json([
                 'success' => true,
                 'months' => [[
                     'year' => $now->year,
                     'month' => $now->month,
-                ]]
+                ]],
             ]);
         }
 
         $firstPlan = $userPlans->first();
-        $planCreatedAt = \Carbon\Carbon::parse($firstPlan->created_at);
+        $planCreatedAt = Carbon::parse($firstPlan->created_at);
         $planStartYear = $planCreatedAt->year;
         $planStartMonth = $planCreatedAt->month;
 
-        $now = \Carbon\Carbon::now();
+        $now = Carbon::now();
         $currentYear = $now->year;
         $currentMonth = $now->month;
 
         $months = [];
-        $startDate = \Carbon\Carbon::create($planStartYear, $planStartMonth, 1)->startOfMonth();
-        $endDate = \Carbon\Carbon::create($currentYear, $currentMonth, 1)->startOfMonth();
+        $startDate = Carbon::create($planStartYear, $planStartMonth, 1)->startOfMonth();
+        $endDate = Carbon::create($currentYear, $currentMonth, 1)->startOfMonth();
 
         $current = $startDate->copy();
         while ($current->lte($endDate)) {
@@ -374,13 +378,13 @@ class PlanController extends Controller
 
         return response()->json([
             'success' => true,
-            'months' => $months
+            'months' => $months,
         ]);
     }
 
     public function generateMonth(Request $request): JsonResponse
     {
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'year' => 'required|integer|min:2020|max:2100',
             'month' => 'required|integer|min:1|max:12',
         ]);
@@ -389,7 +393,7 @@ class PlanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -401,36 +405,36 @@ class PlanController extends Controller
         if ($plans->isEmpty()) {
             return response()->json([
                 'success' => false,
-                'message' => 'No plans found'
+                'message' => 'No plans found',
             ], 404);
         }
 
         $generated = [];
         foreach ($plans as $plan) {
-            $hasTasks = \App\Models\PlanTask::where('plan_id', $plan->id)
+            $hasTasks = PlanTask::where('plan_id', $plan->id)
                 ->where('year', $year)
                 ->where('month', $month)
                 ->exists();
 
-            if (!$hasTasks) {
+            if (! $hasTasks) {
                 try {
                     $this->planGenerator->generatePlanForMonth($plan, $year, $month);
-                    $taskCount = \App\Models\PlanTask::where('plan_id', $plan->id)
+                    $taskCount = PlanTask::where('plan_id', $plan->id)
                         ->where('year', $year)
                         ->where('month', $month)
                         ->count();
                     $generated[] = [
                         'plan_id' => $plan->id,
-                        'tasks_created' => $taskCount
+                        'tasks_created' => $taskCount,
                     ];
                 } catch (\Exception $e) {
-                    \Log::error("Failed to generate tasks for plan {$plan->id}: " . $e->getMessage());
+                    \Log::error("Failed to generate tasks for plan {$plan->id}: ".$e->getMessage());
                 }
             } else {
                 $generated[] = [
                     'plan_id' => $plan->id,
                     'tasks_created' => 0,
-                    'message' => 'Tasks already exist for this month'
+                    'message' => 'Tasks already exist for this month',
                 ];
             }
         }
@@ -440,7 +444,7 @@ class PlanController extends Controller
             'message' => 'Tasks generated successfully',
             'year' => $year,
             'month' => $month,
-            'plans' => $generated
+            'plans' => $generated,
         ]);
     }
 }

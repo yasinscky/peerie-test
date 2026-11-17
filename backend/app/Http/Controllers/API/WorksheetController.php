@@ -13,14 +13,12 @@ use Illuminate\Support\Facades\Validator;
 
 class WorksheetController extends Controller
 {
-    public function __construct(private WorksheetService $worksheets)
-    {
-    }
+    public function __construct(private WorksheetService $worksheets) {}
 
     public function index(): JsonResponse
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'User is not authenticated'], 401);
         }
 
@@ -34,19 +32,17 @@ class WorksheetController extends Controller
     public function show(string $kind): JsonResponse
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'User is not authenticated'], 401);
         }
 
         $kind = $this->resolveKind($kind);
-        if (!$kind) {
+        if (! $kind) {
             return response()->json(['success' => false, 'message' => 'Unknown worksheet'], 404);
         }
 
         $planTask = $this->worksheets->findPlanTask($user, $kind);
-        $document = $planTask
-            ? $this->worksheets->documentFromNotes($kind, $planTask->notes)
-            : $this->worksheets->emptyDocument($kind);
+        $document = $this->worksheets->combinedDocument($user, $kind);
 
         return response()->json([
             'success' => true,
@@ -58,6 +54,7 @@ class WorksheetController extends Controller
             'plan_id' => $planTask?->plan_id,
             'plan_task_id' => $planTask?->id,
             'task_title' => $planTask?->task?->title,
+            'document_title' => $planTask?->task?->document_short_label,
             'schema' => $this->worksheets->frontendSchema($kind, $user->language ?? 'en'),
         ]);
     }
@@ -65,12 +62,12 @@ class WorksheetController extends Controller
     public function update(Request $request, string $kind): JsonResponse
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'User is not authenticated'], 401);
         }
 
         $kind = $this->resolveKind($kind);
-        if (!$kind) {
+        if (! $kind) {
             return response()->json(['success' => false, 'message' => 'Unknown worksheet'], 404);
         }
 
@@ -83,6 +80,11 @@ class WorksheetController extends Controller
             'categories' => 'nullable|array',
             'categories.*' => 'nullable|array',
             'categories.*.*' => 'nullable|string|max:2000',
+            'sections' => 'nullable|array',
+            'sections.*.plan_task_id' => 'required|integer',
+            'sections.*.rows' => 'nullable|array',
+            'sections.*.rows.*' => 'nullable|array',
+            'sections.*.rows.*.*' => 'nullable|string|max:2000',
         ]);
 
         if ($validator->fails()) {
@@ -94,14 +96,17 @@ class WorksheetController extends Controller
         }
 
         $planTask = $this->worksheets->findPlanTask($user, $kind);
-        if (!$planTask) {
+        if (! $planTask) {
             return response()->json([
                 'success' => false,
                 'message' => 'Related task was not found in your plan',
             ], 404);
         }
 
-        $document = $this->worksheets->saveDocument($planTask, $kind, $request->all());
+        $sections = $request->input('sections');
+        $document = is_array($sections) && $sections !== []
+            ? $this->worksheets->saveSections($user, $kind, $sections)
+            : $this->worksheets->saveDocument($planTask, $kind, $request->all());
 
         return response()->json([
             'success' => true,
@@ -117,24 +122,22 @@ class WorksheetController extends Controller
     public function export(Request $request, string $kind): Response|JsonResponse
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['success' => false, 'message' => 'User is not authenticated'], 401);
         }
 
         $kind = $this->resolveKind($kind);
-        if (!$kind) {
+        if (! $kind) {
             return response()->json(['success' => false, 'message' => 'Unknown worksheet'], 404);
         }
 
         $format = strtolower((string) $request->query('format', 'pdf'));
-        if (!in_array($format, ['pdf', 'docx'], true)) {
+        if (! in_array($format, ['pdf', 'docx'], true)) {
             return response()->json(['success' => false, 'message' => 'Unsupported format'], 422);
         }
 
         $planTask = $this->worksheets->findPlanTask($user, $kind);
-        $document = $planTask
-            ? $this->worksheets->documentFromNotes($kind, $planTask->notes)
-            : $this->worksheets->emptyDocument($kind);
+        $document = $this->worksheets->combinedDocument($user, $kind);
 
         $language = $user->language ?? 'en';
         $filename = $this->worksheets->filename($kind);
@@ -159,7 +162,7 @@ class WorksheetController extends Controller
     private function resolveKind(string $kind): ?string
     {
         $normalized = str_replace('-', '_', $kind);
-        if (WorksheetRegistry::get($normalized) || $this->worksheets->hasKind($normalized)) {
+        if ((WorksheetRegistry::get($normalized) || $this->worksheets->hasKind($normalized)) && $this->worksheets->acceptsInput($normalized)) {
             return $normalized;
         }
 

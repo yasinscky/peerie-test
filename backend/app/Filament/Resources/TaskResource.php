@@ -25,6 +25,23 @@ class TaskResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Tasks';
 
+    public static function categoryOptions(): array
+    {
+        return [
+            'Goals' => 'Goals',
+            'Marketing Foundations' => 'Marketing Foundations',
+            'Digital Marketing Foundations' => 'Digital Marketing Foundations',
+            'Local SEO' => 'Local SEO',
+            'Content' => 'Content',
+            'Social Media' => 'Social Media',
+            'Website' => 'Website',
+            'Email Marketing' => 'Email Marketing',
+            'Paid Advertising' => 'Paid Advertising',
+            'Leads & Clients' => 'Leads & Clients',
+            'CRM' => 'CRM',
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -43,17 +60,7 @@ class TaskResource extends Resource
 
                 Forms\Components\Select::make('category')
                     ->label('3. Category')
-                    ->options([
-                        'Goals' => 'Goals',
-                        'Digital Marketing Foundations' => 'Digital Marketing Foundations',
-                        'Local SEO' => 'Local SEO',
-                        'Content' => 'Content',
-                        'Social Media' => 'Social Media',
-                        'Website' => 'Website',
-                        'Email Marketing' => 'Email Marketing',
-                        'Paid Advertising' => 'Paid Advertising',
-                        'CRM' => 'CRM',
-                    ])
+                    ->options(self::categoryOptions())
                     ->required(),
 
                 Forms\Components\TextInput::make('title')
@@ -75,19 +82,7 @@ class TaskResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('condition')
                                     ->label('Condition')
-                                    ->options([
-                                        'business_goals_defined' => 'Business goals defined',
-                                        'marketing_goals_defined' => 'Marketing goals defined',
-                                        'google_business_claimed' => 'Google Business Profile claimed & filled out',
-                                        'core_directories_claimed' => 'Apple Business and Bing Places',
-                                        'industry_directories_claimed' => 'Industry directories claimed',
-                                        'business_directories_claimed' => 'Business directories claimed',
-                                        'has_website' => 'Website in place',
-                                        'email_marketing_tool' => 'Email marketing tool in place',
-                                        'crm_pipeline' => 'CRM or simple pipeline to track leads',
-                                        'has_primary_social_channel' => 'Primary social media channel',
-                                        'has_secondary_social_channel' => 'Secondary social media channel',
-                                    ])
+                                    ->options(Task::prerequisiteConditions())
                                     ->required()
                                     ->searchable(),
                                 Forms\Components\Select::make('value')
@@ -111,19 +106,7 @@ class TaskResource extends Resource
                                     return 'New prerequisite';
                                 }
 
-                                $conditionLabels = [
-                                    'business_goals_defined' => 'Business goals defined',
-                                    'marketing_goals_defined' => 'Marketing goals defined',
-                                    'google_business_claimed' => 'Google Business Profile',
-                                    'core_directories_claimed' => 'Apple Business and Bing Places',
-                                    'industry_directories_claimed' => 'Industry directories',
-                                    'business_directories_claimed' => 'Business directories',
-                                    'has_website' => 'Website in place',
-                                    'email_marketing_tool' => 'Email marketing tool',
-                                    'crm_pipeline' => 'CRM pipeline',
-                                    'has_primary_social_channel' => 'Primary social channel',
-                                    'has_secondary_social_channel' => 'Secondary social channel',
-                                ];
+                                $conditionLabels = Task::prerequisiteConditions();
 
                                 $label = $conditionLabels[$condition] ?? $condition;
                                 $valueLabel = $value === 'no' ? 'No (when answer is No)' : 'Yes (when answer is Yes)';
@@ -146,6 +129,29 @@ class TaskResource extends Resource
                         'yearly' => 'Yearly',
                     ])
                     ->required(),
+
+                Forms\Components\Select::make('preferred_week')
+                    ->label('Preferred week of the month')
+                    ->options([
+                        1 => 'Week 1',
+                        2 => 'Week 2',
+                        3 => 'Week 3',
+                        4 => 'Week 4',
+                    ])
+                    ->placeholder('Not set')
+                    ->native(false)
+                    ->helperText('Week slot used when this task is added to a month.'),
+
+                Forms\Components\TextInput::make('eligibility_delay_months')
+                    ->label('First eligible after (months)')
+                    ->numeric()
+                    ->minValue(1)
+                    ->helperText('Task stays out of the plan until this many months after the listed actions are completed.'),
+
+                Forms\Components\TagsInput::make('eligibility_after_action_ids')
+                    ->label('First eligible after actions')
+                    ->placeholder('AD-010')
+                    ->helperText('Action IDs such as AD-010 or CRM-20. All of them must be completed first.'),
 
                 Forms\Components\Select::make('target_countries')
                     ->label('8. Country')
@@ -232,10 +238,7 @@ class TaskResource extends Resource
                             ->helperText('Slug, e.g. competitor-map. Leave empty to match an existing template by title.'),
                         Forms\Components\Select::make('document_group')
                             ->label('Documents group')
-                            ->options([
-                                'brand' => 'Brand',
-                                'planning' => 'Planning',
-                            ])
+                            ->options(Task::documentGroups())
                             ->native(false),
                         Forms\Components\Select::make('document_layout')
                             ->label('Layout')
@@ -253,6 +256,16 @@ class TaskResource extends Resource
                         Forms\Components\Textarea::make('document_description')
                             ->label('Document description')
                             ->rows(2)
+                            ->columnSpanFull(),
+                        Forms\Components\FileUpload::make('document_image')
+                            ->label('Cover image')
+                            ->image()
+                            ->acceptedFileTypes(['image/webp', 'image/png', 'image/jpeg'])
+                            ->disk('document_covers')
+                            ->visibility('public')
+                            ->imagePreviewHeight('160')
+                            ->maxSize(4096)
+                            ->helperText('WebP, 3:2. Saved on every task with the same document key.')
                             ->columnSpanFull(),
                         Forms\Components\Repeater::make('document_fields')
                             ->label('Input fields')
@@ -317,15 +330,15 @@ class TaskResource extends Resource
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         $trimmed = trim($search);
 
-                        if (preg_match('/^(G|F|SEO|CON|SM|WEB|EM|PA|CRM)[-\s]?0*(\d+)$/i', $trimmed, $matches)) {
-                            $category = Task::categoryFromActionIdPrefix($matches[1]);
+                        if (preg_match('/^(G|F|SEO|CON|SM|WEB|EM|PA|AD|CRM)[-\s]?0*(\d+)$/i', $trimmed, $matches)) {
+                            $categories = Task::categoriesForActionPrefix($matches[1]);
                             $number = (int) $matches[2];
 
-                            return $query->orWhere(function (Builder $actionQuery) use ($category, $number) {
+                            return $query->orWhere(function (Builder $actionQuery) use ($categories, $number) {
                                 $actionQuery->where('action_id', $number);
 
-                                if ($category !== null) {
-                                    $actionQuery->where('category', $category);
+                                if ($categories !== []) {
+                                    $actionQuery->whereIn('category', $categories);
                                 }
                             });
                         }
@@ -370,19 +383,7 @@ class TaskResource extends Resource
                             return '—';
                         }
 
-                        $conditionLabels = [
-                            'business_goals_defined' => 'Business goals',
-                            'marketing_goals_defined' => 'Marketing goals',
-                            'google_business_claimed' => 'Google Business',
-                            'core_directories_claimed' => 'Apple Business and Bing Places',
-                            'industry_directories_claimed' => 'Industry directories',
-                            'business_directories_claimed' => 'Business directories',
-                            'has_website' => 'Website',
-                            'email_marketing_tool' => 'Email tool',
-                            'crm_pipeline' => 'CRM',
-                            'has_primary_social_channel' => 'Primary social',
-                            'has_secondary_social_channel' => 'Secondary social',
-                        ];
+                        $conditionLabels = Task::prerequisiteConditions();
 
                         $conditions = [];
 
@@ -541,17 +542,7 @@ class TaskResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('category')
                     ->label('Category')
-                    ->options([
-                        'Goals' => 'Goals',
-                        'Digital Marketing Foundations' => 'Digital Marketing Foundations',
-                        'Local SEO' => 'Local SEO',
-                        'Content' => 'Content',
-                        'Social Media' => 'Social Media',
-                        'Website' => 'Website',
-                        'Email Marketing' => 'Email Marketing',
-                        'Paid Advertising' => 'Paid Advertising',
-                        'CRM' => 'CRM',
-                    ])
+                    ->options(self::categoryOptions())
                     ->multiple(),
                 Tables\Filters\SelectFilter::make('frequency')
                     ->label('Cadence')

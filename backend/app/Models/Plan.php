@@ -60,8 +60,8 @@ class Plan extends Model
     public function tasks()
     {
         return $this->belongsToMany(Task::class, 'plan_tasks')
-                    ->withPivot(['id', 'week', 'year', 'month', 'completed', 'notes', 'last_completed_at'])
-                    ->withTimestamps();
+            ->withPivot(['id', 'week', 'year', 'month', 'completed', 'notes', 'last_completed_at'])
+            ->withTimestamps();
     }
 
     public function getTotalTasksAttribute(): int
@@ -82,11 +82,11 @@ class Plan extends Model
     public function getPlanByWeeks()
     {
         $weeks = [];
-        
+
         for ($week = 1; $week <= 4; $week++) {
             $tasks = $this->tasksForWeek($week);
             $totalMinutes = $tasks->sum(function ($task) {
-                if (!is_null($task->duration_minutes)) {
+                if (! is_null($task->duration_minutes)) {
                     return (int) $task->duration_minutes;
                 }
 
@@ -113,7 +113,8 @@ class Plan extends Model
 
         $categoryMapping = [
             'Goals' => 'Goals',
-            'Digital Marketing Foundations' => 'Digital Marketing Foundations',
+            'Digital Marketing Foundations' => 'Marketing Foundations',
+            'Marketing Foundations' => 'Marketing Foundations',
             'Local SEO' => 'Local SEO',
             'Content' => 'Content',
             'Social Media' => 'Social Media',
@@ -121,19 +122,20 @@ class Plan extends Model
             'Email Marketing' => 'Email Marketing',
             'Paid Ads' => 'Paid Advertising',
             'Paid Advertising' => 'Paid Advertising',
-            'CRM' => 'CRM',
+            'CRM' => 'Leads & Clients',
+            'Leads & Clients' => 'Leads & Clients',
         ];
 
         $desiredOrder = [
             'Goals',
-            'Digital Marketing Foundations',
+            'Marketing Foundations',
             'Local SEO',
             'Content',
             'Social Media',
             'Website',
             'Email Marketing',
             'Paid Advertising',
-            'CRM',
+            'Leads & Clients',
         ];
 
         $categories = [];
@@ -148,7 +150,7 @@ class Plan extends Model
                 continue;
             }
 
-            if (!array_key_exists($mappedCategory, $categories)) {
+            if (! array_key_exists($mappedCategory, $categories)) {
                 $categories[$mappedCategory] = [
                     'name' => $mappedCategory,
                     'tasks' => [],
@@ -158,7 +160,7 @@ class Plan extends Model
             }
 
             $categories[$mappedCategory]['tasks'][] = $task;
-            $categories[$mappedCategory]['totalMinutes'] += $this->getTaskEffectiveDurationMinutes($task);
+            $categories[$mappedCategory]['totalMinutes'] += $this->taskOccurrenceMinutes($task);
 
             if ($task->pivot && $task->pivot->completed) {
                 $categories[$mappedCategory]['completed']++;
@@ -214,7 +216,7 @@ class Plan extends Model
     {
         $data = $this->questionnaire_data;
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return null;
         }
 
@@ -233,43 +235,43 @@ class Plan extends Model
         ];
 
         if (isset($data['country'])) {
-            $parts[] = 'Country: ' . ($countryLabels[$data['country']] ?? strtoupper((string) $data['country']));
+            $parts[] = 'Country: '.($countryLabels[$data['country']] ?? strtoupper((string) $data['country']));
         }
 
         if (isset($data['industry'])) {
-            $parts[] = 'Industry: ' . ($industryLabels[$data['industry']] ?? (string) $data['industry']);
+            $parts[] = 'Industry: '.($industryLabels[$data['industry']] ?? (string) $data['industry']);
         }
 
         if (isset($data['is_local_business'])) {
-            $parts[] = 'Local business: ' . ($data['is_local_business'] ? 'Yes' : 'No');
+            $parts[] = 'Local business: '.($data['is_local_business'] ? 'Yes' : 'No');
         }
 
         if (isset($data['marketing_time_per_week'])) {
-            $parts[] = 'Time per week: ' . $data['marketing_time_per_week'] . 'h';
+            $parts[] = 'Time per week: '.$data['marketing_time_per_week'].'h';
         }
 
         if (isset($data['has_website'])) {
-            $parts[] = 'Website: ' . ($data['has_website'] ? 'Yes' : 'No');
+            $parts[] = 'Website: '.($data['has_website'] ? 'Yes' : 'No');
         }
 
         if (isset($data['business_goals_defined'])) {
-            $parts[] = 'Business goals: ' . ($data['business_goals_defined'] ? 'Defined' : 'Not defined');
+            $parts[] = 'Business goals: '.($data['business_goals_defined'] ? 'Defined' : 'Not defined');
         }
 
         if (isset($data['marketing_goals_defined'])) {
-            $parts[] = 'Marketing goals: ' . ($data['marketing_goals_defined'] ? 'Defined' : 'Not defined');
+            $parts[] = 'Marketing goals: '.($data['marketing_goals_defined'] ? 'Defined' : 'Not defined');
         }
 
         if (isset($data['running_ads']) && is_array($data['running_ads']) && count($data['running_ads']) > 0) {
-            $parts[] = 'Ads: ' . implode(', ', $data['running_ads']);
+            $parts[] = 'Ads: '.implode(', ', $data['running_ads']);
         }
 
         if (isset($data['primary_social_channel'])) {
-            $parts[] = 'Primary social: ' . $data['primary_social_channel'];
+            $parts[] = 'Primary social: '.$data['primary_social_channel'];
         }
 
         if (isset($data['secondary_social_channel'])) {
-            $parts[] = 'Secondary social: ' . $data['secondary_social_channel'];
+            $parts[] = 'Secondary social: '.$data['secondary_social_channel'];
         }
 
         if (count($parts) === 0) {
@@ -279,24 +281,16 @@ class Plan extends Model
         return implode(' • ', $parts);
     }
 
-    private function getTaskEffectiveDurationMinutes($task): int
+    private function taskOccurrenceMinutes($task): int
     {
-        $taskMinutes = (int) ($task->duration_minutes ?? 60);
-        $frequency = $this->normalizeFrequency($task->frequency);
-
-        if ($frequency === 'weekly') {
-            return $taskMinutes * 4;
+        if ($task->duration_minutes !== null && $task->duration_minutes !== '') {
+            return (int) $task->duration_minutes;
         }
 
-        if ($frequency === 'bi_weekly') {
-            return $taskMinutes * 2;
+        if ($task->duration_hours !== null && $task->duration_hours !== '') {
+            return (int) $task->duration_hours * 60;
         }
 
-        return $taskMinutes;
-    }
-
-    private function normalizeFrequency(?string $frequency): string
-    {
-        return $frequency ?? 'once';
+        return 60;
     }
 }

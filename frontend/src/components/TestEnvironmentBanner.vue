@@ -53,7 +53,7 @@ const texts = computed(() => {
       title: 'Willkommen in deinem Peerie-Testbereich!',
       paragraphs: [
         'Dies ist eine Testumgebung – Design und Layout sind noch nicht final.',
-        'Am wichtigsten ist jetzt, dass du deinen Marketingplan wirklich benutzt: klicke dich durch die Schritte, probiere die Aufgaben aus und schaue, wie gut sie in deine Woche passen.',
+        'Am wichtigsten ist jetzt, dass du deine Action Steps wirklich benutzt: klicke dich durch die Schritte, probiere die Aufgaben aus und schaue, wie gut sie in deine Woche passen.',
         'Während der Testphase werden wir nach und nach neue Funktionen hinzufügen und Dinge verbessern.',
         'Wenn dir ein Fehler auffällt, etwas unklar ist oder du Hilfe brauchst, melde dich gern in der Peerie Community auf Discord.',
         'Danke, dass du uns hilfst, Peerie noch besser zu machen!'
@@ -65,7 +65,7 @@ const texts = computed(() => {
     title: 'Welcome to your Peerie test space!',
     paragraphs: [
       'This is an early test environment, so the design and layout are not final yet.',
-      'For now, the most important thing is that you use your marketing plan: click through the steps, try the tasks, and see how it fits into your real week.',
+      'For now, the most important thing is that you use your action steps: click through the steps, try the tasks, and see how it fits into your real week.',
       'We’ll keep adding and tweaking features throughout the test period, so you might notice new things popping up as you go.',
       'If you spot a bug, something feels confusing, or you just need a hand, you can get help and share feedback in the Peerie Community on Discord.',
       'Thanks for helping us make Peerie better!'

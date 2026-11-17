@@ -25,6 +25,11 @@ export default defineConfig({
         target: 'http://nginx',
         changeOrigin: true,
         secure: false,
+      },
+      '/document-covers': {
+        target: 'http://nginx',
+        changeOrigin: true,
+        secure: false,
       }
     }
   },

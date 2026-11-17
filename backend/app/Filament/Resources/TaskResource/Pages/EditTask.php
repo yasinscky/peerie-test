@@ -4,6 +4,7 @@ namespace App\Filament\Resources\TaskResource\Pages;
 
 use App\Filament\Resources\TaskResource;
 use App\Models\Task;
+use App\Services\NotionInstructionHtml;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -48,7 +49,7 @@ class EditTask extends EditRecord
             $data['template'] = 'no';
         }
 
-        return $data;
+        return $this->normalizeInstruction($data);
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
@@ -103,6 +104,20 @@ class EditTask extends EditRecord
             $data['prerequisites'] = [];
         }
 
-        return Task::normalizeDocumentPayload($data);
+        return $this->normalizeInstruction(Task::normalizeDocumentPayload(Task::normalizeSchedulingPayload($data)));
+    }
+
+    protected function afterSave(): void
+    {
+        $this->record->syncDocumentCover();
+    }
+
+    private function normalizeInstruction(array $data): array
+    {
+        if (isset($data['description']) && is_string($data['description']) && $data['description'] !== '') {
+            $data['description'] = app(NotionInstructionHtml::class)->repairTables($data['description']);
+        }
+
+        return $data;
     }
 }

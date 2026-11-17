@@ -1,10 +1,10 @@
 <template>
-  <div class="max-w-[1050px]">
+  <div class="max-w-[1440px] mx-auto">
     <div class="mb-8">
       <h1 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">
         {{ texts.headerTitle }}
       </h1>
-      <p class="mt-3 text-[14px] text-[#9e9e9e] tracking-[-0.7px] max-w-[760px] leading-snug">
+      <p class="mt-3 text-[14px] text-purple/70 tracking-[-0.7px] max-w-[760px] leading-snug">
         {{ texts.intro }}
       </p>
     </div>
@@ -16,21 +16,21 @@
       </svg>
     </div>
 
-    <div v-else-if="error" class="bg-[#eaeaea] rounded-[20px] p-8">
+    <div v-else-if="error" class="bg-white rounded-[30px] shadow-card p-8">
       <p class="text-red">{{ error }}</p>
     </div>
 
     <div v-else class="space-y-5">
-      <section class="bg-[#d7d7d7] rounded-[24px] px-8 py-7">
+      <section class="bg-white rounded-[30px] shadow-card px-5 py-6 md:px-8 md:py-7">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
           <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none">
             {{ texts.libraryTitle }}
           </h2>
-          <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-black">
+          <p class="text-[12px] font-bold uppercase tracking-[-0.6px] text-purple">
             {{ documents.length }} {{ texts.documentsTotal }}
           </p>
         </div>
-        <div class="flex h-[10px] rounded-[6px] overflow-hidden">
+        <div class="flex h-[10px] rounded-[6px] overflow-hidden bg-light-grey">
           <div
             v-for="item in statusBar"
             :key="item.id"
@@ -45,23 +45,23 @@
             :key="`legend-${item.id}`"
             class="flex items-center gap-2"
           >
-            <span class="size-3 rounded-[4px] shrink-0" :class="item.dotClass" />
+            <span class="size-2.5 rounded-full shrink-0" :class="item.dotClass" />
             <span class="text-[20px] font-bold tracking-[-1px] text-black leading-none">{{ item.count }}</span>
-            <span class="text-[14px] font-medium tracking-[-0.7px] text-black">{{ item.label }}</span>
+            <span class="text-[14px] font-medium tracking-[-0.7px] text-purple">{{ item.label }}</span>
           </div>
         </div>
       </section>
 
-      <section v-if="refreshItems.length" class="bg-[#eaeaea] rounded-[20px] px-4 py-7 md:px-8">
+      <section v-if="refreshItems.length" class="bg-white rounded-[30px] shadow-card px-4 py-6 md:px-8 md:py-7">
         <div class="flex items-start gap-3">
-          <span class="w-[26px] h-[26px] rounded-[6px] bg-[#d7d7d7] flex items-center justify-center shrink-0">
-            <img :src="iconRefresh" alt="" class="w-[18px] h-[18px]">
+          <span class="w-9 h-9 rounded-[12px] bg-yellow flex items-center justify-center shrink-0">
+            <img :src="iconRefresh" alt="" class="w-4 h-4">
           </span>
           <div class="min-w-0">
             <h2 class="text-[24px] md:text-[32px] font-bold tracking-[-1.6px] text-black leading-none">
               {{ texts.refreshTitle }}
             </h2>
-            <p class="mt-2 text-[14px] text-[#9e9e9e] tracking-[-0.7px] max-w-[720px]">
+            <p class="mt-2 text-[14px] text-purple/70 tracking-[-0.7px] max-w-[720px]">
               {{ texts.refreshIntro }}
             </p>
           </div>
@@ -70,17 +70,21 @@
           <article
             v-for="item in refreshItems"
             :key="`refresh-${item.kind}`"
-            class="flex flex-wrap items-center justify-between gap-3 bg-[#f0f0f0] rounded-[16px] px-4 min-h-[85px] py-4"
+            class="flex flex-wrap items-center justify-between gap-3 bg-light-grey rounded-[16px] px-4 min-h-[85px] py-4"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <span class="w-[26px] h-[26px] rounded-[6px] bg-[#d7d7d7] flex items-center justify-center shrink-0">
-                <img :src="iconFor(item)" alt="" class="w-[18px] h-[18px]">
+              <span
+                class="flex items-center justify-center shrink-0 overflow-hidden"
+                :class="item.image ? 'w-[84px] h-14 rounded-[12px] bg-white' : ['w-8 h-8 rounded-[12px]', groupAccent(item.group)]"
+              >
+                <img v-if="item.image" :src="item.image" alt="" class="w-full h-full object-cover">
+                <img v-else :src="iconFor(item)" alt="" class="w-4 h-4">
               </span>
               <div class="min-w-0">
-                <h3 class="text-[20px] md:text-[24px] font-bold tracking-[-1.2px] text-black leading-none">
+                <h3 class="text-[18px] md:text-[20px] font-bold tracking-[-1px] text-black leading-none">
                   {{ item.title }}
                 </h3>
-                <p class="mt-2 text-[12px] font-bold uppercase tracking-[-0.6px] text-[#737373]">
+                <p class="mt-2 text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70">
                   {{ groupTitle(item.group) }}
                   <span class="mx-1.5 inline-block w-1.5 h-1.5 rounded-full bg-red align-middle" />
                   {{ updatedLabel(item, 'short') }}
@@ -89,7 +93,7 @@
             </div>
             <router-link
               :to="item.to"
-              class="shrink-0 h-[39px] px-4 rounded-[6px] bg-[#d7d7d7] text-[16px] md:text-[20px] tracking-[-1px] text-black hover:bg-rose flex items-center"
+              class="shrink-0 inline-flex items-center justify-center h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark"
             >
               {{ texts.reviewUpdate }}
             </router-link>
@@ -97,87 +101,102 @@
         </div>
       </section>
 
-      <div class="flex flex-wrap items-center gap-3">
-        <label class="flex items-center gap-3 h-[50px] w-full max-w-[311px] bg-[#f0f0f0] rounded-[16px] px-[19px]">
-          <img :src="iconSearch" alt="" class="w-5 h-5 shrink-0">
+      <div class="flex flex-wrap items-center gap-2">
+        <label class="flex items-center gap-2 h-[42px] min-w-[180px] flex-1 max-w-[280px] bg-white border border-rose rounded-[16px] px-4 shadow-card">
+          <svg class="w-4 h-4 shrink-0 text-red" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.6" />
+            <path d="M13.2 13.2L16.5 16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
           <input
             v-model="search"
             type="search"
             :placeholder="texts.search"
-            class="w-full bg-transparent text-[20px] tracking-[-1px] text-black outline-none placeholder:text-black/20"
+            class="w-full bg-transparent text-[16px] tracking-[-0.8px] text-black outline-none placeholder:text-purple/40"
           >
         </label>
-        <div class="flex flex-wrap gap-2 md:ml-auto">
-          <button
-            v-for="filter in filters"
-            :key="filter.id"
-            type="button"
-            class="h-[38px] px-4 rounded-[19px] text-[14px] font-bold uppercase tracking-[-0.7px] text-black"
-            :class="statusFilter === filter.id
-              ? 'bg-[#979797]'
-              : 'border-2 border-[#979797]'"
-            @click="statusFilter = filter.id"
-          >
-            {{ filter.label }}
-          </button>
-        </div>
+        <button
+          v-for="filter in filters"
+          :key="filter.id"
+          type="button"
+          class="h-[38px] px-4 rounded-[19px] text-[14px] font-bold uppercase tracking-[-0.7px] transition-colors"
+          :class="statusFilter === filter.id ? 'bg-red text-white shadow-red-sm' : 'bg-white border border-grey text-purple hover:bg-rose'"
+          @click="statusFilter = filter.id"
+        >
+          {{ filter.label }}
+        </button>
       </div>
 
       <section
         v-for="group in visibleGroups"
         :key="group.id"
-        class="bg-[#eaeaea] rounded-[20px] p-1.5"
+        class="bg-white rounded-[24px] shadow-card p-4 md:p-5"
       >
         <button
           type="button"
-          class="w-full flex items-center justify-between gap-3 text-left px-6 py-6"
+          class="w-full flex items-center gap-3 text-left"
           @click="toggleGroup(group.id)"
         >
-          <h2 class="text-[32px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">
+          <span
+            class="w-9 h-9 rounded-[12px] flex items-center justify-center shrink-0"
+            :class="groupAccent(group.id)"
+          >
+            <img :src="iconDocuments" alt="" class="w-4 h-4">
+          </span>
+          <h2 class="flex-1 text-[28px] md:text-[40px] font-bold tracking-[-2px] text-black leading-none">
             {{ group.title }}
           </h2>
           <span class="flex items-center gap-2 shrink-0">
-            <span class="text-[14px] text-[#9e9e9e] tracking-[-0.7px]">
+            <span class="text-[14px] text-purple/70 tracking-[-0.7px]">
               {{ group.upToDateCount }} {{ texts.of }} {{ group.items.length }} {{ texts.upToDate.toLowerCase() }}
             </span>
-            <img
-              :src="iconChevron"
-              alt=""
-              class="w-[18px] h-[18px] transition-transform"
+            <svg
+              class="w-5 h-5 shrink-0 text-purple transition-transform"
               :class="collapsed[group.id] ? '-rotate-90' : ''"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
             >
+              <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </span>
         </button>
 
-        <div v-if="!collapsed[group.id]" class="bg-white rounded-[20px] p-3 space-y-3">
+        <div v-if="!collapsed[group.id]" class="mt-4 space-y-2">
           <article
             v-for="item in group.items"
             :key="item.kind"
-            class="flex flex-wrap items-center justify-between gap-4 bg-[#f0f0f0] rounded-[16px] px-4 py-4 min-h-[108px]"
+            class="flex flex-wrap items-center justify-between gap-4 bg-light-grey rounded-[16px] px-4 py-4"
           >
-            <div class="flex items-start gap-[15px] min-w-0 flex-1">
-              <span class="w-[26px] h-[26px] rounded-[6px] bg-white border-2 border-[#d7d7d7] flex items-center justify-center shrink-0 mt-0.5">
-                <img :src="iconFor(item)" alt="" class="w-[18px] h-[18px]">
+            <div class="flex items-start gap-3 min-w-0 flex-1">
+              <span
+                class="flex items-center justify-center shrink-0 overflow-hidden"
+                :class="item.image ? 'w-[84px] h-14 rounded-[12px] bg-white' : ['w-8 h-8 rounded-[12px]', groupAccent(group.id)]"
+              >
+                <img v-if="item.image" :src="item.image" alt="" class="w-full h-full object-cover">
+                <img v-else :src="iconFor(item)" alt="" class="w-4 h-4">
               </span>
               <div class="min-w-0">
-                <h3 class="text-[20px] md:text-[24px] font-medium tracking-[-1.2px] text-black leading-none">
+                <h3 class="text-[18px] md:text-[20px] font-bold tracking-[-1px] text-black leading-none">
                   {{ item.title }}
                 </h3>
-                <p class="mt-2 text-[14px] text-[#9e9e9e] tracking-[-0.7px]">
+                <p class="mt-2 text-[14px] text-purple/70 tracking-[-0.7px]">
                   {{ item.description }}
                 </p>
-                <p class="mt-1 text-[14px] text-[#9e9e9e] tracking-[-0.7px]">
+                <p class="mt-1 text-[12px] font-bold uppercase tracking-[-0.6px] text-purple/70">
                   {{ updatedLabel(item) }}
                 </p>
               </div>
             </div>
             <div class="flex items-center gap-3 shrink-0">
-              <span class="h-5 px-2 rounded-[19px] border-2 border-[#979797] text-[12px] font-medium tracking-[-0.6px] text-[#737373] flex items-center whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-2 py-1 rounded-[7px] text-[14px] tracking-[-0.7px] whitespace-nowrap"
+                :class="statusClass(item.status)"
+              >
                 {{ statusLabel(item.status) }}
               </span>
               <router-link
                 :to="item.to"
-                class="h-[39px] px-4 rounded-[6px] bg-[#d7d7d7] text-[16px] md:text-[20px] tracking-[-1px] text-black hover:bg-rose flex items-center whitespace-nowrap"
+                class="inline-flex items-center justify-center h-[42px] px-5 rounded-[20px] bg-red shadow-red text-[16px] font-bold tracking-[-0.8px] text-white hover:bg-red-dark whitespace-nowrap"
               >
                 {{ actionLabel(item.status) }}
               </router-link>
@@ -186,8 +205,8 @@
         </div>
       </section>
 
-      <div v-if="!visibleGroups.length" class="bg-[#eaeaea] rounded-[20px] p-8">
-        <p class="text-[#9e9e9e]">{{ texts.noMatches }}</p>
+      <div v-if="!visibleGroups.length" class="bg-white rounded-[30px] shadow-card p-8 text-center">
+        <p class="text-purple/70">{{ texts.noMatches }}</p>
       </div>
     </div>
   </div>
@@ -198,10 +217,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
 import iconDocuments from '@/assets/images/icons/dashboard/v2/documents.svg'
-import iconPlanning from '@/assets/images/icons/dashboard/v2/document-planning.svg'
 import iconRefresh from '@/assets/images/icons/dashboard/v2/refresh.svg'
-import iconSearch from '@/assets/images/icons/dashboard/v2/search.svg'
-import iconChevron from '@/assets/images/icons/dashboard/v2/chevron.svg'
 import {
   documentStatus,
   getDocumentCatalog,
@@ -282,11 +298,34 @@ const filters = computed(() => [
 ])
 
 const statusMeta = {
-  up_to_date: { barClass: 'bg-[#468335]', dotClass: 'bg-[#468335]' },
-  draft: { barClass: 'bg-[#ea8f45]', dotClass: 'bg-[#ea8f45]' },
-  needs_review: { barClass: 'bg-[#f32d2d]', dotClass: 'bg-[#f32d2d]' },
-  not_started: { barClass: 'bg-[#a2a2a2]', dotClass: 'bg-[#a2a2a2]' },
+  up_to_date: { barClass: 'bg-green', dotClass: 'bg-green' },
+  draft: { barClass: 'bg-yellow', dotClass: 'bg-yellow' },
+  needs_review: { barClass: 'bg-red', dotClass: 'bg-red' },
+  not_started: { barClass: 'bg-grey', dotClass: 'bg-grey' },
 }
+
+const groupAccents = {
+  goals: 'bg-yellow',
+  'marketing-foundations': 'bg-cream',
+  'digital-marketing-foundations': 'bg-cream',
+  'local-seo': 'bg-mint',
+  content: 'bg-yellow',
+  'social-media': 'bg-[#ffd6de]',
+  website: 'bg-mint',
+  'email-marketing': 'bg-cream',
+  'paid-advertising': 'bg-[#ffd6de]',
+  'leads-clients': 'bg-yellow',
+  crm: 'bg-mint',
+}
+
+const groupAccent = (id) => groupAccents[id] || 'bg-yellow'
+
+const statusClass = (status) => ({
+  up_to_date: 'bg-green/20 text-green',
+  draft: 'bg-yellow text-black',
+  needs_review: 'bg-[#ffd6de] text-red',
+  not_started: 'bg-grey text-purple',
+}[status] || 'bg-grey text-purple')
 
 const documents = computed(() => {
   const catalog = mergeDocumentCatalog(getDocumentCatalog(languageStore.language), catalogExtra.value)
@@ -300,7 +339,7 @@ const documents = computed(() => {
       status,
       to: `/dashboard/documents/${meta.kind.replaceAll('_', '-')}`,
     }
-  })
+  }).filter((item) => item.plan_task_id)
 })
 
 const statusBar = computed(() => {
@@ -335,7 +374,7 @@ const filteredDocuments = computed(() => {
   })
 })
 
-const visibleGroups = computed(() => getDocumentGroups(languageStore.language)
+const visibleGroups = computed(() => getDocumentGroups()
   .map((group) => {
     const items = filteredDocuments.value.filter((item) => item.group === group.id)
     return {
@@ -346,9 +385,9 @@ const visibleGroups = computed(() => getDocumentGroups(languageStore.language)
   })
   .filter((group) => group.items.length > 0))
 
-const iconFor = (item) => (item.group === 'planning' ? iconPlanning : iconDocuments)
+const iconFor = () => iconDocuments
 
-const groupTitle = (groupId) => getDocumentGroups(languageStore.language).find((group) => group.id === groupId)?.title || ''
+const groupTitle = (groupId) => getDocumentGroups().find((group) => group.id === groupId)?.title || ''
 
 const statusLabel = (status) => ({
   not_started: texts.value.notStarted,

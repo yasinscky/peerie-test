@@ -69,7 +69,7 @@ class UserResource extends Resource
                             ->content(fn (User $record): ?string => $record->created_at?->format('d.m.Y H:i'))
                             ->hidden(fn (string $context): bool => $context === 'create'),
                         Forms\Components\Placeholder::make('plans_count')
-                            ->label('Plans count')
+                            ->label('Action steps')
                             ->content(fn (User $record): string => $record->plans()->count())
                             ->hidden(fn (string $context): bool => $context === 'create'),
                     ])
@@ -136,7 +136,7 @@ class UserResource extends Resource
                     })
                     ->badge(),
                 Tables\Columns\TextColumn::make('plans_count')
-                    ->label('Plans')
+                    ->label('Action steps')
                     ->counts('plans')
                     ->sortable()
                     ->badge()
@@ -151,7 +151,7 @@ class UserResource extends Resource
                     ->label('Email verified')
                     ->query(fn (Builder $query): Builder => $query->whereNotNull('email_verified_at')),
                 Tables\Filters\Filter::make('has_plans')
-                    ->label('Has plans')
+                    ->label('Has action steps')
                     ->query(fn (Builder $query): Builder => $query->has('plans')),
                 Tables\Filters\Filter::make('created_at')
                     ->label('Registration period')

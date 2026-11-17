@@ -109,6 +109,7 @@
           />
         </section>
         <WorksheetFields
+          v-if="showWorksheetOnTask"
           class="mb-5"
           :schema="worksheetSchema"
           :document="document"
@@ -169,7 +170,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useLanguageStore } from '@/stores/language'
-import { getTaskWorksheetKind, parseInstruction } from '@/composables/useInstruction'
+import { getTaskWorksheetKind, parseInstruction, stripAnswerTables } from '@/composables/useInstruction'
 import WorksheetFields from '@/components/WorksheetFields.vue'
 import {
   applyDocument,
@@ -190,6 +191,7 @@ const planId = ref(null)
 const completed = ref(false)
 const document = reactive(emptyWorksheetDocument('buyer_persona'))
 const stepNotes = reactive({})
+const tableAnswers = reactive({})
 const generalNotes = ref('')
 const isHydrated = ref(false)
 const isSaving = ref(false)
@@ -202,7 +204,38 @@ const worksheetSchema = computed(() => {
   if (task.value?.document_fields?.length) return schemaFromTask(task.value)
   return getWorksheetSchema(worksheetKind.value, languageStore.language)
 })
-const parsed = computed(() => parseInstruction(task.value?.description || ''))
+const instructionHtml = computed(() => {
+  const html = task.value?.description || ''
+  if (worksheetSchema.value.layout !== 'fields') return html
+  return stripAnswerTables(html)
+})
+const parsed = computed(() => parseInstruction(instructionHtml.value))
+const showWorksheetOnTask = computed(() => {
+  if (worksheetSchema.value.layout !== 'rows') return true
+  const labels = Object.values(worksheetSchema.value.labels || {})
+    .map((value) => String(value || '').trim().toLowerCase())
+    .filter(Boolean)
+  if (!labels.length) return true
+  const html = [
+    parsed.value.introHtml,
+    ...parsed.value.steps.map((step) => step.html),
+    parsed.value.outroHtml,
+  ].join('')
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const headerMatches = (header) => labels.some((label) => label === header || (header.length >= 8 && label.includes(header)))
+  const covered = [...doc.querySelectorAll('table')].some((table) => {
+    if (isExampleTable(table)) return false
+    const headers = table.rows[0]
+      ? [...table.rows[0].cells].map((cell) => cell.textContent.replace(/\u00a0/g, ' ').trim().toLowerCase()).filter(Boolean)
+      : []
+    if (headers.length < 2) return false
+    const matched = headers.filter(headerMatches).length
+    const sameSheet = labels.every((label) => headers.includes(label))
+    return sameSheet || (matched === headers.length && headers.length >= 4) || isPairSheet(table)
+  })
+  return !covered
+})
+
 const fieldSteps = computed(() => {
   const steps = new Set((worksheetSchema.value.fields || []).map((field) => field.step).filter(Boolean))
   return [...steps].sort((a, b) => a - b)
@@ -224,6 +257,7 @@ const texts = computed(() => {
       openTemplate: 'Vorlage öffnen',
       yourNotes: 'Deine Notizen',
       notesPlaceholder: 'Schreib deine Antworten hier…',
+      answerPlaceholder: 'Deine Antwort',
       addRow: 'Zeile hinzufügen',
       removeRow: 'Löschen',
       saving: 'Speichert…',
@@ -240,6 +274,7 @@ const texts = computed(() => {
     openTemplate: 'Open template',
     yourNotes: 'Your notes',
     notesPlaceholder: 'Write your answers here…',
+    answerPlaceholder: 'Your answer',
     addRow: 'Add row',
     removeRow: 'Remove',
     saving: 'Saving…',
@@ -316,7 +351,23 @@ const resetDocument = (kind) => {
   }
 }
 
+const tablesPayload = () => JSON.parse(JSON.stringify(tableAnswers))
+
+const resetTableAnswers = (incoming) => {
+  Object.keys(tableAnswers).forEach((key) => {
+    delete tableAnswers[key]
+  })
+  if (!incoming || typeof incoming !== 'object') return
+  Object.entries(incoming).forEach(([key, value]) => {
+    tableAnswers[key] = {
+      cells: { ...(value?.cells || {}) },
+      extraRows: Array.isArray(value?.extraRows) ? value.extraRows.map((row) => [...row]) : [],
+    }
+  })
+}
+
 const buildNotesPayload = () => {
+  const tables = tablesPayload()
   if (worksheetKind.value) {
     return JSON.stringify({
       type: worksheetKind.value,
@@ -325,6 +376,7 @@ const buildNotesPayload = () => {
       categories: Object.fromEntries(
         Object.entries(document.categories || {}).map(([key, items]) => [key, [...items]])
       ),
+      tables,
     })
   }
 
@@ -332,12 +384,14 @@ const buildNotesPayload = () => {
     return JSON.stringify({
       type: 'steps',
       steps: { ...stepNotes },
+      tables,
     })
   }
 
   return JSON.stringify({
     type: 'notes',
     text: generalNotes.value,
+    tables,
   })
 }
 
@@ -346,6 +400,7 @@ const hydrateNotes = (notes) => {
     delete stepNotes[key]
   })
   generalNotes.value = ''
+  resetTableAnswers(null)
 
   if (worksheetKind.value) {
     resetDocument(worksheetKind.value)
@@ -354,6 +409,7 @@ const hydrateNotes = (notes) => {
       const parsedNotes = JSON.parse(notes)
       if (parsedNotes && typeof parsedNotes === 'object') {
         applyDocument(document, parsedNotes, worksheetKind.value, worksheetSchema.value)
+        resetTableAnswers(parsedNotes.tables)
       }
     } catch {
       generalNotes.value = notes
@@ -366,6 +422,7 @@ const hydrateNotes = (notes) => {
   try {
     const parsedNotes = JSON.parse(notes)
     if (parsedNotes && typeof parsedNotes === 'object') {
+      resetTableAnswers(parsedNotes.tables)
       if (parsedNotes.steps && typeof parsedNotes.steps === 'object') {
         Object.entries(parsedNotes.steps).forEach(([key, value]) => {
           stepNotes[key] = value || ''
@@ -447,7 +504,7 @@ const goBack = () => {
   const query = {}
   if (route.query.year) query.year = route.query.year
   if (route.query.month) query.month = route.query.month
-  router.push({ path: '/dashboard/marketing-plans', query })
+  router.push({ path: '/dashboard/action-steps', query })
 }
 
 const fetchTask = async () => {
@@ -486,6 +543,201 @@ watch(stepNotes, () => {
 
 watch(generalNotes, () => {
   if (!worksheetKind.value) scheduleSave()
+})
+
+const ANSWER_HEADER = /^(your (?:answer|answers|input|plan|notes|hashtags|campaign)|dein(?:e)? (?:antwort|antworten|angaben|notizen|hashtags|kampagne)|dein plan|antwort)\s*:?$/i
+
+const fieldKeyForLabel = (label) => {
+  const needle = String(label || '').trim().toLowerCase()
+  if (!needle) return null
+  const labels = worksheetSchema.value.labels || {}
+  const match = Object.entries(labels).find(([, value]) => String(value || '').trim().toLowerCase() === needle)
+  return match ? match[0] : null
+}
+
+const ensureTable = (key) => {
+  if (!tableAnswers[key]) {
+    tableAnswers[key] = { cells: {}, extraRows: [] }
+  }
+  return tableAnswers[key]
+}
+
+const headerText = (cell) => String(cell?.textContent || '').replace(/\u00a0/g, ' ').replace('×', '').trim()
+
+const cellValue = (cell) => {
+  if (!cell) return ''
+  const input = cell.querySelector('input')
+  if (input) return input.value
+  return headerText(cell)
+}
+
+const columnKeys = (table) => [...table.rows[0].cells].map((cell) => fieldKeyForLabel(headerText(cell)))
+
+const isPairSheet = (table) => {
+  const rowKeys = worksheetSchema.value.rowKeys || []
+  const header = table.rows[0] ? [...table.rows[0].cells] : []
+  if (worksheetSchema.value.layout !== 'rows' || rowKeys.length !== 2 || header.length !== 2) return false
+  if (ANSWER_HEADER.test(headerText(header[1]))) return true
+  const body = [...table.rows].slice(1)
+  const secondBlank = body.length > 0 && body.every((row) => isPlaceholderCell(headerText(row.cells[1])))
+  const firstLabeled = body.some((row) => !isPlaceholderCell(headerText(row.cells[0])))
+  return secondBlank && firstLabeled
+}
+
+const resolvedColumnKeys = (table) => {
+  const mapped = columnKeys(table)
+  if (mapped.length > 1 && mapped.every(Boolean)) return mapped
+  if (isPairSheet(table)) return [...(worksheetSchema.value.rowKeys || [])]
+  return mapped
+}
+
+const canSyncRows = (table) => {
+  if (worksheetSchema.value.layout !== 'rows') return false
+  const keys = resolvedColumnKeys(table)
+  return keys.length > 1 && keys.every(Boolean)
+}
+
+const blankDocumentRow = () => {
+  const row = {}
+  ;(worksheetSchema.value.rowKeys || []).forEach((key) => {
+    row[key] = ''
+  })
+  return row
+}
+
+const pushRowsFromTable = (table) => {
+  if (!canSyncRows(table) || !Array.isArray(document.rows)) return
+  const keys = resolvedColumnKeys(table)
+  const next = []
+  ;[...table.rows].slice(1).forEach((row) => {
+    const item = {}
+    keys.forEach((key, index) => {
+      item[key] = cellValue(row.cells[index])
+    })
+    next.push(item)
+  })
+  while (next.length > 1 && keys.every((key) => !String(next[next.length - 1][key] || '').trim())) {
+    next.pop()
+  }
+  document.rows.splice(0, document.rows.length, ...(next.length ? next : [blankDocumentRow()]))
+}
+
+const storedRowValue = (table, row, column) => {
+  if (!canSyncRows(table)) return null
+  const keys = resolvedColumnKeys(table)
+  const label = cellValue(row.cells[0])
+  const match = (document.rows || []).find((item) => String(item[keys[0]] || '') === label)
+  if (!match || !keys[column]) return null
+  return match[keys[column]] || ''
+}
+
+const isPlaceholderCell = (text) => !text || /^(\[your answer\]|\[deine antwort\]|…|\.{3}|-|—)$/i.test(text)
+
+const isExampleTable = (table) => {
+  let sibling = table.previousElementSibling
+  let text = ''
+  while (sibling) {
+    text = sibling.textContent.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim()
+    if (text) break
+    sibling = sibling.previousElementSibling
+  }
+  if (/^(for example|zum beispiel|common examples|häufige beispiele)\b/i.test(text)) return true
+  return text.length > 0 && text.length <= 180 && /\b(for example|zum beispiel)\b/i.test(text)
+}
+
+const bindAnswerInput = (cell, value, onInput, placeholder = '') => {
+  const input = window.document.createElement('input')
+  input.type = 'text'
+  input.className = 'instruction-table-input'
+  input.placeholder = placeholder
+  input.value = value || ''
+  input.addEventListener('input', () => onInput(input.value))
+  cell.textContent = ''
+  cell.appendChild(input)
+  return input
+}
+
+const mountInstructionTables = () => {
+  const roots = window.document.querySelectorAll('.instruction-content')
+  let tableIndex = 0
+  roots.forEach((root) => {
+    root.querySelectorAll('table').forEach((table) => {
+      if (table.dataset.answersBound === '1') return
+      if (isExampleTable(table)) {
+        table.dataset.answersBound = '1'
+        return
+      }
+      const rows = [...table.rows]
+      if (rows.length < 2) return
+      const header = [...rows[0].cells]
+      const answerColumns = header
+        .map((cell, index) => ({ index, text: headerText(cell) }))
+        .filter((cell) => ANSWER_HEADER.test(cell.text))
+        .map((cell) => cell.index)
+      const editableColumns = header.map((_, column) => {
+        if (answerColumns.includes(column)) return true
+        const body = rows.slice(1)
+        return body.length > 0 && body.every((row) => isPlaceholderCell(headerText(row.cells[column])))
+      })
+      if (!editableColumns.some(Boolean)) return
+      const fillByIndex = editableColumns[0] && rows.slice(1).every((row) => isPlaceholderCell(headerText(row.cells[0])))
+
+      let heading = ''
+      let sibling = table.previousElementSibling
+      while (sibling) {
+        if (/^H[1-3]$/.test(sibling.tagName) && sibling.textContent.trim()) {
+          heading = sibling.textContent.trim()
+          break
+        }
+        sibling = sibling.previousElementSibling
+      }
+      const key = `${heading || 'table'}#${tableIndex}`
+      tableIndex += 1
+      const saved = ensureTable(key)
+      table.dataset.answersBound = '1'
+      table.dataset.answerKey = key
+
+      const writeCell = (row, column, rowIndex, value) => {
+        saved.cells[`${rowIndex}:${column}`] = value
+        const label = row.cells[0]?.querySelector('input')?.value || headerText(row.cells[0])
+        const fieldKey = fieldKeyForLabel(label)
+        if (fieldKey && document.fields && columnKeys(table).indexOf(fieldKey) === -1 && document.fields[fieldKey] !== value) {
+          document.fields[fieldKey] = value
+        }
+        pushRowsFromTable(table)
+        scheduleSave()
+      }
+
+      rows.slice(1).forEach((row, offset) => {
+        editableColumns.forEach((editable, column) => {
+          if (!editable) return
+          const cell = row.cells[column]
+          if (!cell || !isPlaceholderCell(headerText(cell))) return
+          const cellKey = `${offset}:${column}`
+          const keys = canSyncRows(table) ? columnKeys(table) : []
+          const fromIndex = fillByIndex && keys[column] ? (document.rows?.[offset]?.[keys[column]] || '') : null
+          const fromDocument = fromIndex === null ? storedRowValue(table, row, column) : fromIndex
+          const fieldKey = fieldKeyForLabel(headerText(row.cells[0]))
+          const fromCells = saved.cells && cellKey in saved.cells ? saved.cells[cellKey] : ''
+          const stored = fromDocument !== null && fromDocument !== ''
+            ? fromDocument
+            : (fromCells || (fromDocument ?? '') || (fieldKey ? document.fields?.[fieldKey] : ''))
+          const placeholder = answerColumns.includes(column)
+            ? texts.value.answerPlaceholder
+            : headerText(header[column])
+          bindAnswerInput(cell, stored, (value) => writeCell(row, column, offset, value), placeholder)
+        })
+      })
+
+      pushRowsFromTable(table)
+    })
+  })
+}
+
+watch(isHydrated, async (ready) => {
+  if (!ready) return
+  await nextTick()
+  mountInstructionTables()
 })
 
 watch(() => route.params.planTaskId, () => {
@@ -538,7 +790,8 @@ onUnmounted(() => {
 .instruction-content :deep(table) {
   width: 100%;
   border-collapse: collapse;
-  margin: 1rem 0;
+  table-layout: fixed;
+  margin: 1rem 0 0.5rem;
 }
 
 .instruction-content :deep(th),
@@ -546,12 +799,37 @@ onUnmounted(() => {
   border: 1px solid rgb(var(--color-grey));
   padding: 0.625rem 0.75rem;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
+  background: transparent;
 }
 
-.instruction-content :deep(th) {
+.instruction-content :deep(tr:first-child th),
+.instruction-content :deep(tr:first-child td) {
   background: rgb(var(--color-light-grey));
   font-weight: 700;
   color: rgb(var(--color-black));
+}
+
+.instruction-content :deep(.instruction-table-input) {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.25rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  padding: 0.25rem 0.625rem;
+  outline: none;
+  font: inherit;
+  color: rgb(var(--color-black));
+}
+
+.instruction-content :deep(.instruction-table-input::placeholder) {
+  color: rgb(var(--color-purple) / 0.45);
+}
+
+.instruction-content :deep(.instruction-table-input:placeholder-shown),
+.instruction-content :deep(.instruction-table-input:focus) {
+  background: rgb(var(--color-light-grey));
+  box-shadow: inset 0 0 0 1px rgb(var(--color-grey));
 }
 </style>

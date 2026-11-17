@@ -43,6 +43,14 @@ return [
             'upload_directory' => 'task-instructions',
             'custom_configs' => [
                 'language_url' => false,
+                'table_default_attributes' => [
+                    'border' => '1',
+                ],
+                'table_default_styles' => [
+                    'border-collapse' => 'collapse',
+                    'width' => '100%',
+                ],
+                'content_style' => 'table { border-collapse: collapse; width: 100%; } table td, table th { border: 1px solid #c5c5c5; padding: 8px 10px; vertical-align: middle; }',
             ],
         ],
     ],
